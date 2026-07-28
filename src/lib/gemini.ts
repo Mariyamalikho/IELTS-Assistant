@@ -1,7 +1,9 @@
 import { GoogleGenAI } from '@google/genai';
 
 const rawKeys = import.meta.env.VITE_GEMINI_API_KEYS || import.meta.env.VITE_GEMINI_API_KEY || '';
-const apiKeys = rawKeys.split(',').map((k: string) => k.trim()).filter(Boolean);
+// Extract any string that looks like a Gemini key (starts with AQ. and has no spaces)
+const extractedKeys = rawKeys.match(/AQ\.[A-Za-z0-9_-]+/g) || [];
+const apiKeys = extractedKeys.length > 0 ? extractedKeys : rawKeys.split(',').map((k: string) => k.trim()).filter(Boolean);
 
 if (apiKeys.length === 0) {
   console.warn("Missing Gemini API Key(s). AI features will not work.");
@@ -45,7 +47,7 @@ ${essay}
 
   try {
     const response = await getAI().models.generateContent({
-      model: 'gemini-flash-latest',
+      model: 'gemini-3.1-flash-lite',
       contents: userPrompt,
       config: {
         systemInstruction,
@@ -87,7 +89,7 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
 
   try {
     const response = await getAI().models.generateContent({
-      model: 'gemini-flash-latest',
+      model: 'gemini-3.1-flash-lite',
       contents: [
         {
           inlineData: {
@@ -121,7 +123,7 @@ export async function generateDailyVocabulary() {
   
   try {
     const response = await getAI().models.generateContent({
-      model: 'gemini-flash-latest',
+      model: 'gemini-3.1-flash-lite',
       contents: prompt,
       config: { responseMimeType: "application/json", temperature: 0.7 }
     });
@@ -160,7 +162,7 @@ export async function generateReadingPassage() {
   }`;
   
   const response = await getAI().models.generateContent({
-    model: 'gemini-flash-latest',
+    model: 'gemini-3.1-flash-lite',
     contents: prompt,
     config: { responseMimeType: "application/json", temperature: 0.7 }
   });
@@ -173,7 +175,7 @@ export async function generateSpeakingPrompt(part: 'part1' | 'part2') {
     : `Generate an IELTS Speaking Part 2 cue card. Return ONLY raw JSON: {"topic": "string", "bullets": ["string", "string", "string", "string"]}`;
   
   const response = await getAI().models.generateContent({
-    model: 'gemini-flash-latest',
+    model: 'gemini-3.1-flash-lite',
     contents: prompt,
     config: { responseMimeType: "application/json", temperature: 0.9 }
   });
@@ -192,7 +194,7 @@ export async function generateListeningTest() {
   }`;
   
   const response = await getAI().models.generateContent({
-    model: 'gemini-flash-latest',
+    model: 'gemini-3.1-flash-lite',
     contents: prompt,
     config: { responseMimeType: "application/json", temperature: 0.8 }
   });
@@ -211,7 +213,7 @@ export async function generateWritingPrompt(taskType: 'task1' | 'task2') {
     : `Generate an IELTS Academic Writing Task 2 essay prompt on a complex social, environmental, or technological issue. Return ONLY raw JSON in this format: {"prompt": "string"}`;
     
   const response = await getAI().models.generateContent({
-    model: 'gemini-flash-latest',
+    model: 'gemini-3.1-flash-lite',
     contents: prompt,
     config: { responseMimeType: "application/json", temperature: 0.8 }
   });
