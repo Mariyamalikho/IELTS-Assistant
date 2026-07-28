@@ -17,6 +17,26 @@ const getAI = () => {
   return new GoogleGenAI({ apiKey: key });
 };
 
+// Helper to track daily usage in localStorage
+function trackUsage() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const usageDate = localStorage.getItem('ielts_api_usage_date');
+    let count = parseInt(localStorage.getItem('ielts_api_usage_count') || '0', 10);
+    
+    if (usageDate !== today) {
+      count = 0;
+      localStorage.setItem('ielts_api_usage_date', today);
+    }
+    
+    count++;
+    localStorage.setItem('ielts_api_usage_count', count.toString());
+    window.dispatchEvent(new Event('api_usage_updated'));
+  } catch(e) {
+    // Ignore localStorage errors (e.g., SSR or strict privacy settings)
+  }
+}
+
 // Helper to safely parse AI JSON responses
 function parseAIJson(text: string | null | undefined) {
   if (!text) return {};
@@ -59,6 +79,7 @@ ${essay}
 `;
 
   try {
+    trackUsage();
     const response = await getAI().models.generateContent({
       model: 'gemini-3.1-flash-lite',
       contents: userPrompt,
@@ -97,6 +118,7 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
 `;
 
   try {
+    trackUsage();
     const response = await getAI().models.generateContent({
       model: 'gemini-3.1-flash-lite',
       contents: [
@@ -124,6 +146,7 @@ export async function generateDailyVocabulary() {
   Do NOT wrap in markdown.`;
   
   try {
+    trackUsage();
     const response = await getAI().models.generateContent({
       model: 'gemini-3.1-flash-lite',
       contents: prompt,
@@ -158,6 +181,7 @@ Return ONLY raw JSON in this exact format, with no markdown:
 }`;
   
   try {
+    trackUsage();
     const response = await getAI().models.generateContent({
       model: 'gemini-3.1-flash-lite',
       contents: prompt,
@@ -182,6 +206,7 @@ Provide the main prompt and exactly 4 bullet points.
 Return ONLY raw JSON: {"topic": "string", "bullets": ["string", "string", "string", "string"]}`;
   
   try {
+    trackUsage();
     const response = await getAI().models.generateContent({
       model: 'gemini-3.1-flash-lite',
       contents: prompt,
@@ -210,6 +235,7 @@ Return ONLY raw JSON in this format:
 }`;
   
   try {
+    trackUsage();
     const response = await getAI().models.generateContent({
       model: 'gemini-3.1-flash-lite',
       contents: prompt,
@@ -239,6 +265,7 @@ It must follow a classic IELTS structure (e.g., "To what extent do you agree?", 
 Return ONLY raw JSON: {"prompt": "string"}`;
     
   try {
+    trackUsage();
     const response = await getAI().models.generateContent({
       model: 'gemini-3.1-flash-lite',
       contents: prompt,

@@ -20,12 +20,29 @@ export default function DashboardLayout() {
   const navigate = useNavigate()
   const [isEditingName, setIsEditingName] = useState(false)
   const [usernameInput, setUsernameInput] = useState("")
+  const [apiUsage, setApiUsage] = useState(0)
 
   useEffect(() => {
     if (user) {
       setUsernameInput(user.user_metadata?.username || user.email?.split('@')[0] || "")
     }
   }, [user])
+
+  useEffect(() => {
+    const fetchUsage = () => {
+      const today = new Date().toISOString().split('T')[0]
+      const usageDate = localStorage.getItem('ielts_api_usage_date')
+      if (usageDate === today) {
+        setApiUsage(parseInt(localStorage.getItem('ielts_api_usage_count') || '0', 10))
+      } else {
+        setApiUsage(0)
+      }
+    }
+    
+    fetchUsage()
+    window.addEventListener('api_usage_updated', fetchUsage)
+    return () => window.removeEventListener('api_usage_updated', fetchUsage)
+  }, [])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -95,9 +112,26 @@ export default function DashboardLayout() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <header className="h-16 border-b border-border bg-card flex items-center justify-between px-8">
-          <div className="text-sm font-medium text-muted-foreground">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          <div className="flex items-center gap-6">
+            <div className="text-sm font-medium text-muted-foreground hidden sm:block">
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </div>
+            
+            {/* AI Usage Tracker */}
+            <div className="flex flex-col gap-1 w-32 sm:w-48 group">
+              <div className="flex justify-between items-center text-xs text-muted-foreground font-medium">
+                <span>API Usage</span>
+                <span>{apiUsage} / 1500</span>
+              </div>
+              <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-500 ${apiUsage > 1200 ? 'bg-destructive' : 'bg-primary'}`}
+                  style={{ width: `${Math.min(100, (apiUsage / 1500) * 100)}%` }}
+                />
+              </div>
+            </div>
           </div>
+
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 group">
               {isEditingName ? (
