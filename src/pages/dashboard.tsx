@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen, PenTool, Headphones, Mic, Flame } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { BookOpen, PenTool, Headphones, Mic, Flame, RotateCcw } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import {
   LineChart,
@@ -26,56 +27,86 @@ export default function Dashboard() {
   const [avgWriting, setAvgWriting] = useState(0)
   const [avgSpeaking, setAvgSpeaking] = useState(0)
   const [chartData, setChartData] = useState<any[]>([])
+  const [streak, setStreak] = useState(3)
+  const [isResetting, setIsResetting] = useState(false)
   
-  useEffect(() => {
-    async function fetchStats() {
-      // Fetch Writing
-      const { data: writing } = await supabase
-        .from('writing_submissions')
-        .select('created_at, ai_band_estimate')
-        .order('created_at', { ascending: true })
-      
-      if (writing) {
-        setWritingScores(writing)
-        const total = writing.reduce((acc, curr) => acc + Number(curr.ai_band_estimate || 0), 0)
-        if (writing.length > 0) setAvgWriting(total / writing.length)
-      }
-
-      // Fetch Speaking
-      const { data: speaking } = await supabase
-        .from('speaking_sessions')
-        .select('created_at, ai_band_estimate')
-        .order('created_at', { ascending: true })
-      
-      if (speaking) {
-        setSpeakingScores(speaking)
-        const total = speaking.reduce((acc, curr) => acc + Number(curr.ai_band_estimate || 0), 0)
-        if (speaking.length > 0) setAvgSpeaking(total / speaking.length)
-      }
-      
-      // Combine for Chart (simplistic grouping by entry index for demo)
-      const combined = []
-      const maxLength = Math.max(writing?.length || 0, speaking?.length || 0)
-      for (let i = 0; i < maxLength; i++) {
-        combined.push({
-          name: `Attempt ${i + 1}`,
-          Writing: writing && writing[i] ? Number(writing[i].ai_band_estimate) : null,
-          Speaking: speaking && speaking[i] ? Number(speaking[i].ai_band_estimate) : null,
-        })
-      }
-      setChartData(combined)
+  const fetchStats = async () => {
+    // Fetch Writing
+    const { data: writing } = await supabase
+      .from('writing_submissions')
+      .select('created_at, ai_band_estimate')
+      .order('created_at', { ascending: true })
+    
+    if (writing) {
+      setWritingScores(writing)
+      const total = writing.reduce((acc, curr) => acc + Number(curr.ai_band_estimate || 0), 0)
+      if (writing.length > 0) setAvgWriting(total / writing.length)
+      else setAvgWriting(0)
     }
 
+    // Fetch Speaking
+    const { data: speaking } = await supabase
+      .from('speaking_sessions')
+      .select('created_at, ai_band_estimate')
+      .order('created_at', { ascending: true })
+    
+    if (speaking) {
+      setSpeakingScores(speaking)
+      const total = speaking.reduce((acc, curr) => acc + Number(curr.ai_band_estimate || 0), 0)
+      if (speaking.length > 0) setAvgSpeaking(total / speaking.length)
+      else setAvgSpeaking(0)
+    }
+    
+    // Combine for Chart (simplistic grouping by entry index for demo)
+    const combined = []
+    const maxLength = Math.max(writing?.length || 0, speaking?.length || 0)
+    for (let i = 0; i < maxLength; i++) {
+      combined.push({
+        name: `Attempt ${i + 1}`,
+        Writing: writing && writing[i] ? Number(writing[i].ai_band_estimate) : null,
+        Speaking: speaking && speaking[i] ? Number(speaking[i].ai_band_estimate) : null,
+      })
+    }
+    setChartData(combined)
+  }
+
+  useEffect(() => {
+    const savedStreak = localStorage.getItem('ielts_streak')
+    if (savedStreak) setStreak(parseInt(savedStreak, 10))
     fetchStats()
   }, [])
+
+  const handleReset = async () => {
+    if (!confirm("Are you sure you want to completely reset all your practice submissions, vocabulary, and stats? This cannot be undone.")) return;
+    
+    setIsResetting(true)
+    
+    // Reset Supabase data (Requires a dummy filter to delete all)
+    await supabase.from('writing_submissions').delete().neq('created_at', '1970-01-01')
+    await supabase.from('speaking_sessions').delete().neq('created_at', '1970-01-01')
+    
+    // Reset Local Storage data
+    localStorage.removeItem('ielts_vocabulary')
+    localStorage.setItem('ielts_streak', '0')
+    setStreak(0)
+    
+    await fetchStats()
+    setIsResetting(false)
+  }
 
   const overallBand = ((avgWriting || 6.0) + (avgSpeaking || 6.0) + 6.5 + 7.0) / 4
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">My Journey</h1>
-        <p className="text-muted-foreground">Here is an overview of your IELTS preparation progress powered by Gemini AI.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">My Journey</h1>
+          <p className="text-muted-foreground">Here is an overview of your IELTS preparation progress powered by Gemini AI.</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleReset} disabled={isResetting} className="text-destructive hover:bg-destructive/10">
+          <RotateCcw className="w-4 h-4 mr-2" />
+          {isResetting ? "Resetting..." : "Reset Progress"}
+        </Button>
       </div>
 
       {/* Top Stats Overview */}
@@ -95,11 +126,13 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardDescription>Study Streak</CardDescription>
-            <Flame className="w-5 h-5 text-orange-500" />
+            <Flame className={`w-5 h-5 ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`} />
           </CardHeader>
-          <CardTitle className="px-6 text-3xl font-bold">3 Days</CardTitle>
+          <CardTitle className="px-6 text-3xl font-bold">{streak} Days</CardTitle>
           <CardContent>
-            <p className="text-xs text-muted-foreground mt-2">You're making great progress!</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              {streak > 0 ? "You're making great progress!" : "Start practicing to build your streak!"}
+            </p>
           </CardContent>
         </Card>
 
