@@ -10,12 +10,14 @@ import Listening from './pages/listening'
 import Vocabulary from './pages/vocabulary'
 import Simulation from './pages/simulation'
 import Login from './pages/login'
+import Signup from './pages/signup'
 
 function App() {
   return (
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         
         <Route path="/" element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
