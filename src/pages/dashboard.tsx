@@ -29,6 +29,7 @@ export default function Dashboard() {
   const [chartData, setChartData] = useState<any[]>([])
   const [streak, setStreak] = useState(3)
   const [isResetting, setIsResetting] = useState(false)
+  const [isResetConfirming, setIsResetConfirming] = useState(false)
   
   const fetchStats = async () => {
     // Fetch Writing
@@ -77,9 +78,13 @@ export default function Dashboard() {
   }, [])
 
   const handleReset = async () => {
-    if (!confirm("Are you sure you want to completely reset all your practice submissions, vocabulary, and stats? This cannot be undone.")) return;
+    if (!isResetConfirming) {
+      setIsResetConfirming(true)
+      return
+    }
     
     setIsResetting(true)
+    setIsResetConfirming(false)
     
     // Reset Supabase data (Requires a dummy filter to delete all)
     await supabase.from('writing_submissions').delete().neq('created_at', '1970-01-01')
@@ -103,10 +108,23 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold tracking-tight mb-2">My Journey</h1>
           <p className="text-muted-foreground">Here is an overview of your IELTS preparation progress powered by Gemini AI.</p>
         </div>
-        <Button variant="outline" size="sm" onClick={handleReset} disabled={isResetting} className="text-destructive hover:bg-destructive/10">
-          <RotateCcw className="w-4 h-4 mr-2" />
-          {isResetting ? "Resetting..." : "Reset Progress"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {isResetConfirming && (
+            <Button variant="ghost" size="sm" onClick={() => setIsResetConfirming(false)} className="text-muted-foreground">
+              Cancel
+            </Button>
+          )}
+          <Button 
+            variant={isResetConfirming ? "destructive" : "outline"} 
+            size="sm" 
+            onClick={handleReset} 
+            disabled={isResetting} 
+            className={!isResetConfirming ? "text-destructive hover:bg-destructive/10" : ""}
+          >
+            <RotateCcw className={`w-4 h-4 mr-2 ${isResetting ? "animate-spin" : ""}`} />
+            {isResetting ? "Resetting..." : isResetConfirming ? "Yes, delete everything!" : "Reset Progress"}
+          </Button>
+        </div>
       </div>
 
       {/* Top Stats Overview */}
