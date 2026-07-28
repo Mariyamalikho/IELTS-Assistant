@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react"
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { ModeToggle } from "@/components/mode-toggle"
 import {
@@ -8,7 +9,8 @@ import {
   Mic,
   GraduationCap,
   Trophy,
-  LogOut
+  LogOut,
+  Edit2
 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/lib/supabase"
@@ -16,10 +18,25 @@ import { supabase } from "@/lib/supabase"
 export default function DashboardLayout() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [usernameInput, setUsernameInput] = useState("")
+
+  useEffect(() => {
+    if (user) {
+      setUsernameInput(user.user_metadata?.username || user.email?.split('@')[0] || "")
+    }
+  }, [user])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     navigate('/login')
+  }
+
+  const handleSaveName = async () => {
+    setIsEditingName(false)
+    if (usernameInput.trim() && usernameInput !== user?.user_metadata?.username) {
+      await supabase.auth.updateUser({ data: { username: usernameInput.trim() } })
+    }
   }
 
   const navItems = [
@@ -82,7 +99,29 @@ export default function DashboardLayout() {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-muted-foreground truncate max-w-[200px]">{user?.email}</span>
+            <div className="flex items-center gap-2 group">
+              {isEditingName ? (
+                <input 
+                  autoFocus
+                  className="bg-muted text-sm font-medium outline-none text-foreground px-2 py-1 rounded w-32 focus:ring-1 focus:ring-primary"
+                  value={usernameInput}
+                  onChange={(e) => setUsernameInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                  onBlur={handleSaveName}
+                />
+              ) : (
+                <div 
+                  onClick={() => setIsEditingName(true)}
+                  className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+                  title="Click to edit username"
+                >
+                  <span className="text-sm font-medium text-foreground truncate max-w-[200px]">
+                    {user?.user_metadata?.username || user?.email?.split('@')[0]}
+                  </span>
+                  <Edit2 className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              )}
+            </div>
             <ModeToggle />
           </div>
         </header>
