@@ -23,10 +23,29 @@ function trackUsage() {
     const today = new Date().toISOString().split('T')[0];
     const usageDate = localStorage.getItem('ielts_api_usage_date');
     let count = parseInt(localStorage.getItem('ielts_api_usage_count') || '0', 10);
+    let currentStreak = parseInt(localStorage.getItem('ielts_streak') || '0', 10);
     
     if (usageDate !== today) {
       count = 0;
+      
+      // Streak Logic
+      if (usageDate) {
+        const lastDate = new Date(usageDate);
+        const currentDate = new Date(today);
+        const diffTime = currentDate.getTime() - lastDate.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)); 
+        
+        if (diffDays === 1) {
+          currentStreak++; // Consecutive day
+        } else {
+          currentStreak = 1; // Broken streak, restart at 1 today
+        }
+      } else {
+        currentStreak = 1; // First day ever
+      }
+      
       localStorage.setItem('ielts_api_usage_date', today);
+      localStorage.setItem('ielts_streak', currentStreak.toString());
     }
     
     count++;

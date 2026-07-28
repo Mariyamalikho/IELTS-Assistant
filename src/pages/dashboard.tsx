@@ -27,7 +27,7 @@ export default function Dashboard() {
   const [avgWriting, setAvgWriting] = useState(0)
   const [avgSpeaking, setAvgSpeaking] = useState(0)
   const [chartData, setChartData] = useState<any[]>([])
-  const [streak, setStreak] = useState(3)
+  const [streak, setStreak] = useState(0)
   const [isResetting, setIsResetting] = useState(false)
   const [isResetConfirming, setIsResetConfirming] = useState(false)
   
@@ -72,9 +72,32 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    const savedStreak = localStorage.getItem('ielts_streak')
-    if (savedStreak) setStreak(parseInt(savedStreak, 10))
-    fetchStats()
+    const today = new Date().toISOString().split('T')[0];
+    const lastUsageDate = localStorage.getItem('ielts_api_usage_date');
+    let currentStreak = parseInt(localStorage.getItem('ielts_streak') || '0', 10);
+
+    if (lastUsageDate && lastUsageDate !== today) {
+        const lastDate = new Date(lastUsageDate);
+        const currentDate = new Date(today);
+        const diffTime = currentDate.getTime() - lastDate.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
+        
+        // If more than 1 day has passed since last activity, streak is broken
+        if (diffDays > 1) {
+           currentStreak = 0;
+           localStorage.setItem('ielts_streak', '0');
+        }
+    }
+    
+    setStreak(currentStreak);
+    fetchStats();
+    
+    // Listen for real-time streak updates from Gemini usage
+    const handleUsageUpdate = () => {
+      setStreak(parseInt(localStorage.getItem('ielts_streak') || '0', 10));
+    };
+    window.addEventListener('api_usage_updated', handleUsageUpdate);
+    return () => window.removeEventListener('api_usage_updated', handleUsageUpdate);
   }, [])
 
   const handleReset = async () => {
