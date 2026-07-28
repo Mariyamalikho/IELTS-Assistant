@@ -1,8 +1,10 @@
-import { GoogleGenAI } from '@google/genai';
+import fs from 'fs';
+
+const geminiCode = `import { GoogleGenAI } from '@google/genai';
 
 const rawKeys = import.meta.env.VITE_GEMINI_API_KEYS || import.meta.env.VITE_GEMINI_API_KEY || '';
 // Extract any string that looks like a Gemini key (starts with AQ. and has no spaces)
-const extractedKeys = rawKeys.match(/AQ\.[A-Za-z0-9_-]+/g) || [];
+const extractedKeys = rawKeys.match(/AQ\\.[A-Za-z0-9_-]+/g) || [];
 const apiKeys = extractedKeys.length > 0 ? extractedKeys : rawKeys.split(',').map((k: string) => k.trim()).filter(Boolean);
 
 if (apiKeys.length === 0) {
@@ -21,7 +23,7 @@ const getAI = () => {
 function parseAIJson(text: string | null | undefined) {
   if (!text) return {};
   try {
-    const cleaned = text.replace(/\s*```json/g, '').replace(/\s*```/g, '').trim();
+    const cleaned = text.replace(/\\s*\`\`\`json/g, '').replace(/\\s*\`\`\`/g, '').trim();
     return JSON.parse(cleaned);
   } catch (e) {
     console.error("Failed to parse JSON:", text);
@@ -30,12 +32,12 @@ function parseAIJson(text: string | null | undefined) {
 }
 
 export async function evaluateEssay(prompt: string, essay: string, taskType: 'task1' | 'task2') {
-  const systemInstruction = `
+  const systemInstruction = \`
 You are an expert, highly strict IELTS examiner with years of experience grading Academic and General Training exams based on the latest Cambridge IELTS standards.
 Grade the following essay based strictly on the official IELTS public band descriptors. 
 Be highly critical. Do not inflate scores.
 
-The essay is a ${taskType === 'task1' ? 'Task 1 (Report/Letter)' : 'Task 2 (Essay)'}.
+The essay is a \${taskType === 'task1' ? 'Task 1 (Report/Letter)' : 'Task 2 (Essay)'}.
 
 Output your evaluation strictly in the following JSON format. Do NOT wrap it in markdown block quotes, return raw JSON.
 {
@@ -48,15 +50,15 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
   "strengths": ["...", "..."],
   "weaknesses": ["...", "..."]
 }
-`;
+\`;
 
-  const userPrompt = `
+  const userPrompt = \`
 IELTS Prompt:
-${prompt}
+\${prompt}
 
 Student's Essay:
-${essay}
-`;
+\${essay}
+\`;
 
   try {
     const response = await getAI().models.generateContent({
@@ -76,7 +78,7 @@ ${essay}
 }
 
 export async function evaluateSpeaking(audioBase64: string, mimeType: string) {
-  const systemInstruction = `
+  const systemInstruction = \`
 You are an expert, highly strict IELTS examiner with years of experience grading Academic and General Training exams based on the latest Cambridge IELTS standards.
 Listen to the provided audio carefully.
 First, provide a transcript of what the student said.
@@ -94,7 +96,7 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
   "strengths": ["...", "..."],
   "weaknesses": ["...", "..."]
 }
-`;
+\`;
 
   try {
     const response = await getAI().models.generateContent({
@@ -117,11 +119,11 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
 }
 
 export async function generateDailyVocabulary() {
-  const prompt = `Generate 10 advanced, C1/C2 level English vocabulary words that are highly relevant for the IELTS Academic exam (Band 8+). 
+  const prompt = \`Generate 10 advanced, C1/C2 level English vocabulary words that are highly relevant for the IELTS Academic exam (Band 8+). 
   Focus on words frequently found in recent Cambridge IELTS Reading passages (e.g., words related to science, history, environment, sociology).
   Return ONLY raw JSON in this exact format:
   [{"word": "string", "meaning": "string", "example": "string"}]
-  Do NOT wrap in markdown.`;
+  Do NOT wrap in markdown.\`;
   
   try {
     const response = await getAI().models.generateContent({
@@ -146,16 +148,16 @@ export async function generateDailyVocabulary() {
 }
 
 export async function generateReadingPassage() {
-  const prompt = `You are an expert Cambridge IELTS test creator.
+  const prompt = \`You are an expert Cambridge IELTS test creator.
 Write a 600-word academic IELTS reading passage about a complex topic (e.g., biology, archaeology, technology, psychology) that matches the exact difficulty, tone, and lexical resource of a Cambridge IELTS Book 18 or 19 Reading Passage 3.
 The passage should be highly formal and contain 4-5 well-structured paragraphs.
 Then, create 5 authentic IELTS TRUE/FALSE/NOT GIVEN questions. The questions must require careful reading and inference, containing classic IELTS distractors (e.g., synonyms, subtle contradictions).
 Return ONLY raw JSON in this exact format, with no markdown:
 {
   "title": "string",
-  "passage": "string (use \\n\\n for paragraphs)",
+  "passage": "string (use \\\\n\\\\n for paragraphs)",
   "questions": [{"num": 1, "q": "string", "answer": "TRUE" | "FALSE" | "NOT GIVEN"}]
-}`;
+}\`;
   
   try {
     const response = await getAI().models.generateContent({
@@ -172,14 +174,14 @@ Return ONLY raw JSON in this exact format, with no markdown:
 
 export async function generateSpeakingPrompt(part: 'part1' | 'part2') {
   const prompt = part === 'part1' 
-    ? `You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 1 section. 
+    ? \`You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 1 section. 
 Choose ONE highly common recent IELTS topic (e.g., Work/Studies, Hometown, Weather, Hobbies, Technology).
 Generate exactly 4 questions.
-Return ONLY raw JSON: {"topic": "string", "questions": ["string", "string", "string", "string"]}`
-    : `You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 2 cue card (Task).
+Return ONLY raw JSON: {"topic": "string", "questions": ["string", "string", "string", "string"]}\`
+    : \`You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 2 cue card (Task).
 The topic should be a recent, standard IELTS topic (e.g., Describe a person, an object, an event, or a place).
 Provide the main prompt and exactly 4 bullet points.
-Return ONLY raw JSON: {"topic": "string", "bullets": ["string", "string", "string", "string"]}`;
+Return ONLY raw JSON: {"topic": "string", "bullets": ["string", "string", "string", "string"]}\`;
   
   try {
     const response = await getAI().models.generateContent({
@@ -195,7 +197,7 @@ Return ONLY raw JSON: {"topic": "string", "bullets": ["string", "string", "strin
 }
 
 export async function generateListeningTest() {
-  const prompt = `You are an expert Cambridge IELTS test creator.
+  const prompt = \`You are an expert Cambridge IELTS test creator.
 Write an authentic IELTS Listening Part 1 script (a telephone conversation between two people, e.g., booking a hotel, inquiring about a course, or reporting a lost item). 
 The dialogue MUST include natural speech features (spelling out a name, self-correction, numbers, dates).
 It should be about 400 words long. 
@@ -207,7 +209,7 @@ Return ONLY raw JSON in this format:
   "title": "string",
   "script": [{"speaker": "string", "text": "string"}],
   "questions": [{"num": 1, "q": "string (use ___ for the blank)", "answer": "string"}]
-}`;
+}\`;
   
   try {
     const response = await getAI().models.generateContent({
@@ -224,7 +226,7 @@ Return ONLY raw JSON in this format:
 
 export async function generateWritingPrompt(taskType: 'task1' | 'task2') {
   const prompt = taskType === 'task1'
-    ? `You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 1 prompt.
+    ? \`You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 1 prompt.
 The prompt must ask the candidate to summarize a bar chart, line graph, or pie chart.
 Provide a realistic prompt text. 
 Also provide a Chart.js configuration JSON object for the chart so it can be rendered. Keep the chart realistic (e.g., "Car sales in Europe", "Population growth").
@@ -232,11 +234,11 @@ Return ONLY raw JSON:
 {
   "prompt": "The chart below shows...", 
   "chartConfig": { "type": "bar", "data": { "labels": ["2000", "2010"], "datasets": [{"label": "Data", "data": [10, 20]}] } }
-}`
-    : `You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 2 essay prompt.
+}\`
+    : \`You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 2 essay prompt.
 The prompt must be on a recent, complex issue (e.g., Globalization, Technology in Education, Government funding, Crime).
 It must follow a classic IELTS structure (e.g., "To what extent do you agree?", "Discuss both views and give your opinion", or "What are the causes and solutions?").
-Return ONLY raw JSON: {"prompt": "string"}`;
+Return ONLY raw JSON: {"prompt": "string"}\`;
     
   try {
     const response = await getAI().models.generateContent({
@@ -250,3 +252,7 @@ Return ONLY raw JSON: {"prompt": "string"}`;
     return {};
   }
 }
+`;
+
+fs.writeFileSync('src/lib/gemini.ts', geminiCode);
+console.log('Updated gemini.ts successfully!');
