@@ -10,7 +10,8 @@ import {
   GraduationCap,
   Trophy,
   LogOut,
-  Edit2
+  Edit2,
+  Flame
 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/lib/supabase"
@@ -21,6 +22,7 @@ export default function DashboardLayout() {
   const [isEditingName, setIsEditingName] = useState(false)
   const [usernameInput, setUsernameInput] = useState("")
   const [apiUsage, setApiUsage] = useState(0)
+  const [streak, setStreak] = useState(0)
 
   useEffect(() => {
     if (user) {
@@ -37,6 +39,7 @@ export default function DashboardLayout() {
       } else {
         setApiUsage(0)
       }
+      setStreak(parseInt(localStorage.getItem('ielts_streak') || '0', 10))
     }
     
     fetchUsage()
@@ -115,6 +118,12 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-6">
             <div className="text-sm font-medium text-muted-foreground hidden sm:block">
               {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </div>
+            
+            {/* Streak Counter */}
+            <div className="flex items-center gap-1.5 bg-orange-500/10 px-3 py-1.5 rounded-full border border-orange-500/20">
+              <Flame className={`w-4 h-4 ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`} />
+              <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{streak} Days</span>
             </div>
             
             {/* AI Usage Tracker */}

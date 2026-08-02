@@ -38,12 +38,32 @@ export default function Reading() {
       const data = await generateReadingPassage();
       if (data && data.title) {
         setPassageData(data);
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem('ielts_reading_daily', JSON.stringify({ date: today, data }));
       }
     } catch (e) {
       console.error(e);
     }
     setIsGenerating(false);
   }
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const cachedData = localStorage.getItem('ielts_reading_daily');
+    
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (parsed.date === today && parsed.data && parsed.data.title) {
+          setPassageData(parsed.data);
+          return;
+        }
+      } catch (e) {}
+    }
+    
+    // Auto-generate today's test
+    handleGenerate();
+  }, [])
 
   useEffect(() => {
     let interval: any = null

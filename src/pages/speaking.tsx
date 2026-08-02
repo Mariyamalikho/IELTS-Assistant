@@ -47,16 +47,38 @@ export default function Speaking() {
     setIsGenerating(true);
     try {
       const data = await generateSpeakingPrompt(part);
+      let newPromptText = ""
       if (part === 'part1') {
-        setPromptText(`Part 1: Introduction and Interview\nLet's talk about ${data.topic}.\n` + data.questions.map((q: string) => `- ${q}`).join('\n') + `\nPlease record your answer (aim for 1-2 minutes).`);
+        newPromptText = `Part 1: Introduction and Interview\nLet's talk about ${data.topic}.\n` + data.questions.map((q: string) => `- ${q}`).join('\n') + `\nPlease record your answer (aim for 1-2 minutes).`;
       } else {
-        setPromptText(`Part 2: Long Turn\nDescribe ${data.topic}.\nYou should say:\n` + data.bullets.map((b: string) => `- ${b}`).join('\n') + `\nPlease record your answer (aim for 2 minutes).`);
+        newPromptText = `Part 2: Long Turn\nDescribe ${data.topic}.\nYou should say:\n` + data.bullets.map((b: string) => `- ${b}`).join('\n') + `\nPlease record your answer (aim for 2 minutes).`;
       }
+      setPromptText(newPromptText);
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`ielts_speaking_daily_${part}`, JSON.stringify({ date: today, text: newPromptText }));
     } catch (e) {
       console.error(e);
     }
     setIsGenerating(false);
   }
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const cachedData = localStorage.getItem(`ielts_speaking_daily_${part}`);
+    
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (parsed.date === today && parsed.text) {
+          setPromptText(parsed.text);
+          return;
+        }
+      } catch (e) {}
+    }
+    
+    // Auto-generate today's test
+    handleGeneratePrompt();
+  }, [part])
 
   const startRecording = async () => {
     try {

@@ -73,11 +73,31 @@ export default function Writing() {
     try {
       const data = await generateWritingPrompt(taskType)
       setPromptData(data)
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`ielts_writing_daily_${taskType}`, JSON.stringify({ date: today, data }));
     } catch (e) {
       console.error(e)
     }
     setIsGenerating(false)
   }
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const cachedData = localStorage.getItem(`ielts_writing_daily_${taskType}`);
+    
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (parsed.date === today && parsed.data && parsed.data.prompt) {
+          setPromptData(parsed.data);
+          return;
+        }
+      } catch (e) {}
+    }
+    
+    // Auto-generate today's test
+    handleGeneratePrompt();
+  }, [taskType])
 
   const wordCount = essay.trim() === '' ? 0 : essay.trim().split(/\s+/).length
   const minWords = taskType === 'task1' ? 150 : 250

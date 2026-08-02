@@ -55,12 +55,32 @@ export default function Listening() {
       const data = await generateListeningTest()
       if (data && data.title) {
         setTestData(data)
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem('ielts_listening_daily', JSON.stringify({ date: today, data }));
       }
     } catch (e) {
       console.error(e)
     }
     setIsGenerating(false)
   }
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const cachedData = localStorage.getItem('ielts_listening_daily');
+    
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (parsed.date === today && parsed.data && parsed.data.title) {
+          setTestData(parsed.data);
+          return;
+        }
+      } catch (e) {}
+    }
+    
+    // Auto-generate today's test
+    handleGenerate();
+  }, [])
 
   const handlePlayScript = () => {
     if (isPlaying) {
