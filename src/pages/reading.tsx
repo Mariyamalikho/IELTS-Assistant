@@ -128,12 +128,12 @@ export default function Reading() {
         {/* Right Side: Questions */}
         <Card className="flex flex-col bg-card/50">
           <CardHeader className="border-b">
-            <CardTitle>Questions 1-{passageData.questions.length}</CardTitle>
+            <CardTitle>Questions 1-{passageData.questions?.length || 0}</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">Do the following statements agree with the information given in the Reading Passage? Write TRUE, FALSE, or NOT GIVEN.</p>
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto pt-6 space-y-8">
             
-            {passageData.questions.map((question: Question) => (
+            {passageData.questions?.map((question: Question) => (
               <div key={question.num} className="space-y-3">
                 <p className="font-medium">
                   <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary text-sm mr-2">

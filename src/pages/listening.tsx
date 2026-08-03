@@ -94,12 +94,12 @@ export default function Listening() {
     const voice1 = voices.find(v => v.lang.includes('en-GB') || v.lang.includes('en-UK')) || voices[0]
     const voice2 = voices.find(v => v.lang.includes('en-US')) || voices[1] || voices[0]
     
-    const speakers = [...new Set(testData.script.map((s: any) => s.speaker))]
+    const speakers = [...new Set(testData.script?.map((s: any) => s.speaker) || [])]
 
     let utteranceIndex = 0;
     
     const playNext = () => {
-      if (utteranceIndex >= testData.script.length) {
+      if (utteranceIndex >= (testData.script?.length || 0)) {
         setIsPlaying(false)
         return
       }
@@ -166,7 +166,7 @@ export default function Listening() {
               <div className="flex items-center gap-4 mt-4 p-4 bg-background rounded-lg border">
                 <Button 
                   onClick={handlePlayScript} 
-                  disabled={testData.script.length === 0}
+                  disabled={!testData.script || testData.script.length === 0}
                   className="w-16 h-16 rounded-full shrink-0"
                 >
                   {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
@@ -184,17 +184,17 @@ export default function Listening() {
 
       <Card className="flex-1 bg-card/50">
         <CardHeader className="border-b">
-          <CardTitle>Questions 1-{testData.questions.length}</CardTitle>
+          <CardTitle>Questions 1-{testData.questions?.length || 0}</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">Complete the notes below. Write NO MORE THAN TWO WORDS for each answer.</p>
         </CardHeader>
         <CardContent className="pt-8">
           
           <div className="max-w-2xl mx-auto space-y-6 bg-background p-8 rounded-lg border shadow-sm font-serif">
-            <h3 className="text-center font-bold text-xl uppercase mb-6 tracking-widest border-b pb-4">{testData.title}</h3>
+            <h3 className="text-center font-bold text-xl uppercase mb-6 tracking-widest border-b pb-4">{testData.title || "Listening Test"}</h3>
             
             <div className="space-y-4 text-lg">
-              {testData.questions.map((q: any) => {
-                const parts = q.q.split('___');
+              {testData.questions?.map((q: any, i: number) => {
+                const parts = q.q ? q.q.split('___') : ["", ""];
                 return (
                   <div key={q.num} className="grid grid-cols-[auto_1fr] gap-4 items-end border-b border-dashed pb-2">
                     <span className="inline-flex w-8 items-end justify-center font-sans text-sm font-bold text-primary mr-1">({q.num})</span>
