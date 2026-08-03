@@ -152,7 +152,7 @@ export default function Dashboard() {
 
       {/* Top Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-card to-primary/5 border-primary/20">
+        <Card className="bg-gradient-to-br from-card to-primary/5 border-primary/20 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Estimated Overall Band</CardDescription>
             <CardTitle className="text-4xl font-extrabold text-primary flex items-end gap-2">
@@ -164,7 +164,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardDescription>Study Streak</CardDescription>
             <Flame className={`w-5 h-5 ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`} />
@@ -177,7 +177,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Practice Submissions</CardDescription>
             <CardTitle className="text-2xl font-bold">{writingScores.length + speakingScores.length} Total</CardTitle>
