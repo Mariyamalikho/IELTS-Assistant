@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react'
+import { generateReadingPassage } from '@/lib/gemini'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Clock, CheckCircle, Play, Pause, Loader2 } from 'lucide-react'
-import { generateReadingPassage } from '@/lib/gemini'
+import { formatTime } from '@/lib/utils'
 
 type Question = { num: number, q: string, answer: string }
 
-const INITIAL_PASSAGE = {
+export interface ReadingPassageData {
+  title: string;
+  passage: string;
+  questions: Question[];
+}
+
+const INITIAL_PASSAGE: ReadingPassageData = {
   title: "The History of the Bicycle",
   passage: "The bicycle, an invention that revolutionized personal transport, has a rich and complex history. It did not spring fully formed from the mind of a single inventor, but rather evolved through a series of iterative improvements over the course of the 19th century.\n\nThe earliest precursor to the bicycle was the \"dandy horse\" or Laufmaschine (running machine), invented by the German Baron Karl von Drais in 1817. This early contraption had two wheels aligned in a single track and a steering mechanism, but lacked pedals. The rider propelled the machine forward by pushing off the ground with their feet, much like a modern balance bike for children.\n\nIn the 1860s, French inventors Pierre Michaux and Pierre Lallement added rotary cranks and pedals to the front wheel, creating the velocipede, colloquially known as the \"boneshaker\" due to its stiff wooden wheels and iron frame, which made for an incredibly uncomfortable ride on the cobblestone streets of the era.\n\nThe quest for higher speeds led to the development of the \"penny-farthing\" in the 1870s. This design featured an enormous front wheel, allowing the rider to travel farther with each pedal stroke, and a tiny rear wheel. However, the high center of gravity made the penny-farthing notoriously dangerous, leading to frequent and severe accidents.\n\nThe breakthrough came in the 1880s with the \"safety bicycle,\" pioneered by John Kemp Starley. This design returned to two wheels of equal size and introduced a chain drive to the rear wheel. Coupled with the invention of the pneumatic rubber tire by John Dunlop in 1888, the safety bicycle provided a comfortable, efficient, and safe mode of transportation, sparking a global bicycle craze in the 1890s that fundamentally altered society, particularly granting newfound mobility and freedom to women.",
   questions: [
@@ -25,7 +32,7 @@ export default function Reading() {
   const [answers, setAnswers] = useState<Record<number, string>>({})
   const [isSubmitted, setIsSubmitted] = useState(false)
   
-  const [passageData, setPassageData] = useState(INITIAL_PASSAGE)
+  const [passageData, setPassageData] = useState<ReadingPassageData>(INITIAL_PASSAGE)
   const [isGenerating, setIsGenerating] = useState(false)
 
   const handleGenerate = async () => {
@@ -76,12 +83,6 @@ export default function Reading() {
     }
     return () => clearInterval(interval)
   }, [isActive, timeLeft])
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0')
-    const s = (seconds % 60).toString().padStart(2, '0')
-    return `${m}:${s}`
-  }
 
   return (
     <div className="flex flex-col h-full gap-6 p-4">

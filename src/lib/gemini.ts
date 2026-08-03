@@ -66,7 +66,30 @@ async function callGeminiProxy(model: string, contents: any, config: any) {
   return data;
 }
 
-export async function evaluateEssay(prompt: string, essay: string, taskType: 'task1' | 'task2') {
+export interface EssayEvaluation {
+  estimatedBand: number;
+  taskAchievement: { score: number; feedback: string };
+  coherenceCohesion: { score: number; feedback: string };
+  lexicalResource: { score: number; feedback: string };
+  grammaticalRange: { score: number; feedback: string };
+  overallFeedback: string;
+  strengths: string[];
+  weaknesses: string[];
+}
+
+export interface SpeakingEvaluation {
+  transcript: string;
+  estimatedBand: number;
+  fluencyAndCoherence: { score: number; feedback: string };
+  lexicalResource: { score: number; feedback: string };
+  grammaticalRange: { score: number; feedback: string };
+  pronunciation: { score: number; feedback: string };
+  overallFeedback: string;
+  strengths: string[];
+  weaknesses: string[];
+}
+
+export async function evaluateEssay(prompt: string, essay: string, taskType: 'task1' | 'task2'): Promise<EssayEvaluation> {
   const systemInstruction = `
 You are an expert, highly strict IELTS examiner with years of experience grading Academic and General Training exams based on the latest Cambridge IELTS standards.
 Grade the following essay based strictly on the official IELTS public band descriptors. 
@@ -102,14 +125,14 @@ ${essay}
       userPrompt,
       { systemInstruction, temperature: 0.2, responseMimeType: "application/json" }
     );
-    return parseAIJson(response.text);
+    return parseAIJson(response.text) as EssayEvaluation;
   } catch (error) {
     console.error("Gemini Evaluation Error:", error);
     throw error;
   }
 }
 
-export async function evaluateSpeaking(audioBase64: string, mimeType: string) {
+export async function evaluateSpeaking(audioBase64: string, mimeType: string): Promise<SpeakingEvaluation> {
   const systemInstruction = `
 You are an expert, highly strict IELTS examiner with years of experience grading Academic and General Training exams based on the latest Cambridge IELTS standards.
 Listen to the provided audio carefully.
@@ -140,7 +163,7 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
       ],
       { systemInstruction, temperature: 0.2, responseMimeType: "application/json" }
     );
-    return parseAIJson(response.text);
+    return parseAIJson(response.text) as SpeakingEvaluation;
   } catch (error) {
     console.error("Gemini Speaking Evaluation Error:", error);
     throw error;
