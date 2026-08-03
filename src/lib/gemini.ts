@@ -171,10 +171,13 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
 }
 
 export async function generateDailyVocabulary() {
-  const prompt = `Generate 10 advanced, C1/C2 level English vocabulary words that are highly relevant and pragmatic for the IELTS test (reading, writing, speaking, and listening). 
-  Focus ONLY on high-utility words frequently found in recent Cambridge IELTS exams (e.g., words for describing graphs in Writing Task 1, arguing points in Task 2, or common reading topics like science/history/society). Do NOT provide overly complicated or archaic words that are not practically used.
+  const seed = Math.floor(Math.random() * 100000);
+  const prompt = `Generate exactly 10 highly pragmatic, Band 7-8 level English vocabulary words that are highly relevant for the IELTS test.
+  Focus ONLY on high-utility words frequently found in recent Cambridge IELTS exams (e.g., words for describing trends in Writing Task 1, arguing points in Task 2, or common reading topics). 
+  Do NOT provide overly complicated, archaic, or native-only idioms that are not practically used in academic IELTS.
+  Make sure to generate a completely unique set of words (Random seed: ${seed}).
   Return ONLY raw JSON in this exact format:
-  [{"word": "string", "meaning": "string", "example": "string"}]
+  [{"word": "string", "meaning": "string", "example": "string", "synonyms": "string (comma separated)", "antonyms": "string (comma separated)"}]
   Do NOT wrap in markdown.`;
   
   try {

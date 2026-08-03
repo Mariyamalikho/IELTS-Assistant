@@ -9,6 +9,8 @@ type Vocab = {
   word: string, 
   meaning: string, 
   example: string,
+  synonyms?: string,
+  antonyms?: string,
   interval: number,
   repetition: number,
   ease_factor: number,
@@ -81,6 +83,8 @@ export default function Vocabulary() {
         word: w.word || "Unknown",
         meaning: w.meaning || "Unknown",
         example: w.example || "",
+        synonyms: w.synonyms || "",
+        antonyms: w.antonyms || "",
         interval: 0,
         repetition: 0,
         ease_factor: 2.5,
@@ -227,18 +231,32 @@ export default function Vocabulary() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="absolute inset-0 flex items-center justify-center bg-card border-2 border-primary/40 shadow-xl">
-              <CardContent className="p-12 text-center flex flex-col gap-6 w-full animate-in fade-in zoom-in-95 duration-200">
+            <Card className="absolute inset-0 flex items-center justify-center bg-card border-2 border-primary/40 shadow-xl overflow-y-auto">
+              <CardContent className="p-8 text-center flex flex-col gap-4 w-full h-full justify-center animate-in fade-in zoom-in-95 duration-200">
                 <div>
-                  <h3 className="text-lg font-semibold text-primary uppercase tracking-widest mb-2">Meaning</h3>
-                  <p className="text-2xl">{currentCard.meaning}</p>
+                  <h3 className="text-sm font-semibold text-primary uppercase tracking-widest mb-1">Meaning</h3>
+                  <p className="text-xl font-medium">{currentCard.meaning}</p>
                 </div>
                 {currentCard.example && (
-                  <div className="bg-muted/30 p-4 rounded-lg">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase mb-1">Example</h3>
-                    <p className="italic font-serif text-lg">"{currentCard.example}"</p>
+                  <div className="bg-muted/30 p-3 rounded-lg mx-auto w-full">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-1">Example</h3>
+                    <p className="italic font-serif text-md">"{currentCard.example}"</p>
                   </div>
                 )}
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  {currentCard.synonyms && (
+                    <div className="bg-green-500/10 p-2 rounded border border-green-500/20">
+                      <h3 className="text-xs font-semibold text-green-700 uppercase mb-1">Synonyms</h3>
+                      <p className="text-sm text-green-600 font-medium">{currentCard.synonyms}</p>
+                    </div>
+                  )}
+                  {currentCard.antonyms && (
+                    <div className="bg-destructive/10 p-2 rounded border border-destructive/20">
+                      <h3 className="text-xs font-semibold text-destructive uppercase mb-1">Antonyms</h3>
+                      <p className="text-sm text-destructive/80 font-medium">{currentCard.antonyms}</p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
