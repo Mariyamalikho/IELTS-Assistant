@@ -182,12 +182,12 @@ export default function Listening() {
         </CardContent>
       </Card>
 
-      <Card className="flex-1 bg-card/50">
-        <CardHeader className="border-b">
+      <Card className="flex-1 flex flex-col bg-card/50 min-h-0">
+        <CardHeader className="border-b shrink-0">
           <CardTitle>Questions 1-{testData.questions?.length || 0}</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">Complete the notes below. Write NO MORE THAN TWO WORDS for each answer.</p>
         </CardHeader>
-        <CardContent className="pt-8">
+        <CardContent className="flex-1 overflow-y-auto pt-8">
           
           <div className="max-w-2xl mx-auto space-y-6 bg-background p-8 rounded-lg border shadow-sm font-serif">
             <h3 className="text-center font-bold text-xl uppercase mb-6 tracking-widest border-b pb-4">{testData.title || "Listening Test"}</h3>
