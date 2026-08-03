@@ -90,7 +90,7 @@ export default function DashboardLayout() {
               to={item.path}
               aria-label={`Navigate to ${item.name}`}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                   isActive 
                     ? "bg-primary text-primary-foreground shadow-sm" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
