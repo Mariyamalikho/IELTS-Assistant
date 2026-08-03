@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
+import { generateReadingPassage } from '@/lib/gemini'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Clock, CheckCircle, Play, Pause, Loader2 } from 'lucide-react'
-import { generateReadingPassage } from '@/lib/gemini'
 
 type Question = { num: number, q: string, answer: string }
 
