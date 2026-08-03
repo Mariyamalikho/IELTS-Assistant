@@ -88,6 +88,7 @@ export default function DashboardLayout() {
             <NavLink
               key={item.name}
               to={item.path}
+              aria-label={`Navigate to ${item.name}`}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                   isActive 
@@ -104,6 +105,7 @@ export default function DashboardLayout() {
         <div className="p-4 border-t space-y-4">
           <button 
             onClick={handleLogout}
+            aria-label="Logout of account"
             className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors"
           >
             <LogOut className="w-4 h-4" />
