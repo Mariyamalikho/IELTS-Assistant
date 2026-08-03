@@ -23,8 +23,15 @@ You should say:
 - And explain why you enjoyed reading it.
 Please record your answer (aim for 2 minutes).`
 
+const PART3_PROMPT = `Part 3: Two-Way Discussion (4-5 minutes)
+Let's consider some more abstract issues related to books.
+- How has reading changed since the introduction of the internet?
+- Do you think libraries are still important in modern society?
+- What kinds of books do you think will be popular in the future?
+Please record your answer (aim for 2-3 minutes).`
+
 export default function Speaking() {
-  const [part, setPart] = useState<'part1' | 'part2'>('part1')
+  const [part, setPart] = useState<'part1' | 'part2' | 'part3'>('part1')
   const [promptText, setPromptText] = useState(PART1_PROMPT)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
@@ -51,8 +58,10 @@ export default function Speaking() {
       let newPromptText = ""
       if (part === 'part1') {
         newPromptText = `Part 1: Introduction and Interview\nLet's talk about ${data.topic}.\n` + data.questions.map((q: string) => `- ${q}`).join('\n') + `\nPlease record your answer (aim for 1-2 minutes).`;
-      } else {
+      } else if (part === 'part2') {
         newPromptText = `Part 2: Long Turn\nDescribe ${data.topic}.\nYou should say:\n` + data.bullets.map((b: string) => `- ${b}`).join('\n') + `\nPlease record your answer (aim for 2 minutes).`;
+      } else {
+        newPromptText = `Part 3: Two-Way Discussion\nLet's consider issues related to: ${data.topic}.\n` + data.questions.map((q: string) => `- ${q}`).join('\n') + `\nPlease record your answer (aim for 2-3 minutes).`;
       }
       setPromptText(newPromptText);
       const today = new Date().toISOString().split('T')[0];
@@ -171,9 +180,9 @@ export default function Speaking() {
   }
 
   const handlePartSwitch = (val: string) => {
-    const newPart = val as 'part1' | 'part2';
+    const newPart = val as 'part1' | 'part2' | 'part3';
     setPart(newPart)
-    setPromptText(newPart === 'part1' ? PART1_PROMPT : PART2_PROMPT)
+    setPromptText(newPart === 'part1' ? PART1_PROMPT : newPart === 'part2' ? PART2_PROMPT : PART3_PROMPT)
     setFeedback(null)
     setAudioUrl(null)
     setAudioBlob(null)
@@ -188,10 +197,11 @@ export default function Speaking() {
           <p className="text-muted-foreground">Record your voice and get AI fluency evaluation.</p>
         </div>
         
-        <Tabs value={part} onValueChange={handlePartSwitch} className="w-[400px]">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs value={part} onValueChange={handlePartSwitch} className="w-[500px]">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="part1">Part 1 (Interview)</TabsTrigger>
             <TabsTrigger value="part2">Part 2 (Long Turn)</TabsTrigger>
+            <TabsTrigger value="part3">Part 3 (Discussion)</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

@@ -171,8 +171,8 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
 }
 
 export async function generateDailyVocabulary() {
-  const prompt = `Generate 10 advanced, C1/C2 level English vocabulary words that are highly relevant for the IELTS Academic exam (Band 8+). 
-  Focus on words frequently found in recent Cambridge IELTS Reading passages (e.g., words related to science, history, environment, sociology).
+  const prompt = `Generate 10 advanced, C1/C2 level English vocabulary words that are highly relevant and pragmatic for the IELTS test (reading, writing, speaking, and listening). 
+  Focus ONLY on high-utility words frequently found in recent Cambridge IELTS exams (e.g., words for describing graphs in Writing Task 1, arguing points in Task 2, or common reading topics like science/history/society). Do NOT provide overly complicated or archaic words that are not practically used.
   Return ONLY raw JSON in this exact format:
   [{"word": "string", "meaning": "string", "example": "string"}]
   Do NOT wrap in markdown.`;
@@ -200,16 +200,26 @@ export async function generateDailyVocabulary() {
   }
 }
 
-export async function generateReadingPassage() {
+export async function generateReadingPassage(section: 1 | 2 | 3 = 1) {
+  const numQuestions = section === 3 ? 14 : 13;
+  const startNum = section === 1 ? 1 : section === 2 ? 14 : 27;
+  
+  const difficultyContext = section === 1 
+    ? "a factual, descriptive text (e.g., historical event, animal behavior, or biography) matching Cambridge IELTS Reading Passage 1 difficulty."
+    : section === 2 
+    ? "a detailed, slightly discursive text (e.g., workplace, technology, or social issues) matching Cambridge IELTS Reading Passage 2 difficulty."
+    : "a highly complex, abstract, and argumentative text (e.g., psychology, philosophy, or theoretical science) matching Cambridge IELTS Reading Passage 3 difficulty.";
+
   const prompt = `You are an expert Cambridge IELTS test creator.
-Write a 600-word academic IELTS reading passage about a complex topic (e.g., biology, archaeology, technology, psychology) that matches the exact difficulty, tone, and lexical resource of a Cambridge IELTS Book 18 or 19 Reading Passage 3.
+Write an authentic 600-word academic IELTS reading passage about ${difficultyContext}
 The passage should be highly formal and contain 4-5 well-structured paragraphs.
-Then, create 5 authentic IELTS TRUE/FALSE/NOT GIVEN questions. The questions must require careful reading and inference, containing classic IELTS distractors (e.g., synonyms, subtle contradictions).
+Then, create exactly ${numQuestions} authentic IELTS questions based on the passage. Use a mix of TRUE/FALSE/NOT GIVEN, multiple choice, and fill-in-the-blanks.
+The questions must be numbered from ${startNum} to ${startNum + numQuestions - 1}.
 Return ONLY raw JSON in this exact format, with no markdown:
 {
   "title": "string",
   "passage": "string (use \\n\\n for paragraphs)",
-  "questions": [{"num": 1, "q": "string", "answer": "TRUE" | "FALSE" | "NOT GIVEN"}]
+  "questions": [{"num": number, "q": "string (use ___ for blanks if applicable)", "answer": "string"}]
 }`;
   
   try {
@@ -226,16 +236,24 @@ Return ONLY raw JSON in this exact format, with no markdown:
   }
 }
 
-export async function generateSpeakingPrompt(part: 'part1' | 'part2') {
-  const prompt = part === 'part1' 
-    ? `You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 1 section. 
+export async function generateSpeakingPrompt(part: 'part1' | 'part2' | 'part3') {
+  let prompt = "";
+  if (part === 'part1') {
+    prompt = `You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 1 section. 
 Choose ONE highly common recent IELTS topic (e.g., Work/Studies, Hometown, Weather, Hobbies, Technology).
 Generate exactly 4 questions.
-Return ONLY raw JSON: {"topic": "string", "questions": ["string", "string", "string", "string"]}`
-    : `You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 2 cue card (Task).
+Return ONLY raw JSON: {"topic": "string", "questions": ["string", "string", "string", "string"]}`;
+  } else if (part === 'part2') {
+    prompt = `You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 2 cue card (Task).
 The topic should be a recent, standard IELTS topic (e.g., Describe a person, an object, an event, or a place).
 Provide the main prompt and exactly 4 bullet points.
 Return ONLY raw JSON: {"topic": "string", "bullets": ["string", "string", "string", "string"]}`;
+  } else {
+    prompt = `You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 3 discussion section.
+Choose a complex, abstract topic related to a typical Part 2 topic (e.g., Society, Education, Environment, Media).
+Generate exactly 4 deep, analytical questions that ask the candidate to evaluate, compare, or predict.
+Return ONLY raw JSON: {"topic": "string", "questions": ["string", "string", "string", "string"]}`;
+  }
   
   try {
     trackUsage();
@@ -251,19 +269,29 @@ Return ONLY raw JSON: {"topic": "string", "bullets": ["string", "string", "strin
   }
 }
 
-export async function generateListeningTest() {
+export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1) {
+  const startNum = (part - 1) * 10 + 1;
+  const context = part === 1 
+    ? "Part 1 (a telephone conversation between two people in an everyday social context, e.g., booking a hotel or inquiring about a club)."
+    : part === 2 
+    ? "Part 2 (a monologue in an everyday social context, e.g., a speech about local facilities or a tour guide)."
+    : part === 3 
+    ? "Part 3 (a conversation between up to four people in an educational or training context, e.g., students discussing an assignment)."
+    : "Part 4 (a university lecture on an academic subject).";
+
   const prompt = `You are an expert Cambridge IELTS test creator.
-Write an authentic IELTS Listening Part 1 script (a telephone conversation between two people, e.g., booking a hotel, inquiring about a course, or reporting a lost item). 
-The dialogue MUST include natural speech features (spelling out a name, self-correction, numbers, dates).
+Write an authentic IELTS Listening ${context}
+The dialogue MUST include natural speech features (self-correction, hesitation, spelling out names/numbers if Part 1).
 It should be about 400 words long. 
-Also generate exactly 5 fill-in-the-blank note-completion questions based on the script. 
-The answers must be STRICTLY 1 or 2 words/numbers and must appear exactly as spoken in the audio.
-Provide the text with standard speaker labels (e.g. Agent:, Customer:).
+Also generate exactly 10 questions based on the script. 
+The questions must be numbered from ${startNum} to ${startNum + 9}.
+The answers must be STRICTLY 1, 2, or 3 words/numbers and must appear exactly as spoken in the audio.
+Provide the text with standard speaker labels (e.g. Speaker 1:, Speaker 2:).
 Return ONLY raw JSON in this format:
 {
   "title": "string",
   "script": [{"speaker": "string", "text": "string"}],
-  "questions": [{"num": 1, "q": "string (use ___ for the blank)", "answer": "string"}]
+  "questions": [{"num": number, "q": "string (use ___ for the blank)", "answer": "string"}]
 }`;
   
   try {

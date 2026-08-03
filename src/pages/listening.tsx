@@ -5,24 +5,26 @@ import { Badge } from '@/components/ui/badge'
 import { CheckCircle, Play, Pause, Loader2, Upload } from 'lucide-react'
 import { generateListeningTest } from '@/lib/gemini'
 
-const INITIAL_DATA = {
-  title: "Accommodation Request Form",
-  script: [],
-  questions: [
-    { num: 1, q: "Name: Anu ___", answer: "Bhatt" },
-    { num: 2, q: "Student Number: ___", answer: "3902" },
-    { num: 3, q: "Course Date: ___", answer: "12th May" },
-    { num: 4, q: "Room Preference: Single with a ___", answer: "bathroom" },
-    { num: 5, q: "Dietary Req: ___", answer: "vegetarian" }
-  ]
-}
+const INITIAL_DATA = [
+  {
+    title: "Part 1: Accommodation Request Form",
+    script: [],
+    questions: [
+      { num: 1, q: "Name: Anu ___", answer: "Bhatt" },
+      { num: 2, q: "Student Number: ___", answer: "3902" },
+      { num: 3, q: "Course Date: ___", answer: "12th May" },
+      { num: 4, q: "Room Preference: Single with a ___", answer: "bathroom" },
+      { num: 5, q: "Dietary Req: ___", answer: "vegetarian" }
+    ]
+  }
+]
 
 export default function Listening() {
   const [audioUrl, setAudioUrl] = useState<string>('/audio.mp3')
   const [audioName, setAudioName] = useState<string>('Audio Track 1')
   const [isCustomAudio, setIsCustomAudio] = useState(false)
 
-  const [testData, setTestData] = useState<any>(INITIAL_DATA)
+  const [testParts, setTestParts] = useState<any[]>(INITIAL_DATA)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   
@@ -52,11 +54,18 @@ export default function Listening() {
     window.speechSynthesis.cancel()
     setIsPlaying(false)
     try {
-      const data = await generateListeningTest()
-      if (data && data.title) {
-        setTestData(data)
+      // Chunking: Fetch 4 parts concurrently
+      const parts = await Promise.all([
+        generateListeningTest(1),
+        generateListeningTest(2),
+        generateListeningTest(3),
+        generateListeningTest(4)
+      ]);
+      
+      if (parts && parts[0] && parts[0].title) {
+        setTestParts(parts)
         const today = new Date().toISOString().split('T')[0];
-        localStorage.setItem('ielts_listening_daily', JSON.stringify({ date: today, data }));
+        localStorage.setItem('ielts_listening_daily_v2', JSON.stringify({ date: today, data: parts }));
       }
     } catch (e) {
       console.error(e)
@@ -66,13 +75,13 @@ export default function Listening() {
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    const cachedData = localStorage.getItem('ielts_listening_daily');
+    const cachedData = localStorage.getItem('ielts_listening_daily_v2');
     
     if (cachedData) {
       try {
         const parsed = JSON.parse(cachedData);
-        if (parsed.date === today && parsed.data && parsed.data.title) {
-          setTestData(parsed.data);
+        if (parsed.date === today && Array.isArray(parsed.data)) {
+          setTestParts(parsed.data);
           return;
         }
       } catch (e) {}
@@ -94,17 +103,19 @@ export default function Listening() {
     const voice1 = voices.find(v => v.lang.includes('en-GB') || v.lang.includes('en-UK')) || voices[0]
     const voice2 = voices.find(v => v.lang.includes('en-US')) || voices[1] || voices[0]
     
-    const speakers = [...new Set(testData.script?.map((s: any) => s.speaker) || [])]
+    // Flatten all scripts from all parts
+    const fullScript = testParts.flatMap(p => p.script || []);
+    const speakers = [...new Set(fullScript.map((s: any) => s.speaker))]
 
     let utteranceIndex = 0;
     
     const playNext = () => {
-      if (utteranceIndex >= (testData.script?.length || 0)) {
+      if (utteranceIndex >= fullScript.length) {
         setIsPlaying(false)
         return
       }
       
-      const line = testData.script[utteranceIndex]
+      const line = fullScript[utteranceIndex]
       const utterance = new SpeechSynthesisUtterance(line.text)
       utterance.voice = line.speaker === speakers[0] ? voice1 : voice2
       utterance.rate = 0.9 // Slower for listening test
@@ -124,6 +135,8 @@ export default function Listening() {
     playNext()
   }
 
+  const flatQuestions = testParts.flatMap(p => p.questions || []);
+
   return (
     <div className="flex flex-col gap-6 p-4 max-w-4xl mx-auto w-full">
       <div className="flex justify-between items-end">
@@ -131,7 +144,7 @@ export default function Listening() {
           <h1 className="text-3xl font-bold tracking-tight">Listening Practice</h1>
           <Button onClick={handleGenerate} disabled={isGenerating} variant="outline" size="sm" className="gap-2 border-primary/50 text-primary hover:bg-primary/10">
             {isGenerating && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isGenerating ? "Generating..." : "AI Generate New Test"}
+            {isGenerating ? "Generating Full Test..." : "AI Generate New Test (Parts 1-4)"}
           </Button>
         </div>
       </div>
@@ -141,7 +154,7 @@ export default function Listening() {
           <div className="flex flex-col gap-4 w-full">
             <div className="flex items-center gap-4">
               <div>
-                <div className="text-xl font-bold mb-2">{testData.title}</div>
+                <div className="text-xl font-bold mb-2">Full IELTS Listening Test</div>
                 <div className="flex gap-2 items-center">
                   <Badge variant="outline">{isCustomAudio ? "Local File" : "AI Synthesized"}</Badge>
                   <Badge variant="secondary" className="truncate max-w-[200px]" title={audioName}>
@@ -166,14 +179,14 @@ export default function Listening() {
               <div className="flex items-center gap-4 mt-4 p-4 bg-background rounded-lg border">
                 <Button 
                   onClick={handlePlayScript} 
-                  disabled={!testData.script || testData.script.length === 0}
+                  disabled={flatQuestions.length === 0}
                   className="w-16 h-16 rounded-full shrink-0"
                 >
                   {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
                 </Button>
                 <div className="flex-1">
                   <p className="font-semibold">{isPlaying ? "Test is playing..." : "Click play to start AI Listening Test"}</p>
-                  <p className="text-sm text-muted-foreground">The AI will read the generated script using your browser's built-in voices. Ensure your volume is up!</p>
+                  <p className="text-sm text-muted-foreground">The AI will read the generated script (Parts 1-4 sequentially). Ensure your volume is up!</p>
                 </div>
               </div>
             )}
@@ -184,45 +197,52 @@ export default function Listening() {
 
       <Card className="bg-card/50">
         <CardHeader className="border-b">
-          <CardTitle>Questions 1-{testData.questions?.length || 0}</CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">Complete the notes below. Write NO MORE THAN TWO WORDS for each answer.</p>
+          <CardTitle>Questions 1-{flatQuestions.length}</CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">Complete the notes below. Write NO MORE THAN THREE WORDS AND/OR A NUMBER for each answer.</p>
         </CardHeader>
-        <CardContent className="pt-8">
+        <CardContent className="pt-8 space-y-12">
           
-          <div className="max-w-2xl mx-auto space-y-6 bg-background p-8 rounded-lg border shadow-sm font-serif">
-            <h3 className="text-center font-bold text-xl uppercase mb-6 tracking-widest border-b pb-4">{testData.title || "Listening Test"}</h3>
-            
-            <div className="space-y-4 text-lg">
-              {testData.questions?.map((q: any, i: number) => {
-                const parts = q.q ? q.q.split('___') : ["", ""];
-                return (
-                  <div key={i} className="grid grid-cols-[auto_1fr] gap-4 items-end border-b border-dashed pb-2">
-                    <span className="inline-flex w-8 items-end justify-center font-sans text-sm font-bold text-primary mr-1">({i + 1})</span>
-                    <span className="leading-loose">
-                      {parts[0]}
-                      <input 
-                        type="text" 
-                        value={answers[i + 1] || ""}
-                        onChange={(e) => setAnswers({...answers, [i + 1]: e.target.value})}
-                        className={`border-b-2 bg-transparent outline-none min-w-[120px] font-sans px-2 text-center transition-colors ${
-                          isSubmitted 
-                            ? (answers[i + 1]?.toLowerCase().trim() === q.answer?.toLowerCase().trim() ? "border-green-500 text-green-500" : "border-destructive text-destructive")
-                            : "border-foreground/30 focus:border-primary"
-                        }`} 
-                      />
-                      {parts[1]}
-                      
-                      {isSubmitted && answers[i + 1]?.toLowerCase().trim() !== q.answer?.toLowerCase().trim() && (
-                        <span className="ml-2 text-sm font-bold text-green-500 bg-green-500/10 px-2 rounded">
-                          Answer: {q.answer}
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                )
-              })}
+          {testParts.map((part, partIndex) => (
+            <div key={partIndex} className="max-w-2xl mx-auto space-y-6 bg-background p-8 rounded-lg border shadow-sm font-serif">
+              <h3 className="text-center font-bold text-xl uppercase mb-6 tracking-widest border-b pb-4">
+                Part {partIndex + 1}: {part.title || "Listening Section"}
+              </h3>
+              
+              <div className="space-y-4 text-lg">
+                {part.questions?.map((q: any, i: number) => {
+                  const globalIndex = testParts.slice(0, partIndex).reduce((acc, p) => acc + (p.questions?.length || 0), 0) + i;
+                  const qNum = globalIndex + 1;
+                  const parts = q.q ? q.q.split('___') : ["", ""];
+                  
+                  return (
+                    <div key={i} className="grid grid-cols-[auto_1fr] gap-4 items-end border-b border-dashed pb-2">
+                      <span className="inline-flex w-8 items-end justify-center font-sans text-sm font-bold text-primary mr-1">({qNum})</span>
+                      <span className="leading-loose">
+                        {parts[0]}
+                        <input 
+                          type="text" 
+                          value={answers[qNum] || ""}
+                          onChange={(e) => setAnswers({...answers, [qNum]: e.target.value})}
+                          className={`border-b-2 bg-transparent outline-none min-w-[120px] font-sans px-2 text-center transition-colors ${
+                            isSubmitted 
+                              ? (answers[qNum]?.toLowerCase().trim() === q.answer?.toLowerCase().trim() ? "border-green-500 text-green-500" : "border-destructive text-destructive")
+                              : "border-foreground/30 focus:border-primary"
+                          }`} 
+                        />
+                        {parts[1]}
+                        
+                        {isSubmitted && answers[qNum]?.toLowerCase().trim() !== q.answer?.toLowerCase().trim() && (
+                          <span className="ml-2 text-sm font-bold text-green-500 bg-green-500/10 px-2 rounded">
+                            Answer: {q.answer}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-          </div>
+          ))}
 
           <div className="mt-8 flex justify-center">
             <Button size="lg" className="gap-2 w-64" onClick={() => setIsSubmitted(true)} disabled={isSubmitted}>

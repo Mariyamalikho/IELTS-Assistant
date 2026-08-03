@@ -9,20 +9,23 @@ type Stage = 'setup' | 'listening' | 'reading' | 'writing' | 'speaking' | 'evalu
 export default function Simulation() {
   const [stage, setStage] = useState<Stage>('setup')
   const [isGenerating, setIsGenerating] = useState(false)
+  const [generationStatus, setGenerationStatus] = useState("")
   
   // Global Timer State
   const [timeLeft, setTimeLeft] = useState(0)
   
   // Test Data
-  const [listeningData, setListeningData] = useState<any>(null)
-  const [readingData, setReadingData] = useState<any>(null)
-  const [writingData, setWritingData] = useState<any>(null)
-  const [speakingData, setSpeakingData] = useState<any>(null)
+  const [listeningData, setListeningData] = useState<any[]>([])
+  const [readingData, setReadingData] = useState<any[]>([])
+  const [writingData, setWritingData] = useState<any>(null) // { task1, task2 }
+  const [speakingData, setSpeakingData] = useState<any>(null) // { part1, part2, part3 }
   
   // User Answers
   const [listeningAnswers, setListeningAnswers] = useState<Record<number, string>>({})
   const [readingAnswers, setReadingAnswers] = useState<Record<number, string>>({})
-  const [writingAnswer, setWritingAnswer] = useState("")
+  const [writingAnswer1, setWritingAnswer1] = useState("")
+  const [writingAnswer2, setWritingAnswer2] = useState("")
+  
   const [speakingAudioBase64, setSpeakingAudioBase64] = useState<string | null>(null)
   const [speakingMimeType, setSpeakingMimeType] = useState<string>('audio/webm')
   
@@ -61,25 +64,31 @@ export default function Simulation() {
     return `${m}:${s}`
   }
 
-  // Generate all materials for the simulation
+  // Generate all materials sequentially in batches to avoid rate limits
   const startSimulation = async () => {
     setIsGenerating(true)
     try {
-      const [lData, rData, wData, sData] = await Promise.all([
-        generateListeningTest(),
-        generateReadingPassage(),
-        generateWritingPrompt('task2'), // Focus on Task 2 for simulation speed
-        generateSpeakingPrompt('part2')
-      ]);
-      setListeningData(lData);
-      setReadingData(rData);
-      setWritingData(wData);
-      setSpeakingData(sData);
+      setGenerationStatus("Generating Listening (Parts 1-4)...");
+      const listening = await Promise.all([generateListeningTest(1), generateListeningTest(2), generateListeningTest(3), generateListeningTest(4)]);
+      
+      setGenerationStatus("Generating Reading (Passages 1-3)...");
+      const reading = await Promise.all([generateReadingPassage(1), generateReadingPassage(2), generateReadingPassage(3)]);
+      
+      setGenerationStatus("Generating Writing (Tasks 1-2)...");
+      const writing = await Promise.all([generateWritingPrompt('task1'), generateWritingPrompt('task2')]);
+      
+      setGenerationStatus("Generating Speaking (Parts 1-3)...");
+      const speaking = await Promise.all([generateSpeakingPrompt('part1'), generateSpeakingPrompt('part2'), generateSpeakingPrompt('part3')]);
+
+      setListeningData(listening);
+      setReadingData(reading);
+      setWritingData({ task1: writing[0], task2: writing[1] });
+      setSpeakingData({ part1: speaking[0], part2: speaking[1], part3: speaking[2] });
       
       startListening();
     } catch (e) {
       console.error(e)
-      alert("Failed to generate simulation materials. Check Gemini API.")
+      alert("Failed to generate simulation materials. Check Gemini API rate limits.")
     }
     setIsGenerating(false)
   }
@@ -110,42 +119,46 @@ export default function Simulation() {
     setStage('evaluating')
     
     try {
-      // 1. Evaluate Writing
+      // 1. Evaluate Writing Task 2
       let writingFeedback = null;
-      if (writingAnswer.trim().length > 50) {
-        writingFeedback = await evaluateEssay(writingData.prompt, writingAnswer, 'task2');
+      if (writingAnswer2.trim().length > 50) {
+        writingFeedback = await evaluateEssay(writingData.task2.prompt, writingAnswer2, 'task2');
       }
 
-      // 2. Evaluate Speaking
+      // 2. Evaluate Speaking (Part 2)
       let speakingFeedback = null;
       if (speakingAudioBase64) {
         speakingFeedback = await evaluateSpeaking(speakingAudioBase64, speakingMimeType);
       }
 
-      // 3. Simple scoring for Listening and Reading
+      // 3. Exact matching for Listening and Reading (40 questions each)
       let listeningScore = 0;
-      if (listeningData) {
-        listeningData.questions.forEach((q: any) => {
-          if (listeningAnswers[q.num]?.toLowerCase().trim() === q.answer.toLowerCase().trim()) {
+      let listeningTotal = 0;
+      listeningData.forEach(part => {
+        part.questions?.forEach((q: any) => {
+          listeningTotal++;
+          if (listeningAnswers[q.num]?.toLowerCase().trim() === q.answer?.toLowerCase().trim()) {
             listeningScore += 1;
           }
         });
-      }
+      });
 
       let readingScore = 0;
-      if (readingData) {
-        readingData.questions.forEach((q: any) => {
-          if (readingAnswers[q.num]?.toLowerCase().trim() === q.answer.toLowerCase().trim()) {
+      let readingTotal = 0;
+      readingData.forEach(passage => {
+        passage.questions?.forEach((q: any) => {
+          readingTotal++;
+          if (readingAnswers[q.num]?.toLowerCase().trim() === q.answer?.toLowerCase().trim()) {
             readingScore += 1;
           }
         });
-      }
+      });
 
       setEvaluations({
         listeningRaw: listeningScore,
-        listeningTotal: listeningData?.questions?.length || 0,
+        listeningTotal: listeningTotal,
         readingRaw: readingScore,
-        readingTotal: readingData?.questions?.length || 0,
+        readingTotal: readingTotal,
         writing: writingFeedback,
         speaking: speakingFeedback
       })
@@ -212,12 +225,13 @@ export default function Simulation() {
     const voice1 = voices.find(v => v.lang.includes('en-GB') || v.lang.includes('en-UK')) || voices[0]
     const voice2 = voices.find(v => v.lang.includes('en-US')) || voices[1] || voices[0]
     
-    const speakers = [...new Set(listeningData.script.map((s: any) => s.speaker))]
+    const fullScript = listeningData.flatMap(p => p.script || []);
+    const speakers = [...new Set(fullScript.map((s: any) => s.speaker))]
 
     let utteranceIndex = 0;
     const playNext = () => {
-      if (utteranceIndex >= listeningData.script.length) return;
-      const line = listeningData.script[utteranceIndex]
+      if (utteranceIndex >= fullScript.length) return;
+      const line = fullScript[utteranceIndex]
       const utterance = new SpeechSynthesisUtterance(line.text)
       utterance.voice = line.speaker === speakers[0] ? voice1 : voice2
       utterance.rate = 0.9 
@@ -240,7 +254,7 @@ export default function Simulation() {
         </div>
         <div>
           <h1 className="text-4xl font-bold tracking-tight mb-4">IELTS Mock Exam Simulation</h1>
-          <p className="text-xl text-muted-foreground">Experience a full 3-hour IELTS test environment.</p>
+          <p className="text-xl text-muted-foreground">Experience a full 3-hour authentic IELTS test environment.</p>
         </div>
         
         <Card className="w-full bg-card/50 text-left border-warning/50">
@@ -249,19 +263,22 @@ export default function Simulation() {
               <AlertTriangle className="w-5 h-5" /> Strict Exam Conditions
             </h3>
             <ul className="space-y-3 text-muted-foreground list-disc list-inside">
-              <li><strong>Listening (30m)</strong>: Audio plays once using AI Text-to-Speech.</li>
-              <li><strong>Reading (60m)</strong>: Full 500-word academic passage.</li>
-              <li><strong>Writing (60m)</strong>: Task 2 Essay. Must be 250+ words.</li>
-              <li><strong>Speaking (15m)</strong>: Part 2 Long Turn recording.</li>
+              <li><strong>Listening (30m)</strong>: 4 Parts, 40 Questions. Audio plays once.</li>
+              <li><strong>Reading (60m)</strong>: 3 Passages, 40 Questions.</li>
+              <li><strong>Writing (60m)</strong>: Task 1 (150 words) and Task 2 (250 words).</li>
+              <li><strong>Speaking (15m)</strong>: Parts 1, 2, and 3 simulation.</li>
               <li>Timers cannot be paused. The test will auto-advance when time expires.</li>
             </ul>
           </CardContent>
         </Card>
 
-        <Button size="lg" className="w-64 h-14 text-lg mt-4" onClick={startSimulation} disabled={isGenerating}>
-          {isGenerating ? <Loader2 className="w-6 h-6 animate-spin mr-2" /> : <Play className="w-6 h-6 mr-2" />}
-          {isGenerating ? "Generating Exam..." : "Start Simulation"}
-        </Button>
+        <div className="flex flex-col items-center gap-2 mt-4">
+          <Button size="lg" className="w-64 h-14 text-lg" onClick={startSimulation} disabled={isGenerating}>
+            {isGenerating ? <Loader2 className="w-6 h-6 animate-spin mr-2" /> : <Play className="w-6 h-6 mr-2" />}
+            {isGenerating ? "Building Exam..." : "Start Simulation"}
+          </Button>
+          {isGenerating && <p className="text-sm text-muted-foreground animate-pulse">{generationStatus}</p>}
+        </div>
       </div>
     )
   }
@@ -285,7 +302,7 @@ export default function Simulation() {
             <CardHeader><CardTitle className="flex items-center gap-2"><Headphones className="w-5 h-5"/> Listening</CardTitle></CardHeader>
             <CardContent>
               <div className="text-5xl font-bold text-primary">{evaluations.listeningRaw} / {evaluations.listeningTotal}</div>
-              <p className="text-muted-foreground mt-2">Raw Score</p>
+              <p className="text-muted-foreground mt-2">Raw Score (Exact match)</p>
             </CardContent>
           </Card>
           
@@ -293,7 +310,7 @@ export default function Simulation() {
             <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Reading</CardTitle></CardHeader>
             <CardContent>
               <div className="text-5xl font-bold text-primary">{evaluations.readingRaw} / {evaluations.readingTotal}</div>
-              <p className="text-muted-foreground mt-2">Raw Score</p>
+              <p className="text-muted-foreground mt-2">Raw Score (Exact match)</p>
             </CardContent>
           </Card>
 
@@ -358,157 +375,234 @@ export default function Simulation() {
       <div className="flex-1 overflow-y-auto p-6 bg-muted/10">
         
         {/* LISTENING SECTION */}
-        {stage === 'listening' && listeningData && (
+        {stage === 'listening' && listeningData.length > 0 && (
           <div className="max-w-4xl mx-auto space-y-6">
-            <Card className="bg-blue-500/10 border-blue-500/30">
+            <Card className="bg-blue-500/10 border-blue-500/30 sticky top-0 z-10 backdrop-blur-md">
               <CardContent className="p-6 flex items-center justify-between">
                 <div>
-                  <h3 className="font-bold text-lg mb-1">{listeningData.title}</h3>
-                  <p className="text-sm text-muted-foreground">Click play to begin the audio track. It will only play once.</p>
+                  <h3 className="font-bold text-lg mb-1">Full Listening Test (Parts 1-4)</h3>
+                  <p className="text-sm text-muted-foreground">Click play to begin the audio track. It will play continuously.</p>
                 </div>
                 <Button size="lg" onClick={handlePlayListeningAudio} className="w-16 h-16 rounded-full"><Play className="w-8 h-8 ml-1"/></Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-8 space-y-6">
-                <h3 className="font-bold uppercase tracking-widest text-center border-b pb-4 mb-8">Notes</h3>
-                {listeningData.questions.map((q: any) => {
-                  const parts = q.q.split('___');
-                  return (
-                    <div key={q.num} className="grid grid-cols-[auto_1fr] gap-4 items-end border-b border-dashed pb-4">
-                      <span className="font-bold text-primary">({q.num})</span>
-                      <span className="text-lg leading-loose">
-                        {parts[0]}
-                        <input 
-                          type="text" 
-                          value={listeningAnswers[q.num] || ""}
-                          onChange={(e) => setListeningAnswers({...listeningAnswers, [q.num]: e.target.value})}
-                          className="border-b-2 border-foreground/50 bg-transparent outline-none w-32 px-2 text-center focus:border-primary font-mono" 
-                        />
-                        {parts[1]}
-                      </span>
-                    </div>
-                  )
-                })}
-              </CardContent>
-            </Card>
+            {listeningData.map((part, pIdx) => (
+              <Card key={pIdx}>
+                <CardHeader className="bg-muted/30 border-b">
+                  <CardTitle>Part {pIdx + 1}: {part.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                  {part.questions?.map((q: any) => {
+                    const parts = q.q.split('___');
+                    return (
+                      <div key={q.num} className="grid grid-cols-[auto_1fr] gap-4 items-end border-b border-dashed pb-4">
+                        <span className="font-bold text-primary">({q.num})</span>
+                        <span className="text-lg leading-loose">
+                          {parts[0]}
+                          <input 
+                            type="text" 
+                            value={listeningAnswers[q.num] || ""}
+                            onChange={(e) => setListeningAnswers({...listeningAnswers, [q.num]: e.target.value})}
+                            className="border-b-2 border-foreground/50 bg-transparent outline-none w-48 px-2 text-center focus:border-primary font-mono" 
+                          />
+                          {parts[1]}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
 
         {/* READING SECTION */}
-        {stage === 'reading' && readingData && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full max-w-6xl mx-auto">
-            <Card className="flex flex-col h-full overflow-hidden">
-              <CardHeader className="border-b bg-muted/30 pb-4">
-                <CardTitle>{readingData.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto p-6 font-serif text-lg leading-loose">
-                {readingData.passage.split('\n\n').map((para: string, i: number) => (
-                  <p key={i} className="mb-4">{para}</p>
-                ))}
-              </CardContent>
-            </Card>
+        {stage === 'reading' && readingData.length > 0 && (
+          <div className="max-w-6xl mx-auto space-y-12 pb-12">
+            {readingData.map((passage, pIdx) => (
+              <div key={pIdx} className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-[800px]">
+                <Card className="flex flex-col h-full overflow-hidden">
+                  <CardHeader className="border-b bg-muted/30 pb-4">
+                    <CardTitle>Passage {pIdx + 1}: {passage.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1 overflow-y-auto p-6 font-serif text-lg leading-loose">
+                    {passage.passage?.split('\n\n').map((para: string, i: number) => (
+                      <p key={i} className="mb-4">{para}</p>
+                    ))}
+                  </CardContent>
+                </Card>
 
-            <Card className="flex flex-col h-full bg-card/50">
-              <CardHeader className="border-b">
-                <CardTitle>Questions</CardTitle>
-                <p className="text-sm text-muted-foreground">TRUE / FALSE / NOT GIVEN</p>
-              </CardHeader>
-              <CardContent className="flex-1 overflow-y-auto p-6 space-y-8">
-                {readingData.questions.map((q: any) => (
-                  <div key={q.num} className="space-y-3">
-                    <p className="font-medium text-lg"><span className="text-primary font-bold mr-2">({q.num})</span> {q.q}</p>
-                    <div className="flex gap-2 pl-8">
-                      {['TRUE', 'FALSE', 'NOT GIVEN'].map(opt => (
-                        <Button 
-                          key={opt}
-                          variant={readingAnswers[q.num] === opt ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setReadingAnswers({...readingAnswers, [q.num]: opt})}
-                        >
-                          {opt}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                <Card className="flex flex-col h-full bg-card/50">
+                  <CardHeader className="border-b">
+                    <CardTitle>Questions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1 overflow-y-auto p-6 space-y-8">
+                    {passage.questions?.map((q: any) => {
+                      const parts = q.q ? q.q.split('___') : [q.q || ""];
+                      const isFillBlank = parts.length > 1;
+                      return (
+                        <div key={q.num} className="space-y-3 pb-4 border-b border-dashed">
+                          <p className="font-medium text-lg leading-loose">
+                            <span className="text-primary font-bold mr-2">({q.num})</span> 
+                            {parts[0]}
+                            {isFillBlank && (
+                              <input 
+                                type="text" 
+                                value={readingAnswers[q.num] || ""}
+                                onChange={(e) => setReadingAnswers({...readingAnswers, [q.num]: e.target.value})}
+                                className="border-b-2 mx-2 border-foreground/50 bg-transparent outline-none w-32 px-2 text-center focus:border-primary font-mono" 
+                              />
+                            )}
+                            {isFillBlank && parts[1]}
+                          </p>
+                          {!isFillBlank && (
+                            <div className="flex gap-2 pl-8 flex-wrap">
+                              {['TRUE', 'FALSE', 'NOT GIVEN', 'A', 'B', 'C', 'D'].map(opt => (
+                                <Button 
+                                  key={opt}
+                                  variant={readingAnswers[q.num] === opt ? "default" : "outline"}
+                                  size="sm"
+                                  onClick={() => setReadingAnswers({...readingAnswers, [q.num]: opt})}
+                                >
+                                  {opt}
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
           </div>
         )}
 
         {/* WRITING SECTION */}
         {stage === 'writing' && writingData && (
-          <div className="flex flex-col h-full gap-6 max-w-5xl mx-auto">
-            <Card className="shrink-0 bg-muted/30">
-              <CardContent className="p-6">
-                <h3 className="font-bold text-lg mb-2">Writing Task 2</h3>
-                <p className="text-lg leading-relaxed">{writingData.prompt}</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="flex-1 flex flex-col">
-              <CardContent className="p-0 flex-1 flex flex-col">
-                <textarea 
-                  className="flex-1 w-full p-6 bg-transparent resize-none outline-none text-lg leading-loose"
-                  placeholder="Write your essay here... (minimum 250 words)"
-                  value={writingAnswer}
-                  onChange={(e) => setWritingAnswer(e.target.value)}
-                />
-                <div className="border-t p-2 px-4 flex justify-end text-sm text-muted-foreground bg-muted/10">
-                  Word count: {writingAnswer.trim() ? writingAnswer.trim().split(/\s+/).length : 0}
-                </div>
-              </CardContent>
-            </Card>
+          <div className="flex flex-col gap-12 max-w-5xl mx-auto">
+            {/* Task 1 */}
+            <div className="flex flex-col h-[600px] gap-6">
+              <Card className="shrink-0 bg-muted/30">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-2">Writing Task 1 (Spend 20 mins)</h3>
+                  <p className="text-lg leading-relaxed">{writingData.task1?.prompt}</p>
+                </CardContent>
+              </Card>
+              <Card className="flex-1 flex flex-col">
+                <CardContent className="p-0 flex-1 flex flex-col">
+                  <textarea 
+                    className="flex-1 w-full p-6 bg-transparent resize-none outline-none text-lg leading-loose"
+                    placeholder="Write your Task 1 essay here... (minimum 150 words)"
+                    value={writingAnswer1}
+                    onChange={(e) => setWritingAnswer1(e.target.value)}
+                  />
+                  <div className="border-t p-2 px-4 flex justify-end text-sm text-muted-foreground bg-muted/10">
+                    Word count: {writingAnswer1.trim() ? writingAnswer1.trim().split(/\s+/).length : 0}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Task 2 */}
+            <div className="flex flex-col h-[800px] gap-6">
+              <Card className="shrink-0 bg-muted/30 border-primary">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-2 text-primary">Writing Task 2 (Spend 40 mins)</h3>
+                  <p className="text-lg leading-relaxed">{writingData.task2?.prompt}</p>
+                </CardContent>
+              </Card>
+              <Card className="flex-1 flex flex-col">
+                <CardContent className="p-0 flex-1 flex flex-col">
+                  <textarea 
+                    className="flex-1 w-full p-6 bg-transparent resize-none outline-none text-lg leading-loose"
+                    placeholder="Write your Task 2 essay here... (minimum 250 words)"
+                    value={writingAnswer2}
+                    onChange={(e) => setWritingAnswer2(e.target.value)}
+                  />
+                  <div className="border-t p-2 px-4 flex justify-end text-sm text-muted-foreground bg-muted/10">
+                    Word count: {writingAnswer2.trim() ? writingAnswer2.trim().split(/\s+/).length : 0}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
         {/* SPEAKING SECTION */}
         {stage === 'speaking' && speakingData && (
-          <div className="max-w-3xl mx-auto space-y-6 flex flex-col items-center justify-center h-full">
-            <Card className="w-full">
-              <CardHeader className="text-center border-b">
-                <CardTitle className="text-2xl">Speaking Part 2: Long Turn</CardTitle>
-                <p className="text-muted-foreground">You have 1 minute to prepare and 2 minutes to speak.</p>
+          <div className="max-w-3xl mx-auto space-y-6 pb-24">
+            <h2 className="text-2xl font-bold text-center">Speaking Test Simulation</h2>
+            
+            <Card>
+              <CardHeader className="bg-muted/30 border-b">
+                <CardTitle>Part 1: Introduction and Interview</CardTitle>
               </CardHeader>
-              <CardContent className="p-8">
-                <h3 className="text-xl font-bold mb-4">Describe {speakingData.topic}.</h3>
-                <p className="font-medium mb-2">You should say:</p>
-                <ul className="list-disc list-inside space-y-2 text-lg ml-4">
-                  {speakingData.bullets.map((b: string, i: number) => <li key={i}>{b}</li>)}
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold mb-4">Topic: {speakingData.part1?.topic}</h3>
+                <ul className="list-disc list-inside space-y-2 text-lg">
+                  {speakingData.part1?.questions?.map((q: string, i: number) => <li key={i}>{q}</li>)}
                 </ul>
               </CardContent>
             </Card>
-            
-            <div className="flex flex-col items-center gap-4 mt-8">
-              {!isRecording ? (
-                <Button 
-                  size="lg" 
-                  className="w-24 h-24 rounded-full bg-primary hover:bg-primary/90 shadow-xl transition-all hover:scale-105"
-                  onClick={startRecording}
-                >
-                  <Mic className="w-10 h-10" />
-                </Button>
-              ) : (
-                <Button 
-                  size="lg" 
-                  variant="destructive"
-                  className="w-24 h-24 rounded-full animate-pulse shadow-xl"
-                  onClick={stopRecording}
-                >
-                  <div className="w-8 h-8 bg-current rounded-sm" />
-                </Button>
-              )}
-              <p className="text-muted-foreground font-medium">
-                {isRecording ? "Recording... Click to stop." : "Click microphone to start recording."}
-              </p>
-              {speakingAudioBase64 && !isRecording && (
-                <p className="text-green-500 font-bold bg-green-500/10 px-4 py-2 rounded-full mt-4">
-                  Audio saved! You can force advance when ready.
-                </p>
-              )}
-            </div>
+
+            <Card className="border-primary">
+              <CardHeader className="bg-primary/5 border-b border-primary/20">
+                <CardTitle>Part 2: Long Turn (RECORDED FOR EVALUATION)</CardTitle>
+                <p className="text-sm text-muted-foreground">You have 1 minute to prepare and 2 minutes to speak.</p>
+              </CardHeader>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4">Describe {speakingData.part2?.topic}.</h3>
+                <p className="font-medium mb-2">You should say:</p>
+                <ul className="list-disc list-inside space-y-2 text-lg ml-4 mb-8">
+                  {speakingData.part2?.bullets?.map((b: string, i: number) => <li key={i}>{b}</li>)}
+                </ul>
+                
+                <div className="flex flex-col items-center gap-4 p-8 bg-muted/10 rounded-xl">
+                  {!isRecording ? (
+                    <Button 
+                      size="lg" 
+                      className="w-24 h-24 rounded-full bg-primary hover:bg-primary/90 shadow-xl transition-all hover:scale-105"
+                      onClick={startRecording}
+                    >
+                      <Mic className="w-10 h-10" />
+                    </Button>
+                  ) : (
+                    <Button 
+                      size="lg" 
+                      variant="destructive"
+                      className="w-24 h-24 rounded-full animate-pulse shadow-xl"
+                      onClick={stopRecording}
+                    >
+                      <div className="w-8 h-8 bg-current rounded-sm" />
+                    </Button>
+                  )}
+                  <p className="text-muted-foreground font-medium">
+                    {isRecording ? "Recording... Click to stop." : "Click microphone to start recording."}
+                  </p>
+                  {speakingAudioBase64 && !isRecording && (
+                    <p className="text-green-500 font-bold bg-green-500/10 px-4 py-2 rounded-full">
+                      Audio saved!
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="bg-muted/30 border-b">
+                <CardTitle>Part 3: Two-Way Discussion</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold mb-4">Topic: {speakingData.part3?.topic}</h3>
+                <ul className="list-disc list-inside space-y-2 text-lg">
+                  {speakingData.part3?.questions?.map((q: string, i: number) => <li key={i}>{q}</li>)}
+                </ul>
+              </CardContent>
+            </Card>
+
           </div>
         )}
 
