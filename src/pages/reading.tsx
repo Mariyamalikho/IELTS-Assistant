@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Clock, CheckCircle, Play, Pause, Loader2 } from 'lucide-react'
+import { formatTime } from '@/lib/utils'
 
 type Question = { num: number, q: string, answer: string }
 
@@ -82,12 +83,6 @@ export default function Reading() {
     }
     return () => clearInterval(interval)
   }, [isActive, timeLeft])
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0')
-    const s = (seconds % 60).toString().padStart(2, '0')
-    return `${m}:${s}`
-  }
 
   return (
     <div className="flex flex-col h-full gap-6 p-4">

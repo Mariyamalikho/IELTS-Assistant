@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { evaluateSpeaking, generateSpeakingPrompt } from '@/lib/gemini'
 import { supabase } from '@/lib/supabase'
+import { formatTime } from '@/lib/utils'
 import { Loader2, Mic, Square, Play } from 'lucide-react'
 
 const PART1_PROMPT = `Part 1: Introduction and Interview (4-5 minutes)
@@ -120,12 +121,6 @@ export default function Speaking() {
       setIsRecording(false)
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0')
-    const s = (seconds % 60).toString().padStart(2, '0')
-    return `${m}:${s}`
   }
 
   const blobToBase64 = (blob: Blob): Promise<string> => {
