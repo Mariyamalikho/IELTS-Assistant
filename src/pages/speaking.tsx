@@ -337,7 +337,7 @@ export default function Speaking() {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl border-muted bg-muted/20 text-muted-foreground">
               <Mic className="w-16 h-16 mb-4 opacity-20" />
-              <p>Record and submit your answer to see feedback here.</p>
+              <p className="text-center px-4">Record and submit your answer to see feedback here.</p>
             </div>
           )}
         </div>
