@@ -125,7 +125,7 @@ export default function Listening() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-6 p-4 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-6 p-4 max-w-4xl mx-auto w-full">
       <div className="flex justify-between items-end">
         <div className="flex items-center gap-4">
           <h1 className="text-3xl font-bold tracking-tight">Listening Practice</h1>
@@ -182,12 +182,12 @@ export default function Listening() {
         </CardContent>
       </Card>
 
-      <Card className="flex-1 flex flex-col bg-card/50 min-h-0">
-        <CardHeader className="border-b shrink-0">
+      <Card className="bg-card/50">
+        <CardHeader className="border-b">
           <CardTitle>Questions 1-{testData.questions?.length || 0}</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">Complete the notes below. Write NO MORE THAN TWO WORDS for each answer.</p>
         </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto pt-8">
+        <CardContent className="pt-8">
           
           <div className="max-w-2xl mx-auto space-y-6 bg-background p-8 rounded-lg border shadow-sm font-serif">
             <h3 className="text-center font-bold text-xl uppercase mb-6 tracking-widest border-b pb-4">{testData.title || "Listening Test"}</h3>
@@ -196,23 +196,23 @@ export default function Listening() {
               {testData.questions?.map((q: any, i: number) => {
                 const parts = q.q ? q.q.split('___') : ["", ""];
                 return (
-                  <div key={q.num} className="grid grid-cols-[auto_1fr] gap-4 items-end border-b border-dashed pb-2">
-                    <span className="inline-flex w-8 items-end justify-center font-sans text-sm font-bold text-primary mr-1">({q.num})</span>
+                  <div key={i} className="grid grid-cols-[auto_1fr] gap-4 items-end border-b border-dashed pb-2">
+                    <span className="inline-flex w-8 items-end justify-center font-sans text-sm font-bold text-primary mr-1">({i + 1})</span>
                     <span className="leading-loose">
                       {parts[0]}
                       <input 
                         type="text" 
-                        value={answers[q.num] || ""}
-                        onChange={(e) => setAnswers({...answers, [q.num]: e.target.value})}
+                        value={answers[i + 1] || ""}
+                        onChange={(e) => setAnswers({...answers, [i + 1]: e.target.value})}
                         className={`border-b-2 bg-transparent outline-none min-w-[120px] font-sans px-2 text-center transition-colors ${
                           isSubmitted 
-                            ? (answers[q.num]?.toLowerCase().trim() === q.answer.toLowerCase().trim() ? "border-green-500 text-green-500" : "border-destructive text-destructive")
+                            ? (answers[i + 1]?.toLowerCase().trim() === q.answer?.toLowerCase().trim() ? "border-green-500 text-green-500" : "border-destructive text-destructive")
                             : "border-foreground/30 focus:border-primary"
                         }`} 
                       />
                       {parts[1]}
                       
-                      {isSubmitted && answers[q.num]?.toLowerCase().trim() !== q.answer.toLowerCase().trim() && (
+                      {isSubmitted && answers[i + 1]?.toLowerCase().trim() !== q.answer?.toLowerCase().trim() && (
                         <span className="ml-2 text-sm font-bold text-green-500 bg-green-500/10 px-2 rounded">
                           Answer: {q.answer}
                         </span>
