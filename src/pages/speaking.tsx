@@ -35,7 +35,7 @@ export default function Speaking() {
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<BlobPart[]>([])
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<any>(null)
 
   useEffect(() => {
     return () => {

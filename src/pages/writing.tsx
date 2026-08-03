@@ -39,7 +39,7 @@ export default function Writing() {
 
   // Timer logic
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: any
     if (timerActive && timeLeft > 0) {
       interval = setInterval(() => setTimeLeft((prev) => prev - 1), 1000)
     } else if (timeLeft === 0) {

@@ -1,22 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
-const rawKeys = import.meta.env.VITE_GEMINI_API_KEYS || import.meta.env.VITE_GEMINI_API_KEY || '';
-// Extract any string that looks like a Gemini key (starts with AQ. and has no spaces)
-const extractedKeys = rawKeys.match(/AQ\.[A-Za-z0-9_-]+/g) || [];
-const apiKeys = extractedKeys.length > 0 ? extractedKeys : rawKeys.split(',').map((k: string) => k.trim()).filter(Boolean);
-
-if (apiKeys.length === 0) {
-  console.warn("Missing Gemini API Key(s). AI features will not work.");
-}
-
-// Function to get a fresh AI instance with a randomly selected key to distribute quota
-const getAI = () => {
-  const key = apiKeys.length > 0 
-    ? apiKeys[Math.floor(Math.random() * apiKeys.length)] 
-    : 'dummy-key';
-  return new GoogleGenAI({ apiKey: key });
-};
-
 // Helper to track daily usage in localStorage
 function trackUsage() {
   try {
@@ -52,7 +33,7 @@ function trackUsage() {
     localStorage.setItem('ielts_api_usage_count', count.toString());
     window.dispatchEvent(new Event('api_usage_updated'));
   } catch(e) {
-    // Ignore localStorage errors (e.g., SSR or strict privacy settings)
+    // Ignore localStorage errors
   }
 }
 
@@ -66,6 +47,23 @@ function parseAIJson(text: string | null | undefined) {
     console.error("Failed to parse JSON:", text);
     return {};
   }
+}
+
+// Generic function to call our secure Vercel backend proxy
+async function callGeminiProxy(model: string, contents: any, config: any) {
+  const response = await fetch('/api/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, contents, config })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `API Error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data;
 }
 
 export async function evaluateEssay(prompt: string, essay: string, taskType: 'task1' | 'task2') {
@@ -99,15 +97,11 @@ ${essay}
 
   try {
     trackUsage();
-    const response = await getAI().models.generateContent({
-      model: 'gemini-3.1-flash-lite',
-      contents: userPrompt,
-      config: {
-        systemInstruction,
-        temperature: 0.2, // Low temp for more consistent grading
-        responseMimeType: "application/json",
-      }
-    });
+    const response = await callGeminiProxy(
+      'gemini-3.1-flash-lite',
+      userPrompt,
+      { systemInstruction, temperature: 0.2, responseMimeType: "application/json" }
+    );
     return parseAIJson(response.text);
   } catch (error) {
     console.error("Gemini Evaluation Error:", error);
@@ -138,18 +132,14 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
 
   try {
     trackUsage();
-    const response = await getAI().models.generateContent({
-      model: 'gemini-3.1-flash-lite',
-      contents: [
+    const response = await callGeminiProxy(
+      'gemini-3.1-flash-lite',
+      [
         { inlineData: { data: audioBase64, mimeType: mimeType } },
         "Evaluate my IELTS speaking response."
       ],
-      config: {
-        systemInstruction,
-        temperature: 0.2,
-        responseMimeType: "application/json",
-      }
-    });
+      { systemInstruction, temperature: 0.2, responseMimeType: "application/json" }
+    );
     return parseAIJson(response.text);
   } catch (error) {
     console.error("Gemini Speaking Evaluation Error:", error);
@@ -166,11 +156,11 @@ export async function generateDailyVocabulary() {
   
   try {
     trackUsage();
-    const response = await getAI().models.generateContent({
-      model: 'gemini-3.1-flash-lite',
-      contents: prompt,
-      config: { responseMimeType: "application/json", temperature: 0.7 }
-    });
+    const response = await callGeminiProxy(
+      'gemini-3.1-flash-lite',
+      prompt,
+      { responseMimeType: "application/json", temperature: 0.7 }
+    );
     
     const parsed = parseAIJson(response.text);
     if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -201,11 +191,11 @@ Return ONLY raw JSON in this exact format, with no markdown:
   
   try {
     trackUsage();
-    const response = await getAI().models.generateContent({
-      model: 'gemini-3.1-flash-lite',
-      contents: prompt,
-      config: { responseMimeType: "application/json", temperature: 0.6 }
-    });
+    const response = await callGeminiProxy(
+      'gemini-3.1-flash-lite',
+      prompt,
+      { responseMimeType: "application/json", temperature: 0.6 }
+    );
     return parseAIJson(response.text);
   } catch(e) {
     console.error(e);
@@ -226,11 +216,11 @@ Return ONLY raw JSON: {"topic": "string", "bullets": ["string", "string", "strin
   
   try {
     trackUsage();
-    const response = await getAI().models.generateContent({
-      model: 'gemini-3.1-flash-lite',
-      contents: prompt,
-      config: { responseMimeType: "application/json", temperature: 0.8 }
-    });
+    const response = await callGeminiProxy(
+      'gemini-3.1-flash-lite',
+      prompt,
+      { responseMimeType: "application/json", temperature: 0.8 }
+    );
     return parseAIJson(response.text);
   } catch(e) {
     console.error(e);
@@ -255,11 +245,11 @@ Return ONLY raw JSON in this format:
   
   try {
     trackUsage();
-    const response = await getAI().models.generateContent({
-      model: 'gemini-3.1-flash-lite',
-      contents: prompt,
-      config: { responseMimeType: "application/json", temperature: 0.6 }
-    });
+    const response = await callGeminiProxy(
+      'gemini-3.1-flash-lite',
+      prompt,
+      { responseMimeType: "application/json", temperature: 0.6 }
+    );
     return parseAIJson(response.text);
   } catch (e) {
     console.error(e);
@@ -285,11 +275,11 @@ Return ONLY raw JSON: {"prompt": "string"}`;
     
   try {
     trackUsage();
-    const response = await getAI().models.generateContent({
-      model: 'gemini-3.1-flash-lite',
-      contents: prompt,
-      config: { responseMimeType: "application/json", temperature: 0.8 }
-    });
+    const response = await callGeminiProxy(
+      'gemini-3.1-flash-lite',
+      prompt,
+      { responseMimeType: "application/json", temperature: 0.8 }
+    );
     return parseAIJson(response.text);
   } catch (e) {
     console.error(e);
