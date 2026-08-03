@@ -229,7 +229,7 @@ export default function Speaking() {
                 <Button 
                   size="lg" 
                   aria-label="Start recording"
-                  className="w-24 h-24 rounded-full bg-primary hover:bg-primary/90 flex-col gap-2 shadow-[0_0_30px_oklch(var(--primary)/0.5)] transition-all hover:scale-105"
+                  className="w-24 h-24 rounded-full bg-primary hover:bg-primary/90 flex-col gap-2 shadow-[0_0_30px_oklch(var(--primary)/0.5)] transition-all hover:scale-110 active:scale-95"
                   onClick={startRecording}
                   disabled={isEvaluating}
                 >
@@ -332,7 +332,7 @@ export default function Speaking() {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl border-muted bg-muted/20 text-muted-foreground">
               <Mic className="w-16 h-16 mb-4 opacity-20" />
-              <p>Record and submit your answer to see feedback here.</p>
+              <p className="text-center px-4">Record and submit your answer to see feedback here.</p>
             </div>
           )}
         </div>

@@ -152,7 +152,7 @@ export default function Dashboard() {
 
       {/* Top Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-card to-primary/5 border-primary/20 shadow-sm">
+        <Card className="bg-gradient-to-br from-card to-primary/5 border-primary/10 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Estimated Overall Band</CardDescription>
             <CardTitle className="text-4xl font-extrabold text-primary flex items-end gap-2">
@@ -160,11 +160,11 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={(overallBand / 9) * 100} className="h-2 mt-4" />
+            <Progress value={(overallBand / 9) * 100} className="h-2 mt-4" title={`Estimated Band: ${overallBand.toFixed(1)}`} />
           </CardContent>
         </Card>
         
-        <Card className="shadow-sm">
+        <Card className="shadow-sm border-muted">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardDescription>Study Streak</CardDescription>
             <Flame className={`w-5 h-5 ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`} />
@@ -177,7 +177,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="shadow-sm border-muted">
           <CardHeader className="pb-2">
             <CardDescription>Practice Submissions</CardDescription>
             <CardTitle className="text-2xl font-bold">{writingScores.length + speakingScores.length} Total</CardTitle>
@@ -192,7 +192,7 @@ export default function Dashboard() {
       </div>
 
       {/* Chart Section */}
-      <Card className="col-span-full">
+      <Card className="col-span-full border-muted shadow-sm">
         <CardHeader>
           <CardTitle>Performance Trends</CardTitle>
           <CardDescription>AI-estimated band scores over your recent practice attempts.</CardDescription>
@@ -232,7 +232,7 @@ export default function Dashboard() {
           const Icon = module.icon
           const numBand = Number(module.band) || 0
           return (
-            <Card key={module.name} className="hover:shadow-md transition-shadow relative overflow-hidden">
+            <Card key={module.name} className="hover:shadow-md transition-shadow relative overflow-hidden border-muted shadow-sm">
               {!module.real && (
                 <div className="absolute top-0 right-0 bg-muted text-muted-foreground text-[10px] px-2 py-0.5 rounded-bl-md font-bold">
                   MOCK
