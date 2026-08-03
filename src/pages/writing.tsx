@@ -174,6 +174,7 @@ export default function Writing() {
                   <img 
                     src={chartUrl} 
                     alt="Task 1 Generated Graph" 
+                    loading="lazy"
                     className="max-w-full h-auto object-contain max-h-[300px]"
                   />
                 </div>
