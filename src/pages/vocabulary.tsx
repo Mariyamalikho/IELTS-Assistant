@@ -116,13 +116,18 @@ export default function Vocabulary() {
     if (quality === 0) {
       repetition = 0;
       interval = 1; // review tomorrow
-    } else {
+    } else if (quality === 1) {
       if (repetition === 0) {
-        interval = 1;
-      } else if (repetition === 1) {
-        interval = 6;
+        interval = 14; // Normal first time -> 2 weeks
       } else {
         interval = Math.round(interval * ease_factor);
+      }
+      repetition += 1;
+    } else if (quality === 2) {
+      if (repetition === 0) {
+        interval = 21; // Easy first time -> 3 weeks
+      } else {
+        interval = Math.round(interval * ease_factor * 1.3);
       }
       repetition += 1;
     }
@@ -265,14 +270,17 @@ export default function Vocabulary() {
         {/* Action Buttons - Only show when flipped */}
         {isFlipped && (
           <div className="flex gap-4 mt-8 animate-in slide-in-from-bottom-4">
-            <Button variant="destructive" size="lg" className="w-32" onClick={(e) => { e.stopPropagation(); handleReview(0); }}>
-              Hard (Again)
+            <Button variant="destructive" size="lg" className="w-32 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(0); }}>
+              <span>Hard</span>
+              <span className="text-xs opacity-80">(1 Day)</span>
             </Button>
-            <Button variant="default" size="lg" className="w-32 bg-blue-500 hover:bg-blue-600" onClick={(e) => { e.stopPropagation(); handleReview(1); }}>
-              Good (Days)
+            <Button variant="default" size="lg" className="w-32 bg-blue-500 hover:bg-blue-600 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(1); }}>
+              <span>Normal</span>
+              <span className="text-xs opacity-80">(2 Weeks)</span>
             </Button>
-            <Button variant="default" size="lg" className="w-32 bg-green-500 hover:bg-green-600" onClick={(e) => { e.stopPropagation(); handleReview(2); }}>
-              Easy (Weeks)
+            <Button variant="default" size="lg" className="w-32 bg-green-500 hover:bg-green-600 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(2); }}>
+              <span>Easy</span>
+              <span className="text-xs opacity-80">(3 Weeks)</span>
             </Button>
           </div>
         )}
