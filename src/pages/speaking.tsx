@@ -234,7 +234,7 @@ export default function Speaking() {
                 <Button 
                   size="lg" 
                   aria-label="Start recording"
-                  className="w-24 h-24 rounded-full bg-primary hover:bg-primary/90 flex-col gap-2 shadow-[0_0_30px_oklch(var(--primary)/0.5)] transition-all hover:scale-105"
+                  className="w-24 h-24 rounded-full bg-primary hover:bg-primary/90 flex-col gap-2 shadow-[0_0_30px_oklch(var(--primary)/0.5)] transition-all hover:scale-110 active:scale-95"
                   onClick={startRecording}
                   disabled={isEvaluating}
                 >
