@@ -160,7 +160,7 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={(overallBand / 9) * 100} className="h-2 mt-4" />
+            <Progress value={(overallBand / 9) * 100} className="h-2 mt-4" title={`Estimated Band: ${overallBand.toFixed(1)}`} />
           </CardContent>
         </Card>
         
