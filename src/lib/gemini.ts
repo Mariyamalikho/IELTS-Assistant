@@ -194,14 +194,8 @@ export async function generateDailyVocabulary() {
     if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     throw new Error("Invalid output");
   } catch (error: any) {
-    console.error("Gemini API Error, falling back to mock data:", error);
-    return [
-      { word: "Ubiquitous", meaning: "Present, appearing, or found everywhere.", example: "Mobile phones have become ubiquitous in modern society." },
-      { word: "Ephemeral", meaning: "Lasting for a very short time.", example: "The beauty of a sunset is inherently ephemeral." },
-      { word: "Pragmatic", meaning: "Dealing with things sensibly and realistically.", example: "We need a pragmatic approach to solving the climate crisis." },
-      { word: "Meticulous", meaning: "Showing great attention to detail; very careful and precise.", example: "The researcher was meticulous in documenting her findings." },
-      { word: "Ameliorate", meaning: "Make (something bad or unsatisfactory) better.", example: "Steps have been taken to ameliorate the situation." }
-    ];
+    console.error("Gemini API Error:", error);
+    throw error;
   }
 }
 

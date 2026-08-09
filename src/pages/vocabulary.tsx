@@ -44,7 +44,23 @@ export default function Vocabulary() {
     setIsLoading(true);
     const now = new Date().toISOString();
     
-    const allVocab = getLocalVocab();
+    let allVocab = getLocalVocab();
+    
+    // Deduplicate words in case of previous bugs generating the same words repeatedly
+    const uniqueWords = new Set();
+    const deduplicatedVocab = [];
+    for (const v of allVocab) {
+      if (!uniqueWords.has(v.word.toLowerCase())) {
+        uniqueWords.add(v.word.toLowerCase());
+        deduplicatedVocab.push(v);
+      }
+    }
+    
+    if (deduplicatedVocab.length !== allVocab.length) {
+      allVocab = deduplicatedVocab;
+      saveLocalVocab(allVocab); // Save the cleaned up list
+    }
+
     // Filter words due today or earlier
     const due = allVocab.filter(v => v.next_review_date <= now)
       .sort((a, b) => a.next_review_date.localeCompare(b.next_review_date));
@@ -115,7 +131,9 @@ export default function Vocabulary() {
 
     if (quality === 0) {
       repetition = 0;
-      interval = 1; // review tomorrow
+      interval = 1; // It will still be due tomorrow if they don't finish the session
+      // But we also push it to the end of the CURRENT session so they see it again today!
+      setVocabList(prev => [...prev, { ...prev[currentIndex], interval, repetition }]);
     } else if (quality === 1) {
       if (repetition === 0) {
         interval = 14; // Normal first time -> 2 weeks
@@ -272,7 +290,7 @@ export default function Vocabulary() {
           <div className="flex gap-4 mt-8 animate-in slide-in-from-bottom-4">
             <Button variant="destructive" size="lg" className="w-32 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(0); }}>
               <span>Hard</span>
-              <span className="text-xs opacity-80">(1 Day)</span>
+              <span className="text-xs opacity-80">(Again)</span>
             </Button>
             <Button variant="default" size="lg" className="w-32 bg-blue-500 hover:bg-blue-600 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(1); }}>
               <span>Normal</span>
