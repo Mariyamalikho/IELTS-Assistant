@@ -115,6 +115,8 @@ export default function Vocabulary() {
       const now = new Date().toISOString();
       const refetched = getLocalVocab().filter(v => v.next_review_date <= now);
       setVocabList(refetched);
+      setReviewComplete(false);
+      setCurrentIndex(0);
     } catch (err: any) {
       console.error("Failed to generate words:", err);
       setGenerateError(err.message || "Unknown error occurred");
