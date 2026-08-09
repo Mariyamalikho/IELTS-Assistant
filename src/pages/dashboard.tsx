@@ -82,7 +82,9 @@ export default function Dashboard() {
         const diffTime = currentDate.getTime() - lastDate.getTime();
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
         
-        // If more than 1 day has passed since last activity, streak is broken
+        // Streak Logic Verification:
+        // When the dashboard loads, we check if the user missed yesterday.
+        // If more than 1 day has passed since their last activity, their streak is broken.
         if (diffDays > 1) {
            currentStreak = 0;
            localStorage.setItem('ielts_streak', '0');
