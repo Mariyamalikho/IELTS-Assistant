@@ -9,7 +9,9 @@ function trackUsage() {
     if (usageDate !== today) {
       count = 0;
       
-      // Streak Logic
+      // Streak Logic:
+      // The streak increases if the user practices on consecutive days.
+      // If the user misses a day, the streak is reset to 1 on their next practice.
       if (usageDate) {
         const lastDate = new Date(usageDate);
         const currentDate = new Date(today);
