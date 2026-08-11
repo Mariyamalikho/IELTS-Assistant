@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { RotateCcw, Volume2, Loader2, CheckCircle } from 'lucide-react'
+import { Loader2, CheckCircle, Volume2, RotateCcw } from 'lucide-react'
 import { generateDailyVocabulary } from '@/lib/gemini'
+import { STORAGE_KEYS } from '@/lib/constants'
 
 type Vocab = { 
   id: string, 
@@ -32,12 +33,12 @@ export default function Vocabulary() {
   }, []);
 
   const getLocalVocab = (): Vocab[] => {
-    const raw = localStorage.getItem('ielts_vocabulary');
+    const raw = localStorage.getItem(STORAGE_KEYS.VOCABULARY);
     return raw ? JSON.parse(raw) : [];
   }
 
   const saveLocalVocab = (data: Vocab[]) => {
-    localStorage.setItem('ielts_vocabulary', JSON.stringify(data));
+    localStorage.setItem(STORAGE_KEYS.VOCABULARY, JSON.stringify(data));
   }
 
   const fetchDueWords = async () => {
