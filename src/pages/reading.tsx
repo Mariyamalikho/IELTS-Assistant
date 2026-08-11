@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Clock, CheckCircle, Play, Pause, Loader2 } from 'lucide-react'
 import { formatTime } from '@/lib/utils'
+import { STORAGE_KEYS } from '@/lib/constants'
 
 export interface ReadingPassageData {
   title: string;
@@ -51,7 +52,7 @@ export default function Reading() {
       if (parts && parts[0] && parts[0].title) {
         setPassages(parts);
         const today = new Date().toISOString().split('T')[0];
-        localStorage.setItem('ielts_reading_daily_v2', JSON.stringify({ date: today, data: parts }));
+        localStorage.setItem(STORAGE_KEYS.READING_DAILY, JSON.stringify({ date: today, data: parts }));
       }
     } catch (e) {
       console.error(e);
@@ -61,7 +62,7 @@ export default function Reading() {
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    const cachedData = localStorage.getItem('ielts_reading_daily_v2');
+    const cachedData = localStorage.getItem(STORAGE_KEYS.READING_DAILY);
     
     if (cachedData) {
       try {
