@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { BookOpen, PenTool, Headphones, Mic, Flame, RotateCcw } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { STORAGE_KEYS } from "@/lib/constants"
 import {
   LineChart,
   Line,
@@ -73,8 +74,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    const lastUsageDate = localStorage.getItem('ielts_api_usage_date');
-    let currentStreak = parseInt(localStorage.getItem('ielts_streak') || '0', 10);
+    const lastUsageDate = localStorage.getItem(STORAGE_KEYS.USAGE_DATE);
+    let currentStreak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0', 10);
 
     if (lastUsageDate && lastUsageDate !== today) {
         const lastDate = new Date(lastUsageDate);
@@ -87,7 +88,7 @@ export default function Dashboard() {
         // If more than 1 day has passed since their last activity, their streak is broken.
         if (diffDays > 1) {
            currentStreak = 0;
-           localStorage.setItem('ielts_streak', '0');
+           localStorage.setItem(STORAGE_KEYS.STREAK, '0');
         }
     }
     
@@ -96,7 +97,7 @@ export default function Dashboard() {
     
     // Listen for real-time streak updates from Gemini usage
     const handleUsageUpdate = () => {
-      setStreak(parseInt(localStorage.getItem('ielts_streak') || '0', 10));
+      setStreak(parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0', 10));
     };
     window.addEventListener('api_usage_updated', handleUsageUpdate);
     return () => window.removeEventListener('api_usage_updated', handleUsageUpdate);
@@ -116,8 +117,8 @@ export default function Dashboard() {
     await supabase.from('speaking_sessions').delete().neq('created_at', '1970-01-01')
     
     // Reset Local Storage data
-    localStorage.removeItem('ielts_vocabulary')
-    localStorage.setItem('ielts_streak', '0')
+    localStorage.removeItem(STORAGE_KEYS.VOCABULARY)
+    localStorage.setItem(STORAGE_KEYS.STREAK, '0')
     setStreak(0)
     
     await fetchStats()
