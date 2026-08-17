@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 import { TimerDisplay } from "@/components/TimerDisplay"
-import { Play, Square, Mic, Send, Loader2, ArrowRight, AlertCircle, Clock } from "lucide-react"
+import { Play, Mic, Loader2, ArrowRight, Trophy, AlertTriangle, Headphones, FileText } from "lucide-react"
 import { ScoreBadge } from "@/components/ScoreBadge"
 import { generateListeningTest, generateReadingPassage, generateWritingPrompt, generateSpeakingPrompt, evaluateEssay, evaluateSpeaking } from '@/lib/gemini'
 
@@ -57,14 +57,6 @@ export default function Simulation() {
     else if (stage === 'reading') startWriting();
     else if (stage === 'writing') startSpeaking();
     else if (stage === 'speaking') finishSimulation();
-  }
-
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600)
-    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0')
-    const s = (seconds % 60).toString().padStart(2, '0')
-    if (h > 0) return `${h}:${m}:${s}`
-    return `${m}:${s}`
   }
 
   // Generate all materials sequentially in batches to avoid rate limits
