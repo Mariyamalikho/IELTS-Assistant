@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { ScoreBadge } from "@/components/ScoreBadge"
 import { Loader2, Clock, Play, Mic, FileText, Headphones, Trophy, AlertTriangle, ArrowRight } from 'lucide-react'
 import { generateListeningTest, generateReadingPassage, generateWritingPrompt, generateSpeakingPrompt, evaluateEssay, evaluateSpeaking } from '@/lib/gemini'
 
@@ -318,10 +319,11 @@ export default function Simulation() {
             <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Writing (Task 2)</CardTitle></CardHeader>
             <CardContent>
               {evaluations.writing ? (
-                <>
-                  <div className="text-5xl font-bold text-primary mb-4">Band {evaluations.writing.estimatedBand}</div>
-                  <p className="font-semibold text-sm">TR: {evaluations.writing.taskAchievement?.score} | CC: {evaluations.writing.coherenceCohesion?.score} | LR: {evaluations.writing.lexicalResource?.score} | GRA: {evaluations.writing.grammaticalRange?.score}</p>
-                </>
+                <div className="bg-background rounded-lg p-6 flex flex-col items-center text-center">
+                  <h3 className="font-bold text-lg mb-2">Writing (Task 2)</h3>
+                  <ScoreBadge band={evaluations.writing.estimatedBand} size="lg" title="Estimated Band" description="Overall Score" className="mb-4" />
+                  <p className="text-sm text-muted-foreground">{evaluations.writing.overallFeedback.substring(0, 150)}...</p>
+                </div>
               ) : <p className="text-muted-foreground">No essay submitted.</p>}
             </CardContent>
           </Card>
@@ -330,10 +332,11 @@ export default function Simulation() {
             <CardHeader><CardTitle className="flex items-center gap-2"><Mic className="w-5 h-5"/> Speaking</CardTitle></CardHeader>
             <CardContent>
               {evaluations.speaking ? (
-                <>
-                  <div className="text-5xl font-bold text-primary mb-4">Band {evaluations.speaking.estimatedBand}</div>
-                  <p className="font-semibold text-sm">FC: {evaluations.speaking.fluencyAndCoherence?.score} | LR: {evaluations.speaking.lexicalResource?.score} | GRA: {evaluations.speaking.grammaticalRange?.score} | PR: {evaluations.speaking.pronunciation?.score}</p>
-                </>
+                <div className="bg-background rounded-lg p-6 flex flex-col items-center text-center">
+                  <h3 className="font-bold text-lg mb-2">Speaking (Part 2)</h3>
+                  <ScoreBadge band={evaluations.speaking.estimatedBand} size="lg" title="Estimated Band" description="Overall Score" className="mb-4" />
+                  <p className="text-sm text-muted-foreground">{evaluations.speaking.overallFeedback.substring(0, 150)}...</p>
+                </div>
               ) : <p className="text-muted-foreground">No audio submitted.</p>}
             </CardContent>
           </Card>
