@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TimerDisplay } from "@/components/TimerDisplay"
+import { Play, Square, Mic, Send, Loader2, ArrowRight, AlertCircle, Clock } from "lucide-react"
 import { ScoreBadge } from "@/components/ScoreBadge"
-import { Loader2, Clock, Play, Mic, FileText, Headphones, Trophy, AlertTriangle, ArrowRight } from 'lucide-react'
 import { generateListeningTest, generateReadingPassage, generateWritingPrompt, generateSpeakingPrompt, evaluateEssay, evaluateSpeaking } from '@/lib/gemini'
 
 type Stage = 'setup' | 'listening' | 'reading' | 'writing' | 'speaking' | 'evaluating' | 'results'
@@ -360,10 +362,7 @@ export default function Simulation() {
           <h2 className="font-semibold capitalize text-lg">Section: {stage}</h2>
         </div>
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 text-2xl font-mono font-bold text-destructive">
-            <Clock className="w-6 h-6 animate-pulse" />
-            {formatTime(timeLeft)}
-          </div>
+          <TimerDisplay timeLeft={timeLeft} size="lg" />
           <Button 
             variant="default" 
             size="sm" 
