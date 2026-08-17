@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TimerDisplay } from '@/components/TimerDisplay'
 import { Clock, CheckCircle, Play, Pause, Loader2 } from 'lucide-react'
 import { formatTime } from '@/lib/utils'
 import { STORAGE_KEYS } from '@/lib/constants'
@@ -111,10 +112,7 @@ export default function Reading() {
           <Button variant="outline" size="icon" onClick={() => setIsActive(!isActive)}>
             {isActive ? <Pause className="w-4 h-4 text-destructive" /> : <Play className="w-4 h-4 text-green-500" />}
           </Button>
-          <div className="flex items-center gap-2 bg-background px-4 py-2 rounded-md border text-xl font-mono min-w-[120px]">
-            <Clock className={`w-5 h-5 ${isActive ? 'text-destructive animate-pulse' : 'text-primary'}`} />
-            <span>{formatTime(timeLeft)}</span>
-          </div>
+          <TimerDisplay timeLeft={timeLeft} size="md" />
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScoreBadge } from '@/components/ScoreBadge'
 import { evaluateEssay, generateWritingPrompt } from '@/lib/gemini'
 import { supabase } from '@/lib/supabase'
+import { TimerDisplay } from '@/components/TimerDisplay'
 import { Loader2, Send, Clock, AlertCircle } from 'lucide-react'
 
 const DEFAULT_TASK1 = {
@@ -224,10 +225,7 @@ export default function Writing() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Your Essay</CardTitle>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-xl font-mono bg-background px-3 py-1 rounded-md border">
-                <Clock className="w-5 h-5 text-primary" />
-                <span className={timeLeft < 300 ? "text-destructive" : ""}>{formatTime(timeLeft)}</span>
-              </div>
+              <TimerDisplay timeLeft={timeLeft} size="sm" />
               <Button variant="outline" size="sm" onClick={() => setTimerActive(!timerActive)}>
                 {timerActive ? "Pause" : "Start"} Timer
               </Button>
