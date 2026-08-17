@@ -9,8 +9,7 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookOpen, PenTool, Headphones, Mic, Flame, RotateCcw, Target } from "lucide-react"
-import { CardWrapper } from "@/components/CardWrapper"
+import { BookOpen, PenTool, Headphones, Mic, Flame, RotateCcw } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { STORAGE_KEYS } from "@/lib/constants"
 import {
@@ -156,18 +155,17 @@ export default function Dashboard() {
 
       {/* Top Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <CardWrapper 
-          className="bg-gradient-to-br from-card to-primary/5 border-primary/10 shadow-sm"
-          title={<span className="flex items-center gap-2"><Target className="w-5 h-5 text-primary" /> Today's Target</span>}
-          description="Estimated Overall Band"
-        >
-          <div className="flex items-end gap-2 mt-2">
-            <span className="text-5xl font-black text-primary">
+        <Card className="bg-gradient-to-br from-card to-primary/5 border-primary/10 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardDescription>Estimated Overall Band</CardDescription>
+            <CardTitle className="text-4xl font-extrabold text-primary flex items-end gap-2">
               {overallBand.toFixed(1)} <span className="text-sm font-medium text-muted-foreground pb-1">/ 8.0 Target</span>
-            </span>
-          </div>
-          <Progress value={(overallBand / 9) * 100} className="h-2 mt-4" title={`Estimated Band: ${overallBand.toFixed(1)}`} />
-        </CardWrapper>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Progress value={(overallBand / 9) * 100} className="h-2 mt-4" title={`Estimated Band: ${overallBand.toFixed(1)}`} />
+          </CardContent>
+        </Card>
         
         <Card className="shadow-sm border-muted">
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">

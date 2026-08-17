@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScoreBadge } from '@/components/ScoreBadge'
 import { evaluateSpeaking, generateSpeakingPrompt } from '@/lib/gemini'
 import { supabase } from '@/lib/supabase'
 import { formatTime } from '@/lib/utils'
@@ -287,7 +286,7 @@ export default function Speaking() {
               <CardHeader className="sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b">
                 <CardTitle className="text-primary flex justify-between items-center">
                   <span>Evaluation Complete</span>
-                  <ScoreBadge band={feedback.estimatedBand} size="sm" title="Band Score" description="Overall" />
+                  <span className="text-4xl">Band {feedback.estimatedBand}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 pt-6">
