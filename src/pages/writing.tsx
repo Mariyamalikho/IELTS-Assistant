@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScoreBadge } from '@/components/ScoreBadge'
 import { evaluateEssay, generateWritingPrompt } from '@/lib/gemini'
 import { supabase } from '@/lib/supabase'
 import { Loader2, Send, Clock, AlertCircle } from 'lucide-react'
@@ -187,7 +188,7 @@ export default function Writing() {
               <CardHeader>
                 <CardTitle className="text-primary flex justify-between items-center">
                   <span>Evaluation Complete</span>
-                  <span className="text-4xl">Band {feedback.estimatedBand}</span>
+                  <ScoreBadge band={feedback.estimatedBand} size="sm" title="Band Score" description="Overall" />
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
