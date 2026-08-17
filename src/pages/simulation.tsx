@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Loader2, Clock, Play, Mic, FileText, Headphones, Trophy, AlertTriangle, ArrowRight } from 'lucide-react'
+
+import { TimerDisplay } from "@/components/TimerDisplay"
+import { Play, Mic, Loader2, ArrowRight, Trophy, AlertTriangle, Headphones, FileText } from "lucide-react"
+import { ScoreBadge } from "@/components/ScoreBadge"
 import { generateListeningTest, generateReadingPassage, generateWritingPrompt, generateSpeakingPrompt, evaluateEssay, evaluateSpeaking } from '@/lib/gemini'
 
 type Stage = 'setup' | 'listening' | 'reading' | 'writing' | 'speaking' | 'evaluating' | 'results'
@@ -54,14 +57,6 @@ export default function Simulation() {
     else if (stage === 'reading') startWriting();
     else if (stage === 'writing') startSpeaking();
     else if (stage === 'speaking') finishSimulation();
-  }
-
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600)
-    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0')
-    const s = (seconds % 60).toString().padStart(2, '0')
-    if (h > 0) return `${h}:${m}:${s}`
-    return `${m}:${s}`
   }
 
   // Generate all materials sequentially in batches to avoid rate limits
@@ -318,10 +313,11 @@ export default function Simulation() {
             <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Writing (Task 2)</CardTitle></CardHeader>
             <CardContent>
               {evaluations.writing ? (
-                <>
-                  <div className="text-5xl font-bold text-primary mb-4">Band {evaluations.writing.estimatedBand}</div>
-                  <p className="font-semibold text-sm">TR: {evaluations.writing.taskAchievement?.score} | CC: {evaluations.writing.coherenceCohesion?.score} | LR: {evaluations.writing.lexicalResource?.score} | GRA: {evaluations.writing.grammaticalRange?.score}</p>
-                </>
+                <div className="bg-background rounded-lg p-6 flex flex-col items-center text-center">
+                  <h3 className="font-bold text-lg mb-2">Writing (Task 2)</h3>
+                  <ScoreBadge band={evaluations.writing.estimatedBand} size="lg" title="Estimated Band" description="Overall Score" className="mb-4" />
+                  <p className="text-sm text-muted-foreground">{evaluations.writing.overallFeedback.substring(0, 150)}...</p>
+                </div>
               ) : <p className="text-muted-foreground">No essay submitted.</p>}
             </CardContent>
           </Card>
@@ -330,10 +326,11 @@ export default function Simulation() {
             <CardHeader><CardTitle className="flex items-center gap-2"><Mic className="w-5 h-5"/> Speaking</CardTitle></CardHeader>
             <CardContent>
               {evaluations.speaking ? (
-                <>
-                  <div className="text-5xl font-bold text-primary mb-4">Band {evaluations.speaking.estimatedBand}</div>
-                  <p className="font-semibold text-sm">FC: {evaluations.speaking.fluencyAndCoherence?.score} | LR: {evaluations.speaking.lexicalResource?.score} | GRA: {evaluations.speaking.grammaticalRange?.score} | PR: {evaluations.speaking.pronunciation?.score}</p>
-                </>
+                <div className="bg-background rounded-lg p-6 flex flex-col items-center text-center">
+                  <h3 className="font-bold text-lg mb-2">Speaking (Part 2)</h3>
+                  <ScoreBadge band={evaluations.speaking.estimatedBand} size="lg" title="Estimated Band" description="Overall Score" className="mb-4" />
+                  <p className="text-sm text-muted-foreground">{evaluations.speaking.overallFeedback.substring(0, 150)}...</p>
+                </div>
               ) : <p className="text-muted-foreground">No audio submitted.</p>}
             </CardContent>
           </Card>
@@ -357,10 +354,7 @@ export default function Simulation() {
           <h2 className="font-semibold capitalize text-lg">Section: {stage}</h2>
         </div>
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 text-2xl font-mono font-bold text-destructive">
-            <Clock className="w-6 h-6 animate-pulse" />
-            {formatTime(timeLeft)}
-          </div>
+          <TimerDisplay timeLeft={timeLeft} size="lg" />
           <Button 
             variant="default" 
             size="sm" 

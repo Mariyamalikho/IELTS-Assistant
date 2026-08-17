@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
+import { Textarea } from "@/components/ui/textarea"
+import { TimerDisplay } from "@/components/TimerDisplay"
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScoreBadge } from '@/components/ScoreBadge'
 import { evaluateEssay, generateWritingPrompt } from '@/lib/gemini'
 import { supabase } from '@/lib/supabase'
-import { Loader2, Send, Clock, AlertCircle } from 'lucide-react'
+import { Loader2, Send, AlertCircle } from 'lucide-react'
 
 const DEFAULT_TASK1 = {
   prompt: `The graph below shows the number of tourists visiting a particular Caribbean island between 2010 and 2017.\nSummarize the information by selecting and reporting the main features, and make comparisons where relevant.\nWrite at least 150 words.`,
@@ -47,12 +49,6 @@ export default function Writing() {
     }
     return () => clearInterval(interval)
   }, [timerActive, timeLeft])
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0')
-    const s = (seconds % 60).toString().padStart(2, '0')
-    return `${m}:${s}`
-  }
 
   const handleTaskSwitch = (val: string) => {
     const type = val as 'task1' | 'task2'
@@ -187,7 +183,7 @@ export default function Writing() {
               <CardHeader>
                 <CardTitle className="text-primary flex justify-between items-center">
                   <span>Evaluation Complete</span>
-                  <span className="text-4xl">Band {feedback.estimatedBand}</span>
+                  <ScoreBadge band={feedback.estimatedBand} size="sm" title="Band Score" description="Overall" />
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -223,10 +219,7 @@ export default function Writing() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Your Essay</CardTitle>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-xl font-mono bg-background px-3 py-1 rounded-md border">
-                <Clock className="w-5 h-5 text-primary" />
-                <span className={timeLeft < 300 ? "text-destructive" : ""}>{formatTime(timeLeft)}</span>
-              </div>
+              <TimerDisplay timeLeft={timeLeft} size="sm" />
               <Button variant="outline" size="sm" onClick={() => setTimerActive(!timerActive)}>
                 {timerActive ? "Pause" : "Start"} Timer
               </Button>
