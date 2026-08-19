@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
+
 import {
   Menu,
   LayoutDashboard,
@@ -36,11 +36,11 @@ export function MobileNav() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+      <SheetTrigger>
+        <div className="md:hidden inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9">
           <Menu className="w-5 h-5" />
           <span className="sr-only">Toggle navigation menu</span>
-        </Button>
+        </div>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0 flex flex-col">
         <div className="p-6 flex items-center gap-3 border-b border-border/50">
