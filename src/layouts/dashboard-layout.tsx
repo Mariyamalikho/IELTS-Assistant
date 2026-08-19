@@ -8,6 +8,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { Sidebar } from "@/components/Sidebar"
+import { MobileNav } from "@/components/MobileNav"
 
 export default function DashboardLayout() {
   const { user } = useAuth()
@@ -58,9 +59,10 @@ export default function DashboardLayout() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <header className="h-16 border-b border-border bg-card flex items-center justify-between px-8">
-          <div className="flex items-center gap-6">
-            <div className="text-sm font-medium text-muted-foreground hidden sm:block">
+        <header className="h-16 border-b border-border bg-card flex items-center justify-between px-4 sm:px-8">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <MobileNav />
+            <div className="text-sm font-medium text-muted-foreground hidden lg:block">
               {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             </div>
             
