@@ -33,8 +33,8 @@ export class GlobalErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
-          <div className="max-w-md w-full bg-card border rounded-xl shadow-lg p-8 flex flex-col items-center text-center space-y-6">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-destructive/5 p-4">
+          <div className="max-w-md w-full bg-card border-destructive/20 border shadow-2xl rounded-2xl p-8 flex flex-col items-center text-center space-y-6">
             <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center">
               <AlertTriangle className="w-8 h-8 text-destructive" />
             </div>
