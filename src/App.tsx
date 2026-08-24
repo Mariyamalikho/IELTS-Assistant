@@ -11,9 +11,12 @@ import Vocabulary from './pages/vocabulary'
 import Simulation from './pages/simulation'
 import Login from './pages/login'
 
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
+
 function App() {
   return (
-    <AuthProvider>
+    <GlobalErrorBoundary>
+      <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
         
@@ -30,7 +33,8 @@ function App() {
           </Route>
         </Route>
       </Routes>
-    </AuthProvider>
+      </AuthProvider>
+    </GlobalErrorBoundary>
   )
 }
 
