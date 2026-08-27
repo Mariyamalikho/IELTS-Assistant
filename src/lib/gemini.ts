@@ -269,20 +269,7 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1) {
     ? "Part 3 (a conversation between up to four people in an educational or training context, e.g., students discussing an assignment)."
     : "Part 4 (a university lecture on an academic subject).";
 
-  const prompt = `You are an expert Cambridge IELTS test creator.
-Write an authentic IELTS Listening ${context}
-The dialogue MUST include natural speech features (self-correction, hesitation, spelling out names/numbers if Part 1).
-It should be about 400 words long. 
-Also generate exactly 10 questions based on the script. 
-The questions must be numbered from ${startNum} to ${startNum + 9}.
-The answers must be STRICTLY 1, 2, or 3 words/numbers and must appear exactly as spoken in the audio.
-Provide the text with standard speaker labels (e.g. Speaker 1:, Speaker 2:).
-Return ONLY raw JSON in this format:
-{
-  "title": "string",
-  "script": [{"speaker": "string", "text": "string"}],
-  "questions": [{"num": number, "q": "string (use ___ for the blank)", "answer": "string"}]
-}`;
+  const prompt = PROMPTS.listening(context, startNum);
   
   try {
     trackUsage();
