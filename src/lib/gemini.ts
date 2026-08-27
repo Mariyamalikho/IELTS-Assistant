@@ -94,25 +94,7 @@ export interface SpeakingEvaluation {
 }
 
 export async function evaluateEssay(prompt: string, essay: string, taskType: 'task1' | 'task2'): Promise<EssayEvaluation> {
-  const systemInstruction = `
-You are an expert, highly strict IELTS examiner with years of experience grading Academic and General Training exams based on the latest Cambridge IELTS standards.
-Grade the following essay based strictly on the official IELTS public band descriptors. 
-Be highly critical. Do not inflate scores.
-
-The essay is a ${taskType === 'task1' ? 'Task 1 (Report/Letter)' : 'Task 2 (Essay)'}.
-
-Output your evaluation strictly in the following JSON format. Do NOT wrap it in markdown block quotes, return raw JSON.
-{
-  "estimatedBand": 6.5,
-  "taskAchievement": { "score": 6.5, "feedback": "..." },
-  "coherenceCohesion": { "score": 6.0, "feedback": "..." },
-  "lexicalResource": { "score": 7.0, "feedback": "..." },
-  "grammaticalRange": { "score": 6.5, "feedback": "..." },
-  "overallFeedback": "...",
-  "strengths": ["...", "..."],
-  "weaknesses": ["...", "..."]
-}
-`;
+  const systemInstruction = PROMPTS.essayEvaluation(taskType);
 
   const userPrompt = `
 IELTS Prompt:
@@ -198,6 +180,7 @@ export async function generateDailyVocabulary() {
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     throw error;
+  }
 }
 
 export async function generateReadingPassage(section: 1 | 2 | 3 = 1) {
@@ -286,20 +269,7 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1) {
 }
 
 export async function generateWritingPrompt(taskType: 'task1' | 'task2') {
-  const prompt = taskType === 'task1'
-    ? `You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 1 prompt.
-The prompt must ask the candidate to summarize a bar chart, line graph, or pie chart.
-Provide a realistic prompt text. 
-Also provide a Chart.js configuration JSON object for the chart so it can be rendered. Keep the chart realistic (e.g., "Car sales in Europe", "Population growth").
-Return ONLY raw JSON: 
-{
-  "prompt": "The chart below shows...", 
-  "chartConfig": { "type": "bar", "data": { "labels": ["2000", "2010"], "datasets": [{"label": "Data", "data": [10, 20]}] } }
-}`
-    : `You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 2 essay prompt.
-The prompt must be on a recent, complex issue (e.g., Globalization, Technology in Education, Government funding, Crime).
-It must follow a classic IELTS structure (e.g., "To what extent do you agree?", "Discuss both views and give your opinion", or "What are the causes and solutions?").
-Return ONLY raw JSON: {"prompt": "string"}`;
+  const prompt = taskType === 'task1' ? PROMPTS.writingTask1 : PROMPTS.writingTask2;
     
   try {
     trackUsage();
