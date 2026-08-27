@@ -1,3 +1,5 @@
+import { PROMPTS } from './prompts';
+
 // Helper to track daily usage in localStorage
 function trackUsage() {
   try {
@@ -196,7 +198,6 @@ export async function generateDailyVocabulary() {
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     throw error;
-  }
 }
 
 export async function generateReadingPassage(section: 1 | 2 | 3 = 1) {
@@ -209,17 +210,7 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1) {
     ? "a detailed, slightly discursive text (e.g., workplace, technology, or social issues) matching Cambridge IELTS Reading Passage 2 difficulty."
     : "a highly complex, abstract, and argumentative text (e.g., psychology, philosophy, or theoretical science) matching Cambridge IELTS Reading Passage 3 difficulty.";
 
-  const prompt = `You are an expert Cambridge IELTS test creator.
-Write an authentic 600-word academic IELTS reading passage about ${difficultyContext}
-The passage should be highly formal and contain 4-5 well-structured paragraphs.
-Then, create exactly ${numQuestions} authentic IELTS questions based on the passage. Use a mix of TRUE/FALSE/NOT GIVEN, multiple choice, and fill-in-the-blanks.
-The questions must be numbered from ${startNum} to ${startNum + numQuestions - 1}.
-Return ONLY raw JSON in this exact format, with no markdown:
-{
-  "title": "string",
-  "passage": "string (use \\n\\n for paragraphs)",
-  "questions": [{"num": number, "q": "string (use ___ for blanks if applicable)", "answer": "string"}]
-}`;
+  const prompt = PROMPTS.reading(difficultyContext, startNum, numQuestions);
   
   try {
     trackUsage();
