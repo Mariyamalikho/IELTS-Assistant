@@ -1,3 +1,5 @@
+import { PROMPTS } from './prompts';
+
 // Helper to track daily usage in localStorage
 function trackUsage() {
   try {
@@ -92,25 +94,7 @@ export interface SpeakingEvaluation {
 }
 
 export async function evaluateEssay(prompt: string, essay: string, taskType: 'task1' | 'task2'): Promise<EssayEvaluation> {
-  const systemInstruction = `
-You are an expert, highly strict IELTS examiner with years of experience grading Academic and General Training exams based on the latest Cambridge IELTS standards.
-Grade the following essay based strictly on the official IELTS public band descriptors. 
-Be highly critical. Do not inflate scores.
-
-The essay is a ${taskType === 'task1' ? 'Task 1 (Report/Letter)' : 'Task 2 (Essay)'}.
-
-Output your evaluation strictly in the following JSON format. Do NOT wrap it in markdown block quotes, return raw JSON.
-{
-  "estimatedBand": 6.5,
-  "taskAchievement": { "score": 6.5, "feedback": "..." },
-  "coherenceCohesion": { "score": 6.0, "feedback": "..." },
-  "lexicalResource": { "score": 7.0, "feedback": "..." },
-  "grammaticalRange": { "score": 6.5, "feedback": "..." },
-  "overallFeedback": "...",
-  "strengths": ["...", "..."],
-  "weaknesses": ["...", "..."]
-}
-`;
+  const systemInstruction = PROMPTS.essayEvaluation(taskType);
 
   const userPrompt = `
 IELTS Prompt:
@@ -209,17 +193,7 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1) {
     ? "a detailed, slightly discursive text (e.g., workplace, technology, or social issues) matching Cambridge IELTS Reading Passage 2 difficulty."
     : "a highly complex, abstract, and argumentative text (e.g., psychology, philosophy, or theoretical science) matching Cambridge IELTS Reading Passage 3 difficulty.";
 
-  const prompt = `You are an expert Cambridge IELTS test creator.
-Write an authentic 600-word academic IELTS reading passage about ${difficultyContext}
-The passage should be highly formal and contain 4-5 well-structured paragraphs.
-Then, create exactly ${numQuestions} authentic IELTS questions based on the passage. Use a mix of TRUE/FALSE/NOT GIVEN, multiple choice, and fill-in-the-blanks.
-The questions must be numbered from ${startNum} to ${startNum + numQuestions - 1}.
-Return ONLY raw JSON in this exact format, with no markdown:
-{
-  "title": "string",
-  "passage": "string (use \\n\\n for paragraphs)",
-  "questions": [{"num": number, "q": "string (use ___ for blanks if applicable)", "answer": "string"}]
-}`;
+  const prompt = PROMPTS.reading(difficultyContext, startNum, numQuestions);
   
   try {
     trackUsage();
@@ -278,20 +252,7 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1) {
     ? "Part 3 (a conversation between up to four people in an educational or training context, e.g., students discussing an assignment)."
     : "Part 4 (a university lecture on an academic subject).";
 
-  const prompt = `You are an expert Cambridge IELTS test creator.
-Write an authentic IELTS Listening ${context}
-The dialogue MUST include natural speech features (self-correction, hesitation, spelling out names/numbers if Part 1).
-It should be about 400 words long. 
-Also generate exactly 10 questions based on the script. 
-The questions must be numbered from ${startNum} to ${startNum + 9}.
-The answers must be STRICTLY 1, 2, or 3 words/numbers and must appear exactly as spoken in the audio.
-Provide the text with standard speaker labels (e.g. Speaker 1:, Speaker 2:).
-Return ONLY raw JSON in this format:
-{
-  "title": "string",
-  "script": [{"speaker": "string", "text": "string"}],
-  "questions": [{"num": number, "q": "string (use ___ for the blank)", "answer": "string"}]
-}`;
+  const prompt = PROMPTS.listening(context, startNum);
   
   try {
     trackUsage();
@@ -308,20 +269,7 @@ Return ONLY raw JSON in this format:
 }
 
 export async function generateWritingPrompt(taskType: 'task1' | 'task2') {
-  const prompt = taskType === 'task1'
-    ? `You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 1 prompt.
-The prompt must ask the candidate to summarize a bar chart, line graph, or pie chart.
-Provide a realistic prompt text. 
-Also provide a Chart.js configuration JSON object for the chart so it can be rendered. Keep the chart realistic (e.g., "Car sales in Europe", "Population growth").
-Return ONLY raw JSON: 
-{
-  "prompt": "The chart below shows...", 
-  "chartConfig": { "type": "bar", "data": { "labels": ["2000", "2010"], "datasets": [{"label": "Data", "data": [10, 20]}] } }
-}`
-    : `You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 2 essay prompt.
-The prompt must be on a recent, complex issue (e.g., Globalization, Technology in Education, Government funding, Crime).
-It must follow a classic IELTS structure (e.g., "To what extent do you agree?", "Discuss both views and give your opinion", or "What are the causes and solutions?").
-Return ONLY raw JSON: {"prompt": "string"}`;
+  const prompt = taskType === 'task1' ? PROMPTS.writingTask1 : PROMPTS.writingTask2;
     
   try {
     trackUsage();
