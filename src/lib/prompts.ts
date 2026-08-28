@@ -53,7 +53,15 @@ Return ONLY raw JSON in this exact format, with no markdown:
 {
   "title": "string",
   "passage": "string (use \\n\\n for paragraphs)",
-  "questions": [{"num": number, "q": "string (use ___ for blanks if applicable)", "answer": "string"}]
+  "questions": [
+    {
+      "num": number, 
+      "q": "string (use ___ for blanks if applicable)", 
+      "type": "multiple_choice | true_false | fill_blank",
+      "options": ["string", "string", "string", "string"], 
+      "answer": "string"
+    }
+  ]
 }`,
   speakingPart1: `You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 1 section. 
 Choose ONE highly common recent IELTS topic (e.g., Work/Studies, Hometown, Weather, Hobbies, Technology).

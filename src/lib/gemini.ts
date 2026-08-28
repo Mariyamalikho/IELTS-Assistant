@@ -121,7 +121,7 @@ ${essay}
 export async function evaluateSpeaking(audioBase64: string, mimeType: string): Promise<SpeakingEvaluation> {
   const systemInstruction = `
 You are an expert, highly strict IELTS examiner with years of experience grading Academic and General Training exams based on the latest Cambridge IELTS standards.
-Listen to the provided audio carefully.
+Listen to and watch the provided audio/video response carefully.
 First, provide a transcript of what the student said.
 Then, grade the spoken response strictly based on the official IELTS public band descriptors for Speaking.
 
