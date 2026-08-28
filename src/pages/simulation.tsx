@@ -119,16 +119,33 @@ export default function Simulation() {
     setStage('evaluating')
     
     try {
-      // 1. Evaluate Writing Task 2
-      let writingFeedback = null;
+      // 1. Evaluate Writing Tasks in parallel
+      let writingFeedback1: any = null;
+      let writingFeedback2: any = null;
+      const writingTasks = [];
+      
+      if (writingAnswer1.trim().length > 50) {
+        writingTasks.push(evaluateEssay(writingData.task1.prompt, writingAnswer1, 'task1').then(res => writingFeedback1 = res));
+      }
       if (writingAnswer2.trim().length > 50) {
-        writingFeedback = await evaluateEssay(writingData.task2.prompt, writingAnswer2, 'task2');
+        writingTasks.push(evaluateEssay(writingData.task2.prompt, writingAnswer2, 'task2').then(res => writingFeedback2 = res));
       }
 
-      // 2. Evaluate Speaking (Part 2)
+      // 2. Evaluate Speaking
       let speakingFeedback = null;
       if (speakingAudioBase64) {
-        speakingFeedback = await evaluateSpeaking(speakingAudioBase64, speakingMimeType);
+        writingTasks.push(evaluateSpeaking(speakingAudioBase64, speakingMimeType).then(res => speakingFeedback = res));
+      }
+      
+      await Promise.all(writingTasks);
+      
+      let overallWritingBand = 0;
+      if (writingFeedback1 && writingFeedback2) {
+        overallWritingBand = Math.round(((writingFeedback1.estimatedBand * 1) + (writingFeedback2.estimatedBand * 2)) / 3 * 2) / 2;
+      } else if (writingFeedback2) {
+        overallWritingBand = writingFeedback2.estimatedBand;
+      } else if (writingFeedback1) {
+        overallWritingBand = writingFeedback1.estimatedBand;
       }
 
       // 3. Exact matching for Listening and Reading (40 questions each)
@@ -159,7 +176,9 @@ export default function Simulation() {
         listeningTotal: listeningTotal,
         readingRaw: readingScore,
         readingTotal: readingTotal,
-        writing: writingFeedback,
+        writing1: writingFeedback1,
+        writing2: writingFeedback2,
+        overallWritingBand: overallWritingBand,
         speaking: speakingFeedback
       })
 
@@ -177,10 +196,17 @@ export default function Simulation() {
   const [isRecording, setIsRecording] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<BlobPart[]>([])
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+
       mediaRecorderRef.current = new MediaRecorder(stream)
       chunksRef.current = []
 
@@ -189,8 +215,8 @@ export default function Simulation() {
       }
 
       mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
-        setSpeakingMimeType(blob.type || 'audio/webm')
+        const blob = new Blob(chunksRef.current, { type: 'video/webm' })
+        setSpeakingMimeType(blob.type || 'video/webm')
         
         // Convert to base64 immediately for evaluation
         const reader = new FileReader()
@@ -202,13 +228,16 @@ export default function Simulation() {
         reader.readAsDataURL(blob)
         
         stream.getTracks().forEach(track => track.stop())
+        if (videoRef.current) {
+          videoRef.current.srcObject = null;
+        }
       }
 
       mediaRecorderRef.current.start()
       setIsRecording(true)
     } catch (err) {
       console.error(err)
-      alert("Microphone access denied.")
+      alert("Microphone/Camera access denied. Please allow permissions.")
     }
   }
 
@@ -315,12 +344,25 @@ export default function Simulation() {
           </Card>
 
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Writing (Task 2)</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Writing</CardTitle></CardHeader>
             <CardContent>
-              {evaluations.writing ? (
+              {evaluations.writing1 || evaluations.writing2 ? (
                 <>
-                  <div className="text-5xl font-bold text-primary mb-4">Band {evaluations.writing.estimatedBand}</div>
-                  <p className="font-semibold text-sm">TR: {evaluations.writing.taskAchievement?.score} | CC: {evaluations.writing.coherenceCohesion?.score} | LR: {evaluations.writing.lexicalResource?.score} | GRA: {evaluations.writing.grammaticalRange?.score}</p>
+                  <div className="text-5xl font-bold text-primary mb-4">Band {evaluations.overallWritingBand}</div>
+                  <div className="space-y-4">
+                    {evaluations.writing1 && (
+                      <div>
+                        <p className="font-bold text-sm">Task 1: Band {evaluations.writing1.estimatedBand}</p>
+                        <p className="text-xs text-muted-foreground">TR: {evaluations.writing1.taskAchievement?.score} | CC: {evaluations.writing1.coherenceCohesion?.score} | LR: {evaluations.writing1.lexicalResource?.score} | GRA: {evaluations.writing1.grammaticalRange?.score}</p>
+                      </div>
+                    )}
+                    {evaluations.writing2 && (
+                      <div>
+                        <p className="font-bold text-sm">Task 2: Band {evaluations.writing2.estimatedBand}</p>
+                        <p className="text-xs text-muted-foreground">TR: {evaluations.writing2.taskAchievement?.score} | CC: {evaluations.writing2.coherenceCohesion?.score} | LR: {evaluations.writing2.lexicalResource?.score} | GRA: {evaluations.writing2.grammaticalRange?.score}</p>
+                      </div>
+                    )}
+                  </div>
                 </>
               ) : <p className="text-muted-foreground">No essay submitted.</p>}
             </CardContent>
@@ -442,35 +484,68 @@ export default function Simulation() {
                       const parts = q.q ? q.q.split('___') : [q.q || ""];
                       const isFillBlank = parts.length > 1;
                       return (
-                        <div key={q.num} className="space-y-3 pb-4 border-b border-dashed">
-                          <p className="font-medium text-lg leading-loose">
-                            <span className="text-primary font-bold mr-2">({q.num})</span> 
-                            {parts[0]}
-                            {isFillBlank && (
-                              <input 
-                                type="text" 
-                                value={readingAnswers[q.num] || ""}
-                                onChange={(e) => setReadingAnswers({...readingAnswers, [q.num]: e.target.value})}
-                                className="border-b-2 mx-2 border-foreground/50 bg-transparent outline-none w-32 px-2 text-center focus:border-primary font-mono" 
-                              />
+                          <div key={q.num} className="space-y-3 pb-4 border-b border-dashed">
+                            <p className="font-medium text-lg leading-loose">
+                              <span className="text-primary font-bold mr-2">({q.num})</span> 
+                              {parts[0]}
+                              {q.type === 'fill_blank' && (
+                                <input 
+                                  type="text" 
+                                  value={readingAnswers[q.num] || ""}
+                                  onChange={(e) => setReadingAnswers({...readingAnswers, [q.num]: e.target.value})}
+                                  className="border-b-2 mx-2 border-foreground/50 bg-transparent outline-none w-32 px-2 text-center focus:border-primary font-mono" 
+                                />
+                              )}
+                              {q.type === 'fill_blank' && parts[1]}
+                            </p>
+                            {q.type === 'multiple_choice' && q.options && (
+                              <div className="flex flex-col gap-2 pl-8">
+                                {q.options.map((opt: string, i: number) => {
+                                  const letter = String.fromCharCode(65 + i); // A, B, C, D
+                                  return (
+                                    <Button 
+                                      key={letter}
+                                      variant={readingAnswers[q.num] === letter ? "default" : "outline"}
+                                      size="sm"
+                                      className="justify-start font-normal h-auto py-2 px-4 whitespace-normal text-left"
+                                      onClick={() => setReadingAnswers({...readingAnswers, [q.num]: letter})}
+                                    >
+                                      <span className="font-bold mr-2">{letter}.</span> {opt}
+                                    </Button>
+                                  )
+                                })}
+                              </div>
                             )}
-                            {isFillBlank && parts[1]}
-                          </p>
-                          {!isFillBlank && (
-                            <div className="flex gap-2 pl-8 flex-wrap">
-                              {['TRUE', 'FALSE', 'NOT GIVEN', 'A', 'B', 'C', 'D'].map(opt => (
-                                <Button 
-                                  key={opt}
-                                  variant={readingAnswers[q.num] === opt ? "default" : "outline"}
-                                  size="sm"
-                                  onClick={() => setReadingAnswers({...readingAnswers, [q.num]: opt})}
-                                >
-                                  {opt}
-                                </Button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                            {q.type === 'true_false' && (
+                              <div className="flex gap-2 pl-8">
+                                {['TRUE', 'FALSE', 'NOT GIVEN'].map(opt => (
+                                  <Button 
+                                    key={opt}
+                                    variant={readingAnswers[q.num] === opt ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setReadingAnswers({...readingAnswers, [q.num]: opt})}
+                                  >
+                                    {opt}
+                                  </Button>
+                                ))}
+                              </div>
+                            )}
+                            {/* Fallback for old cached format */}
+                            {!q.type && !isFillBlank && (
+                              <div className="flex gap-2 pl-8 flex-wrap">
+                                {['TRUE', 'FALSE', 'NOT GIVEN', 'A', 'B', 'C', 'D'].map(opt => (
+                                  <Button 
+                                    key={opt}
+                                    variant={readingAnswers[q.num] === opt ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setReadingAnswers({...readingAnswers, [q.num]: opt})}
+                                  >
+                                    {opt}
+                                  </Button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                       )
                     })}
                   </CardContent>
@@ -533,9 +608,68 @@ export default function Simulation() {
 
         {/* SPEAKING SECTION */}
         {stage === 'speaking' && speakingData && (
-          <div className="max-w-3xl mx-auto space-y-6 pb-24">
-            <h2 className="text-2xl font-bold text-center">Speaking Test Simulation</h2>
+          <div className="max-w-4xl mx-auto space-y-6 pb-24">
+            <h2 className="text-2xl font-bold text-center mb-8">Speaking Test Simulation</h2>
             
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <Card className="bg-black text-white overflow-hidden border-0 shadow-2xl relative aspect-video flex items-center justify-center">
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/60">
+                  <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mb-4">
+                    <Headphones className="w-12 h-12 text-primary" />
+                  </div>
+                  <p className="font-semibold text-lg">Examiner</p>
+                  <p className="text-sm text-gray-400">Online Call</p>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-20" />
+              </Card>
+
+              <Card className="bg-black text-white overflow-hidden border-0 shadow-2xl relative aspect-video flex items-center justify-center">
+                <video 
+                  ref={videoRef}
+                  className="w-full h-full object-cover scale-x-[-1]"
+                  muted
+                  playsInline
+                />
+                {!isRecording && !speakingAudioBase64 && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/80">
+                    <p className="font-semibold text-lg mb-4 text-center px-4">Camera feed will appear here</p>
+                    <Button 
+                      size="lg" 
+                      className="bg-primary hover:bg-primary/90 text-white shadow-xl transition-all hover:scale-105"
+                      onClick={startRecording}
+                    >
+                      <Mic className="w-5 h-5 mr-2" /> Start Call (Record Video)
+                    </Button>
+                  </div>
+                )}
+                {isRecording && (
+                  <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-500/20 px-3 py-1.5 rounded-full border border-red-500/50 backdrop-blur-sm z-20">
+                    <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse" />
+                    <span className="text-sm font-semibold text-red-500">REC</span>
+                  </div>
+                )}
+                {speakingAudioBase64 && !isRecording && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/80 text-green-400">
+                    <p className="font-bold text-xl mb-2">Interview Recorded</p>
+                    <p className="text-sm text-gray-400">Waiting for evaluation...</p>
+                  </div>
+                )}
+              </Card>
+            </div>
+
+            {isRecording && (
+              <div className="flex justify-center mb-12">
+                <Button 
+                  size="lg" 
+                  variant="destructive"
+                  className="shadow-xl"
+                  onClick={stopRecording}
+                >
+                  <div className="w-4 h-4 bg-current rounded-sm mr-2" /> End Call
+                </Button>
+              </div>
+            )}
+
             <Card>
               <CardHeader className="bg-muted/30 border-b">
                 <CardTitle>Part 1: Introduction and Interview</CardTitle>
@@ -550,44 +684,15 @@ export default function Simulation() {
 
             <Card className="border-primary">
               <CardHeader className="bg-primary/5 border-b border-primary/20">
-                <CardTitle>Part 2: Long Turn (RECORDED FOR EVALUATION)</CardTitle>
+                <CardTitle>Part 2: Long Turn</CardTitle>
                 <p className="text-sm text-muted-foreground">You have 1 minute to prepare and 2 minutes to speak.</p>
               </CardHeader>
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold mb-4">Describe {speakingData.part2?.topic}.</h3>
                 <p className="font-medium mb-2">You should say:</p>
-                <ul className="list-disc list-inside space-y-2 text-lg ml-4 mb-8">
+                <ul className="list-disc list-inside space-y-2 text-lg ml-4">
                   {speakingData.part2?.bullets?.map((b: string, i: number) => <li key={i}>{b}</li>)}
                 </ul>
-                
-                <div className="flex flex-col items-center gap-4 p-8 bg-muted/10 rounded-xl">
-                  {!isRecording ? (
-                    <Button 
-                      size="lg" 
-                      className="w-24 h-24 rounded-full bg-primary hover:bg-primary/90 shadow-xl transition-all hover:scale-105"
-                      onClick={startRecording}
-                    >
-                      <Mic className="w-10 h-10" />
-                    </Button>
-                  ) : (
-                    <Button 
-                      size="lg" 
-                      variant="destructive"
-                      className="w-24 h-24 rounded-full animate-pulse shadow-xl"
-                      onClick={stopRecording}
-                    >
-                      <div className="w-8 h-8 bg-current rounded-sm" />
-                    </Button>
-                  )}
-                  <p className="text-muted-foreground font-medium">
-                    {isRecording ? "Recording... Click to stop." : "Click microphone to start recording."}
-                  </p>
-                  {speakingAudioBase64 && !isRecording && (
-                    <p className="text-green-500 font-bold bg-green-500/10 px-4 py-2 rounded-full">
-                      Audio saved!
-                    </p>
-                  )}
-                </div>
               </CardContent>
             </Card>
 
@@ -602,7 +707,6 @@ export default function Simulation() {
                 </ul>
               </CardContent>
             </Card>
-
           </div>
         )}
 
