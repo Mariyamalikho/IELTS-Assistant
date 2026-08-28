@@ -49,13 +49,18 @@ export default function Reading() {
         generateReadingPassage(3)
       ]);
       
-      if (parts && parts[0] && parts[0].title) {
-        setPassages(parts);
+      const validParts = parts.filter(p => p && p.title && p.questions && p.questions.length > 0);
+      
+      if (validParts.length === 3) {
+        setPassages(validParts);
         const today = new Date().toISOString().split('T')[0];
-        localStorage.setItem(STORAGE_KEYS.READING_DAILY, JSON.stringify({ date: today, data: parts }));
+        localStorage.setItem(STORAGE_KEYS.READING_DAILY, JSON.stringify({ date: today, data: validParts }));
+      } else {
+        alert("Failed to generate all 3 reading passages. Please try again.");
       }
     } catch (e) {
       console.error(e);
+      alert("An error occurred during generation. Please try again.");
     }
     setIsGenerating(false);
   }
@@ -67,7 +72,7 @@ export default function Reading() {
     if (cachedData) {
       try {
         const parsed = JSON.parse(cachedData);
-        if (parsed.date === today && Array.isArray(parsed.data)) {
+        if (parsed.date === today && Array.isArray(parsed.data) && parsed.data.length === 3 && parsed.data.every((p: any) => p && p.title)) {
           setPassages(parsed.data);
           return;
         }

@@ -80,6 +80,11 @@ export default function Simulation() {
       setGenerationStatus("Generating Speaking (Parts 1-3)...");
       const speaking = await Promise.all([generateSpeakingPrompt('part1'), generateSpeakingPrompt('part2'), generateSpeakingPrompt('part3')]);
 
+      // Validate generation
+      if (listening.some(p => !p.title) || reading.some(p => !p.title) || !writing[0].prompt || !speaking[0].topic) {
+        throw new Error("One or more sections failed to generate correctly.");
+      }
+
       setListeningData(listening);
       setReadingData(reading);
       setWritingData({ task1: writing[0], task2: writing[1] });
