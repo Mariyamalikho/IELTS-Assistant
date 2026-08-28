@@ -62,13 +62,18 @@ export default function Listening() {
         generateListeningTest(4)
       ]);
       
-      if (parts && parts[0] && parts[0].title) {
-        setTestParts(parts)
+      const validParts = parts.filter(p => p && p.title && p.questions && p.questions.length > 0);
+      
+      if (validParts.length === 4) {
+        setTestParts(validParts)
         const today = new Date().toISOString().split('T')[0];
-        localStorage.setItem('ielts_listening_daily_v2', JSON.stringify({ date: today, data: parts }));
+        localStorage.setItem('ielts_listening_daily_v2', JSON.stringify({ date: today, data: validParts }));
+      } else {
+        alert("Failed to generate all 4 parts of the listening test. Please try again.");
       }
     } catch (e) {
       console.error(e)
+      alert("An error occurred during generation. Please try again.");
     }
     setIsGenerating(false)
   }
@@ -80,7 +85,7 @@ export default function Listening() {
     if (cachedData) {
       try {
         const parsed = JSON.parse(cachedData);
-        if (parsed.date === today && Array.isArray(parsed.data)) {
+        if (parsed.date === today && Array.isArray(parsed.data) && parsed.data.length === 4 && parsed.data.every((p: any) => p && p.title)) {
           setTestParts(parsed.data);
           return;
         }

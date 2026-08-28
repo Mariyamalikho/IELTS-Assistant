@@ -183,7 +183,7 @@ export async function generateDailyVocabulary() {
   }
 }
 
-export async function generateReadingPassage(section: 1 | 2 | 3 = 1) {
+export async function generateReadingPassage(section: 1 | 2 | 3 = 1, retries = 2): Promise<any> {
   const numQuestions = section === 3 ? 14 : 13;
   const startNum = section === 1 ? 1 : section === 2 ? 14 : 27;
   
@@ -202,8 +202,14 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1) {
       prompt,
       { responseMimeType: "application/json", temperature: 0.6 }
     );
-    return parseAIJson(response.text);
+    const parsed = parseAIJson(response.text);
+    if (!parsed.title || !parsed.questions) throw new Error("Invalid output format");
+    return parsed;
   } catch(e) {
+    if (retries > 0) {
+      console.warn(`Retrying reading passage generation (Section ${section})... (${retries} left)`);
+      return generateReadingPassage(section, retries - 1);
+    }
     console.error(e);
     return {};
   }
@@ -242,7 +248,7 @@ Return ONLY raw JSON: {"topic": "string", "questions": ["string", "string", "str
   }
 }
 
-export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1) {
+export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1, retries = 2): Promise<any> {
   const startNum = (part - 1) * 10 + 1;
   const context = part === 1 
     ? "Part 1 (a telephone conversation between two people in an everyday social context, e.g., booking a hotel or inquiring about a club)."
@@ -261,8 +267,14 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1) {
       prompt,
       { responseMimeType: "application/json", temperature: 0.6 }
     );
-    return parseAIJson(response.text);
+    const parsed = parseAIJson(response.text);
+    if (!parsed.title || !parsed.questions) throw new Error("Invalid output format");
+    return parsed;
   } catch (e) {
+    if (retries > 0) {
+      console.warn(`Retrying listening test generation (Part ${part})... (${retries} left)`);
+      return generateListeningTest(part, retries - 1);
+    }
     console.error(e);
     return {};
   }
