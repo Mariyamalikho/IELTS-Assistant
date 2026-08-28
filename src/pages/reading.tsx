@@ -164,7 +164,7 @@ export default function Reading() {
                       {globalQNum}
                     </span>
                     {parts[0]}
-                    {isFillBlank && (
+                    {question.type === 'fill_blank' && (
                       <input 
                         type="text" 
                         value={answers[globalQNum] || ""}
@@ -176,10 +176,46 @@ export default function Reading() {
                         }`} 
                       />
                     )}
-                    {isFillBlank && parts[1]}
+                    {question.type === 'fill_blank' && parts[1]}
                   </p>
-                  
-                  {!isFillBlank && (
+
+                  {question.type === 'multiple_choice' && question.options && (
+                    <div className="flex flex-col gap-2 pl-10">
+                      {question.options.map((opt: string, i: number) => {
+                        const letter = String.fromCharCode(65 + i); // A, B, C, D
+                        return (
+                          <Button 
+                            key={letter}
+                            variant={answers[globalQNum] === letter ? "default" : "outline"}
+                            size="sm"
+                            className={`justify-start font-normal h-auto py-2 px-4 whitespace-normal text-left ${isSubmitted && question.answer === letter ? 'bg-green-500 text-white hover:bg-green-600' : ''}`}
+                            onClick={() => !isSubmitted && setAnswers({...answers, [globalQNum]: letter})}
+                          >
+                            <span className="font-bold mr-2">{letter}.</span> {opt}
+                          </Button>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {question.type === 'true_false' && (
+                    <div className="flex gap-2 pl-10">
+                      {['TRUE', 'FALSE', 'NOT GIVEN'].map(opt => (
+                        <Button 
+                          key={opt}
+                          variant={answers[globalQNum] === opt ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => !isSubmitted && setAnswers({...answers, [globalQNum]: opt})}
+                          className={isSubmitted && question.answer === opt ? 'bg-green-500 text-white hover:bg-green-600' : ''}
+                        >
+                          {opt}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Fallback for old cached format */}
+                  {!question.type && !isFillBlank && (
                     <div className="flex gap-2 pl-10 flex-wrap">
                       {['TRUE', 'FALSE', 'NOT GIVEN', 'A', 'B', 'C', 'D'].map(opt => (
                         <Button 
