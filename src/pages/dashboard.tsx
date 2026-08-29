@@ -128,7 +128,7 @@ export default function Dashboard() {
   const overallBand = ((avgWriting || 6.0) + (avgSpeaking || 6.0) + 6.5 + 7.0) / 4
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">My Journey</h1>
