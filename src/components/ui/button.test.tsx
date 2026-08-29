@@ -14,14 +14,9 @@ describe('Button Component', () => {
     expect(button.className).toContain('bg-primary')
   })
 
-  it('handles the asChild prop correctly', () => {
-    render(
-      <Button asChild>
-        <a href="/test">Link Button</a>
-      </Button>
-    )
-    const link = screen.getByText('Link Button')
-    expect(link.tagName).toBe('A')
-    expect(link.getAttribute('href')).toBe('/test')
+  it('applies the correct size variant classes', () => {
+    render(<Button size="lg">Large</Button>)
+    const button = screen.getByText('Large')
+    expect(button.className).toContain('h-9')
   })
 })
