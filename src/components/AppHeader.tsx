@@ -43,7 +43,7 @@ export function AppHeader() {
   }
 
   return (
-    <header className="h-16 border-b border-border bg-card flex items-center justify-between px-4 sm:px-8">
+    <header className="h-auto min-h-16 py-2 border-b border-border bg-card flex flex-wrap items-center justify-between px-4 sm:px-8 gap-y-3">
       <div className="flex items-center gap-4 sm:gap-6">
         <MobileNav />
         <div className="text-sm font-medium text-muted-foreground hidden lg:block">
