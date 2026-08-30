@@ -7,7 +7,6 @@ import { evaluateEssay, generateWritingPrompt } from '@/lib/gemini'
 import { supabase } from '@/lib/supabase'
 import { Loader2, Send, Clock, AlertCircle } from 'lucide-react'
 
-import { z } from "zod"
 import { writingSubmissionSchema } from "@/lib/schemas"
 
 const DEFAULT_TASK1 = {
