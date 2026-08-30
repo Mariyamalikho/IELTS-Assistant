@@ -191,13 +191,13 @@ export default function Speaking() {
 
   return (
     <div className="flex flex-col h-full gap-6 p-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Speaking Practice</h1>
           <p className="text-muted-foreground">Record your voice and get AI fluency evaluation.</p>
         </div>
         
-        <Tabs value={part} onValueChange={handlePartSwitch} className="w-[500px]">
+        <Tabs value={part} onValueChange={handlePartSwitch} className="w-full md:w-[500px]">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="part1">Part 1 (Interview)</TabsTrigger>
             <TabsTrigger value="part2">Part 2 (Long Turn)</TabsTrigger>
@@ -222,12 +222,12 @@ export default function Speaking() {
             </CardContent>
           </Card>
 
-          <Card className="flex flex-col items-center p-8 bg-card/30 border-2 border-primary/20 relative overflow-hidden">
+          <Card className="flex flex-col items-center p-6 sm:p-8 bg-card/30 border-2 border-primary/20 relative overflow-hidden">
             {isRecording && (
               <div className="absolute inset-0 bg-destructive/10 animate-pulse pointer-events-none" />
             )}
             
-            <div className="text-5xl font-mono mb-8 z-10 flex flex-col items-center">
+            <div className="text-4xl sm:text-5xl font-mono mb-6 sm:mb-8 z-10 flex flex-col items-center">
               <span className={isRecording ? "text-destructive" : ""}>
                 {formatTime(recordingTime)}
               </span>
@@ -239,21 +239,21 @@ export default function Speaking() {
                 <Button 
                   size="lg" 
                   aria-label="Start recording"
-                  className="w-24 h-24 rounded-full bg-primary hover:bg-primary/90 flex-col gap-2 shadow-[0_0_30px_oklch(var(--primary)/0.5)] transition-all hover:scale-110 active:scale-95"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary hover:bg-primary/90 flex-col gap-2 shadow-[0_0_30px_oklch(var(--primary)/0.5)] transition-all hover:scale-110 active:scale-95"
                   onClick={startRecording}
                   disabled={isEvaluating}
                 >
-                  <Mic className="w-10 h-10" />
+                  <Mic className="w-8 h-8 sm:w-10 sm:h-10" />
                 </Button>
               ) : (
                 <Button 
                   size="lg" 
                   aria-label="Stop recording"
                   variant="destructive"
-                  className="w-24 h-24 rounded-full flex-col gap-2 animate-in zoom-in"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex-col gap-2 animate-in zoom-in"
                   onClick={stopRecording}
                 >
-                  <Square className="w-10 h-10 fill-current" />
+                  <Square className="w-8 h-8 sm:w-10 sm:h-10 fill-current" />
                 </Button>
               )}
             </div>
