@@ -234,21 +234,21 @@ export default function Vocabulary() {
 
       <div className="flex-1 flex flex-col items-center justify-center py-10">
         <div 
-          className="relative w-full max-w-2xl aspect-[3/2] cursor-pointer group"
+          className="relative w-full max-w-2xl min-h-[450px] sm:min-h-0 sm:aspect-[3/2] cursor-pointer group"
           onClick={() => setIsFlipped(!isFlipped)}
         >
           {!isFlipped ? (
             <Card className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 shadow-xl hover:shadow-primary/20 transition-shadow">
-              <CardContent className="p-12 text-center">
-                <h2 className="text-5xl font-extrabold tracking-tight mb-4 flex items-center justify-center gap-4">
+              <CardContent className="p-8 sm:p-12 text-center">
+                <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4 flex items-center justify-center gap-4">
                   {currentCard.word}
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="w-12 h-12 rounded-full hover:bg-primary/20" 
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full hover:bg-primary/20" 
                     onClick={(e) => playPronunciation(e, currentCard.word)}
                   >
-                    <Volume2 className="w-6 h-6 text-primary" />
+                    <Volume2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </Button>
                 </h2>
                 <p className="text-muted-foreground flex items-center justify-center gap-2 mt-8">
@@ -258,18 +258,18 @@ export default function Vocabulary() {
             </Card>
           ) : (
             <Card className="absolute inset-0 flex items-center justify-center bg-card border-2 border-primary/40 shadow-xl overflow-y-auto">
-              <CardContent className="p-8 text-center flex flex-col gap-4 w-full h-full justify-center animate-in fade-in zoom-in-95 duration-200">
+              <CardContent className="p-6 sm:p-8 text-center flex flex-col gap-4 w-full h-full justify-center animate-in fade-in zoom-in-95 duration-200">
                 <div>
                   <h3 className="text-sm font-semibold text-primary uppercase tracking-widest mb-1">Meaning</h3>
-                  <p className="text-xl font-medium">{currentCard.meaning}</p>
+                  <p className="text-lg sm:text-xl font-medium">{currentCard.meaning}</p>
                 </div>
                 {currentCard.example && (
                   <div className="bg-muted/30 p-3 rounded-lg mx-auto w-full">
                     <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-1">Example</h3>
-                    <p className="italic font-serif text-md">"{currentCard.example}"</p>
+                    <p className="italic font-serif text-sm sm:text-md">"{currentCard.example}"</p>
                   </div>
                 )}
-                <div className="grid grid-cols-2 gap-4 mt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                   {currentCard.synonyms && (
                     <div className="bg-green-500/10 p-2 rounded border border-green-500/20">
                       <h3 className="text-xs font-semibold text-green-700 uppercase mb-1">Synonyms</h3>
@@ -290,16 +290,16 @@ export default function Vocabulary() {
 
         {/* Action Buttons - Only show when flipped */}
         {isFlipped && (
-          <div className="flex gap-4 mt-8 animate-in slide-in-from-bottom-4">
-            <Button variant="destructive" size="lg" className="w-32 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(0); }}>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-8 animate-in slide-in-from-bottom-4 w-full">
+            <Button variant="destructive" size="lg" className="w-[30%] sm:w-32 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(0); }}>
               <span>Hard</span>
               <span className="text-xs opacity-80">(Again)</span>
             </Button>
-            <Button variant="default" size="lg" className="w-32 bg-blue-500 hover:bg-blue-600 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(1); }}>
+            <Button variant="default" size="lg" className="w-[30%] sm:w-32 bg-blue-500 hover:bg-blue-600 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(1); }}>
               <span>Normal</span>
               <span className="text-xs opacity-80">(2 Weeks)</span>
             </Button>
-            <Button variant="default" size="lg" className="w-32 bg-green-500 hover:bg-green-600 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(2); }}>
+            <Button variant="default" size="lg" className="w-[30%] sm:w-32 bg-green-500 hover:bg-green-600 flex flex-col gap-1 h-auto py-2" onClick={(e) => { e.stopPropagation(); handleReview(2); }}>
               <span>Easy</span>
               <span className="text-xs opacity-80">(3 Weeks)</span>
             </Button>
