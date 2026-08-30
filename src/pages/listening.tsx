@@ -144,10 +144,10 @@ export default function Listening() {
 
   return (
     <div className="flex flex-col gap-6 p-4 max-w-4xl mx-auto w-full">
-      <div className="flex justify-between items-end">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <h1 className="text-3xl font-bold tracking-tight">Listening Practice</h1>
-          <Button onClick={handleGenerate} disabled={isGenerating} variant="outline" size="sm" className="gap-2 border-primary/50 text-primary hover:bg-primary/10">
+          <Button onClick={handleGenerate} disabled={isGenerating} variant="outline" size="sm" className="gap-2 border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto">
             {isGenerating && <Loader2 className="w-4 h-4 animate-spin" />}
             {isGenerating ? "Generating Full Test..." : "AI Generate New Test (Parts 1-4)"}
           </Button>
@@ -160,9 +160,9 @@ export default function Listening() {
             <div className="flex items-center gap-4">
               <div>
                 <div className="text-xl font-bold mb-2">Full IELTS Listening Test</div>
-                <div className="flex gap-2 items-center">
+                <div className="flex flex-wrap gap-2 items-center">
                   <Badge variant="outline">{isCustomAudio ? "Local File" : "AI Synthesized"}</Badge>
-                  <Badge variant="secondary" className="truncate max-w-[200px]" title={audioName}>
+                  <Badge variant="secondary" className="truncate max-w-[150px] sm:max-w-[200px]" title={audioName}>
                     {isCustomAudio ? audioName : "AI Voices"}
                   </Badge>
                   
