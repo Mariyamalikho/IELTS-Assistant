@@ -7,6 +7,9 @@ import { evaluateEssay, generateWritingPrompt } from '@/lib/gemini'
 import { supabase } from '@/lib/supabase'
 import { Loader2, Send, Clock, AlertCircle } from 'lucide-react'
 
+import { z } from "zod"
+import { writingSubmissionSchema } from "@/lib/schemas"
+
 const DEFAULT_TASK1 = {
   prompt: `The graph below shows the number of tourists visiting a particular Caribbean island between 2010 and 2017.\nSummarize the information by selecting and reporting the main features, and make comparisons where relevant.\nWrite at least 150 words.`,
   chartConfig: {
@@ -37,6 +40,8 @@ export default function Writing() {
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [feedback, setFeedback] = useState<any>(null)
 
+  const [validationError, setValidationError] = useState<string | null>(null)
+
   // Timer logic
   useEffect(() => {
     let interval: any
@@ -59,6 +64,7 @@ export default function Writing() {
     setTaskType(type)
     setEssay('')
     setFeedback(null)
+    setValidationError(null)
     setTimerActive(false)
     setTimeLeft(type === 'task1' ? 20 * 60 : 40 * 60)
     setPromptData(type === 'task1' ? DEFAULT_TASK1 : DEFAULT_TASK2)
@@ -67,6 +73,7 @@ export default function Writing() {
   const handleGeneratePrompt = async () => {
     setIsGenerating(true)
     setFeedback(null)
+    setValidationError(null)
     setEssay('')
     setTimerActive(false)
     setTimeLeft(taskType === 'task1' ? 20 * 60 : 40 * 60)
@@ -103,8 +110,11 @@ export default function Writing() {
   const minWords = taskType === 'task1' ? 150 : 250
 
   const handleSubmit = async () => {
-    if (wordCount < 50) {
-      alert("Please write a bit more before submitting for evaluation.")
+    setValidationError(null)
+
+    const result = writingSubmissionSchema.safeParse({ essay, taskType })
+    if (!result.success) {
+      setValidationError(result.error.issues[0].message)
       return
     }
 
@@ -237,9 +247,17 @@ export default function Writing() {
               className="flex-1 min-h-[300px] resize-none text-base p-4 leading-loose"
               placeholder="Start typing your essay here..."
               value={essay}
-              onChange={(e) => setEssay(e.target.value)}
+              onChange={(e) => {
+                setEssay(e.target.value)
+                if (validationError) setValidationError(null)
+              }}
               disabled={isEvaluating}
             />
+            {validationError && (
+              <div className="text-sm font-medium text-destructive mt-2 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" /> {validationError}
+              </div>
+            )}
             <div className="flex justify-between items-center mt-4">
               <div className="flex items-center gap-2">
                 <span className={`font-mono text-sm ${wordCount < minWords ? "text-destructive" : "text-primary"}`}>
