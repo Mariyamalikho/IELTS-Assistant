@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { BookOpen, PenTool, Headphones, Mic, Flame, RotateCcw } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { STORAGE_KEYS } from "@/lib/constants"
+import { memo } from "react"
 import {
   LineChart,
   Line,
@@ -21,6 +22,25 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts"
+
+const PerformanceChart = memo(({ chartData }: { chartData: any[] }) => {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+        <XAxis dataKey="name" className="text-xs font-medium" />
+        <YAxis domain={[4, 9]} className="text-xs font-medium" />
+        <Tooltip 
+          contentStyle={{ backgroundColor: 'oklch(var(--card))', borderColor: 'oklch(var(--border))', borderRadius: '8px' }}
+          itemStyle={{ color: 'oklch(var(--foreground))' }}
+        />
+        <Line type="monotone" dataKey="Writing" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
+        <Line type="monotone" dataKey="Speaking" stroke="#f97316" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
+      </LineChart>
+    </ResponsiveContainer>
+  )
+})
+PerformanceChart.displayName = 'PerformanceChart'
 
 export default function Dashboard() {
   const [writingScores, setWritingScores] = useState<any[]>([])
@@ -202,19 +222,7 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent className="h-[300px]">
           {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="name" className="text-xs font-medium" />
-                <YAxis domain={[4, 9]} className="text-xs font-medium" />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'oklch(var(--card))', borderColor: 'oklch(var(--border))', borderRadius: '8px' }}
-                  itemStyle={{ color: 'oklch(var(--foreground))' }}
-                />
-                <Line type="monotone" dataKey="Writing" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="Speaking" stroke="#f97316" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
-              </LineChart>
-            </ResponsiveContainer>
+            <PerformanceChart chartData={chartData} />
           ) : (
             <div className="h-full flex items-center justify-center text-muted-foreground">
               Submit practice tests to see your progress chart here.

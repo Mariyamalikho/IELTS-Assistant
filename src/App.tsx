@@ -8,8 +8,11 @@ import Speaking from './pages/speaking'
 import Reading from './pages/reading'
 import Listening from './pages/listening'
 import Vocabulary from './pages/vocabulary'
-import Simulation from './pages/simulation'
 import Login from './pages/login'
+import { lazy, Suspense } from 'react'
+import { Loader2 } from 'lucide-react'
+
+const Simulation = lazy(() => import('./pages/simulation'))
 
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
 
@@ -29,7 +32,11 @@ function App() {
             <Route path="listening" element={<Listening />} />
             <Route path="speaking" element={<Speaking />} />
             <Route path="vocabulary" element={<Vocabulary />} />
-            <Route path="simulation" element={<Simulation />} />
+            <Route path="simulation" element={
+              <Suspense fallback={<div className="flex h-full items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+                <Simulation />
+              </Suspense>
+            } />
           </Route>
         </Route>
       </Routes>
