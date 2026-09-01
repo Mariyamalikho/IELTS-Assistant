@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -51,7 +51,7 @@ export default function Speaking() {
     }
   }, [])
 
-  const handleGeneratePrompt = async () => {
+  const handleGeneratePrompt = useCallback(async () => {
     setIsGenerating(true);
     try {
       const data = await generateSpeakingPrompt(part);
@@ -70,7 +70,7 @@ export default function Speaking() {
       console.error(e);
     }
     setIsGenerating(false);
-  }
+  }, [part])
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -88,9 +88,9 @@ export default function Speaking() {
     
     // Auto-generate today's test
     handleGeneratePrompt();
-  }, [part])
+  }, [part, handleGeneratePrompt])
 
-  const startRecording = async () => {
+  const startRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       mediaRecorderRef.current = new MediaRecorder(stream)
@@ -122,15 +122,15 @@ export default function Speaking() {
       console.error("Error accessing microphone:", err)
       alert("Microphone access denied or not available.")
     }
-  }
+  }, [])
 
-  const stopRecording = () => {
+  const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }
+  }, [isRecording])
 
   const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -149,7 +149,7 @@ export default function Speaking() {
     })
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!audioBlob) return
 
     setIsEvaluating(true)
@@ -177,9 +177,9 @@ export default function Speaking() {
     } finally {
       setIsEvaluating(false)
     }
-  }
+  }, [audioBlob])
 
-  const handlePartSwitch = (val: string) => {
+  const handlePartSwitch = useCallback((val: string) => {
     const newPart = val as 'part1' | 'part2' | 'part3';
     setPart(newPart)
     setPromptText(newPart === 'part1' ? PART1_PROMPT : newPart === 'part2' ? PART2_PROMPT : PART3_PROMPT)
@@ -187,7 +187,7 @@ export default function Speaking() {
     setAudioUrl(null)
     setAudioBlob(null)
     if (isRecording) stopRecording()
-  }
+  }, [isRecording, stopRecording])
 
   return (
     <div className="flex flex-col h-full gap-6 p-4">

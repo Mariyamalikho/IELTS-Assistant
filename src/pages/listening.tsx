@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -35,7 +35,7 @@ export default function Listening() {
     return () => window.speechSynthesis.cancel()
   }, [])
 
-  const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAudioUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setAudioUrl(URL.createObjectURL(file));
@@ -44,9 +44,9 @@ export default function Listening() {
       window.speechSynthesis.cancel();
       setIsPlaying(false);
     }
-  }
+  }, [])
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     setIsGenerating(true)
     setAnswers({})
     setIsSubmitted(false)
@@ -76,7 +76,7 @@ export default function Listening() {
       alert("An error occurred during generation. Please try again.");
     }
     setIsGenerating(false)
-  }
+  }, [])
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -96,7 +96,7 @@ export default function Listening() {
     handleGenerate();
   }, [])
 
-  const handlePlayScript = () => {
+  const handlePlayScript = useCallback(() => {
     if (isPlaying) {
       window.speechSynthesis.cancel()
       setIsPlaying(false)
@@ -138,7 +138,7 @@ export default function Listening() {
     }
     
     playNext()
-  }
+  }, [isPlaying, testParts])
 
   const flatQuestions = testParts.flatMap(p => p.questions || []);
 
