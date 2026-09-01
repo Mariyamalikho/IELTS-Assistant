@@ -9,9 +9,10 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookOpen, PenTool, Headphones, Mic, Flame, RotateCcw } from "lucide-react"
+import { BookOpen, PenTool, Headphones, Mic, Flame, RotateCcw, LineChart as LineChartIcon } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { STORAGE_KEYS } from "@/lib/constants"
+import { Skeleton } from "@/components/ui/skeleton"
 import { memo } from "react"
 import {
   LineChart,
@@ -51,6 +52,7 @@ export default function Dashboard() {
   const [streak, setStreak] = useState(0)
   const [isResetting, setIsResetting] = useState(false)
   const [isResetConfirming, setIsResetConfirming] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   
   const fetchStats = async () => {
     // Fetch Writing
@@ -90,6 +92,7 @@ export default function Dashboard() {
       })
     }
     setChartData(combined)
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -179,11 +182,11 @@ export default function Dashboard() {
           <CardHeader className="pb-2">
             <CardDescription>Estimated Overall Band</CardDescription>
             <CardTitle className="text-4xl font-extrabold text-primary flex items-end gap-2">
-              {overallBand.toFixed(1)} <span className="text-sm font-medium text-muted-foreground pb-1">/ 8.0 Target</span>
+              {isLoading ? <Skeleton className="h-10 w-24" /> : <>{overallBand.toFixed(1)} <span className="text-sm font-medium text-muted-foreground pb-1">/ 8.0 Target</span></>}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={(overallBand / 9) * 100} className="h-2 mt-4" title={`Estimated Band: ${overallBand.toFixed(1)}`} />
+            {isLoading ? <Skeleton className="h-2 w-full mt-4" /> : <Progress value={(overallBand / 9) * 100} className="h-2 mt-4" title={`Estimated Band: ${overallBand.toFixed(1)}`} />}
           </CardContent>
         </Card>
         
@@ -192,10 +195,12 @@ export default function Dashboard() {
             <CardDescription>Study Streak</CardDescription>
             <Flame className={`w-5 h-5 ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`} />
           </CardHeader>
-          <CardTitle className="px-6 text-3xl font-bold">{streak} Days</CardTitle>
+          <CardTitle className="px-6 text-3xl font-bold">
+            {isLoading ? <Skeleton className="h-9 w-24" /> : `${streak} Days`}
+          </CardTitle>
           <CardContent>
             <p className="text-xs text-muted-foreground mt-2">
-              {streak > 0 ? "You're making great progress!" : "Start practicing to build your streak!"}
+              {isLoading ? <Skeleton className="h-4 w-40 mt-1" /> : (streak > 0 ? "You're making great progress!" : "Start practicing to build your streak!")}
             </p>
           </CardContent>
         </Card>
@@ -203,12 +208,23 @@ export default function Dashboard() {
         <Card className="shadow-sm border-muted">
           <CardHeader className="pb-2">
             <CardDescription>Practice Submissions</CardDescription>
-            <CardTitle className="text-2xl font-bold">{writingScores.length + speakingScores.length} Total</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              {isLoading ? <Skeleton className="h-8 w-20" /> : `${writingScores.length + speakingScores.length} Total`}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 mt-2">
-              <Badge variant="secondary">{writingScores.length} Writing</Badge>
-              <Badge variant="secondary">{speakingScores.length} Speaking</Badge>
+              {isLoading ? (
+                <>
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-5 w-20" />
+                </>
+              ) : (
+                <>
+                  <Badge variant="secondary">{writingScores.length} Writing</Badge>
+                  <Badge variant="secondary">{speakingScores.length} Speaking</Badge>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -221,11 +237,14 @@ export default function Dashboard() {
           <CardDescription>AI-estimated band scores over your recent practice attempts.</CardDescription>
         </CardHeader>
         <CardContent className="h-[300px]">
-          {chartData.length > 0 ? (
+          {isLoading ? (
+            <Skeleton className="w-full h-full rounded-md" />
+          ) : chartData.length > 0 ? (
             <PerformanceChart chartData={chartData} />
           ) : (
-            <div className="h-full flex items-center justify-center text-muted-foreground">
-              Submit practice tests to see your progress chart here.
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed rounded-md bg-muted/20">
+              <LineChartIcon className="w-12 h-12 mb-4 text-muted-foreground/30" />
+              <p>Submit practice tests to see your progress chart here.</p>
             </div>
           )}
         </CardContent>
@@ -254,8 +273,14 @@ export default function Dashboard() {
                 <Icon className={`w-4 h-4 ${module.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{module.band}</div>
-                <Progress value={(numBand / 9) * 100} className="h-1.5 mt-3" />
+                <div className="text-2xl font-bold">
+                  {isLoading ? <Skeleton className="h-8 w-16" /> : module.band}
+                </div>
+                {isLoading ? (
+                  <Skeleton className="h-1.5 w-full mt-3" />
+                ) : (
+                  <Progress value={(numBand / 9) * 100} className="h-1.5 mt-3" />
+                )}
               </CardContent>
             </Card>
           )
