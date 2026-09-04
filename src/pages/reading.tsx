@@ -243,7 +243,7 @@ export default function Reading() {
               )
             })}
 
-            <div className="pt-8 border-t mt-auto flex justify-between items-center">
+            <div className="pt-8 border-t mt-auto flex justify-between items-center" aria-live="polite">
               <div>
                 {isSubmitted && <span className="font-bold text-lg text-primary">Score: {Object.keys(answers).length}/{totalQuestions}</span>}
               </div>
