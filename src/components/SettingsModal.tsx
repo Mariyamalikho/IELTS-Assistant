@@ -31,10 +31,10 @@ export function SettingsModal() {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="w-9 h-9 rounded-full">
-          <Settings className="w-5 h-5 text-muted-foreground" />
-        </Button>
+      <SheetTrigger 
+        render={<Button variant="ghost" size="icon" className="w-9 h-9 rounded-full" />}
+      >
+        <Settings className="w-5 h-5 text-muted-foreground" />
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
