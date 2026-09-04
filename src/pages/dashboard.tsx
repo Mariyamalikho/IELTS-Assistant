@@ -151,15 +151,15 @@ export default function Dashboard() {
   const overallBand = ((avgWriting || 6.0) + (avgSpeaking || 6.0) + 6.5 + 7.0) / 4
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <main className="space-y-6 sm:space-y-8 animate-in fade-in duration-500" aria-live="polite">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">My Journey</h1>
           <p className="text-muted-foreground">Here is an overview of your IELTS preparation progress powered by Gemini AI.</p>
         </div>
         <div className="flex items-center gap-2">
           {isResetConfirming && (
-            <Button variant="ghost" size="sm" onClick={() => setIsResetConfirming(false)} className="text-muted-foreground">
+            <Button variant="ghost" size="sm" onClick={() => setIsResetConfirming(false)} className="text-muted-foreground" autoFocus>
               Cancel
             </Button>
           )}
@@ -174,7 +174,7 @@ export default function Dashboard() {
             {isResetting ? "Resetting..." : isResetConfirming ? "Yes, delete everything!" : "Reset Progress"}
           </Button>
         </div>
-      </div>
+      </header>
 
       {/* Top Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -286,6 +286,6 @@ export default function Dashboard() {
           )
         })}
       </div>
-    </div>
+    </main>
   )
 }
