@@ -192,7 +192,7 @@ export default function Writing() {
           </Card>
 
           {feedback && (
-            <Card className="bg-primary/10 border-primary/50 animate-in fade-in zoom-in duration-500">
+            <Card className="bg-primary/10 border-primary/50 animate-in fade-in zoom-in duration-500" aria-live="polite">
               <CardHeader>
                 <CardTitle className="text-primary flex justify-between items-center">
                   <span>Evaluation Complete</span>
