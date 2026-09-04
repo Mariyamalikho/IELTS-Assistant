@@ -9,6 +9,7 @@ import Reading from './pages/reading'
 import Listening from './pages/listening'
 import Vocabulary from './pages/vocabulary'
 import Login from './pages/login'
+import PrivacyPolicy from './pages/privacy'
 import { lazy, Suspense } from 'react'
 import { Loader2 } from 'lucide-react'
 
@@ -32,6 +33,7 @@ function App() {
             <Route path="listening" element={<Listening />} />
             <Route path="speaking" element={<Speaking />} />
             <Route path="vocabulary" element={<Vocabulary />} />
+            <Route path="privacy" element={<PrivacyPolicy />} />
             <Route path="simulation" element={
               <Suspense fallback={<div className="flex h-full items-center justify-center p-8"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
                 <Simulation />
