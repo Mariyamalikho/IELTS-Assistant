@@ -55,9 +55,13 @@ function parseAIJson(text: string | null | undefined) {
 
 // Generic function to call our secure Vercel backend proxy
 async function callGeminiProxy(model: string, contents: any, config: any) {
+  const apiKey = localStorage.getItem('ielts_gemini_api_key');
   const response = await fetch('/api/gemini', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...(apiKey ? { 'x-api-key': apiKey } : {})
+    },
     body: JSON.stringify({ model, contents, config })
   });
 

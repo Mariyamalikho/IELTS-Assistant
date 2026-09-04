@@ -4,6 +4,7 @@ import { Edit2, Flame } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { MobileNav } from "@/components/MobileNav"
+import { SettingsModal } from "@/components/SettingsModal"
 
 export function AppHeader() {
   const { user } = useAuth()
@@ -95,6 +96,7 @@ export function AppHeader() {
             </div>
           )}
         </div>
+        <SettingsModal />
         <ModeToggle />
       </div>
     </header>
