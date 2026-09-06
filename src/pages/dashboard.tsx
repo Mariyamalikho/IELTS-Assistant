@@ -26,19 +26,21 @@ import {
 
 const PerformanceChart = memo(({ chartData }: { chartData: any[] }) => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-        <XAxis dataKey="name" className="text-xs font-medium" />
-        <YAxis domain={[4, 9]} className="text-xs font-medium" />
-        <Tooltip 
-          contentStyle={{ backgroundColor: 'oklch(var(--card))', borderColor: 'oklch(var(--border))', borderRadius: '8px' }}
-          itemStyle={{ color: 'oklch(var(--foreground))' }}
-        />
-        <Line type="monotone" dataKey="Writing" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
-        <Line type="monotone" dataKey="Speaking" stroke="#f97316" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
-      </LineChart>
-    </ResponsiveContainer>
+    <div style={{ width: '100%', height: '100%', minHeight: 300 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <XAxis dataKey="name" className="text-xs font-medium" />
+          <YAxis domain={[4, 9]} className="text-xs font-medium" />
+          <Tooltip 
+            contentStyle={{ backgroundColor: 'oklch(var(--card))', borderColor: 'oklch(var(--border))', borderRadius: '8px' }}
+            itemStyle={{ color: 'oklch(var(--foreground))' }}
+          />
+          <Line type="monotone" dataKey="Writing" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} connectNulls={true} />
+          <Line type="monotone" dataKey="Speaking" stroke="#f97316" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} connectNulls={true} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   )
 })
 PerformanceChart.displayName = 'PerformanceChart'
