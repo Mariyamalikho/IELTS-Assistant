@@ -1,4 +1,7 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useTimer } from '@/hooks/useTimer'
+import { useAudioRecorder } from '@/hooks/useAudioRecorder'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -30,26 +33,17 @@ Let's consider some more abstract issues related to books.
 - What kinds of books do you think will be popular in the future?
 Please record your answer (aim for 2-3 minutes).`
 
+
 export default function Speaking() {
   const [part, setPart] = useState<'part1' | 'part2' | 'part3'>('part1')
   const [promptText, setPromptText] = useState(PART1_PROMPT)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [isRecording, setIsRecording] = useState(false)
-  const [recordingTime, setRecordingTime] = useState(0)
-  const [audioUrl, setAudioUrl] = useState<string | null>(null)
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [feedback, setFeedback] = useState<any>(null)
   
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const chunksRef = useRef<BlobPart[]>([])
-  const timerRef = useRef<any>(null)
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
-    }
-  }, [])
+  const timer = useTimer()
+  const recorder = useAudioRecorder()
+  const [cachedPrompt, setCachedPrompt] = useLocalStorage(`ielts_speaking_daily_${part}`, { date: '', text: '' })
 
   const handleGeneratePrompt = useCallback(async () => {
     setIsGenerating(true);
@@ -65,72 +59,36 @@ export default function Speaking() {
       }
       setPromptText(newPromptText);
       const today = new Date().toISOString().split('T')[0];
-      localStorage.setItem(`ielts_speaking_daily_${part}`, JSON.stringify({ date: today, text: newPromptText }));
+      setCachedPrompt({ date: today, text: newPromptText });
     } catch (e) {
       console.error(e);
     }
     setIsGenerating(false);
-  }, [part])
+  }, [part, setCachedPrompt])
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    const cachedData = localStorage.getItem(`ielts_speaking_daily_${part}`);
-    
-    if (cachedData) {
-      try {
-        const parsed = JSON.parse(cachedData);
-        if (parsed.date === today && parsed.text) {
-          setPromptText(parsed.text);
-          return;
-        }
-      } catch (e) {}
+    if (cachedPrompt.date === today && cachedPrompt.text) {
+      setPromptText(cachedPrompt.text);
+    } else {
+      // Auto-generate today's test if we don't have it
+      // Delay it slightly to avoid state updates during render
+      const timerId = setTimeout(() => handleGeneratePrompt(), 0);
+      return () => clearTimeout(timerId);
     }
-    
-    // Auto-generate today's test
-    handleGeneratePrompt();
-  }, [part, handleGeneratePrompt])
+  }, [cachedPrompt.date, cachedPrompt.text, handleGeneratePrompt])
 
   const startRecording = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      mediaRecorderRef.current = new MediaRecorder(stream)
-      chunksRef.current = []
-
-      mediaRecorderRef.current.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data)
-      }
-
-      mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
-        const url = URL.createObjectURL(blob)
-        setAudioBlob(blob)
-        setAudioUrl(url)
-        stream.getTracks().forEach(track => track.stop()) // Stop mic access
-      }
-
-      mediaRecorderRef.current.start()
-      setIsRecording(true)
-      setRecordingTime(0)
-      setAudioUrl(null)
-      setAudioBlob(null)
-      setFeedback(null)
-      
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1)
-      }, 1000)
-    } catch (err) {
-      console.error("Error accessing microphone:", err)
-      alert("Microphone access denied or not available.")
-    }
-  }, [])
+    await recorder.startRecording()
+    timer.reset()
+    timer.start()
+    setFeedback(null)
+  }, [recorder, timer])
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop()
-      setIsRecording(false)
-      if (timerRef.current) clearInterval(timerRef.current)
-    }
-  }, [isRecording])
+    recorder.stopRecording()
+    timer.stop()
+  }, [recorder, timer])
 
   const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -150,12 +108,12 @@ export default function Speaking() {
   }
 
   const handleSubmit = useCallback(async () => {
-    if (!audioBlob) return
+    if (!recorder.audioBlob) return
 
     setIsEvaluating(true)
     try {
-      const base64Audio = await blobToBase64(audioBlob)
-      const mimeType = audioBlob.type || 'audio/webm'
+      const base64Audio = await blobToBase64(recorder.audioBlob)
+      const mimeType = recorder.audioBlob.type || 'audio/webm'
       
       // 1. Get AI Evaluation
       const result = await evaluateSpeaking(base64Audio, mimeType)
@@ -177,17 +135,16 @@ export default function Speaking() {
     } finally {
       setIsEvaluating(false)
     }
-  }, [audioBlob])
+  }, [recorder.audioBlob])
 
   const handlePartSwitch = useCallback((val: string) => {
     const newPart = val as 'part1' | 'part2' | 'part3';
     setPart(newPart)
     setPromptText(newPart === 'part1' ? PART1_PROMPT : newPart === 'part2' ? PART2_PROMPT : PART3_PROMPT)
     setFeedback(null)
-    setAudioUrl(null)
-    setAudioBlob(null)
-    if (isRecording) stopRecording()
-  }, [isRecording, stopRecording])
+    recorder.clearRecording()
+    if (recorder.isRecording) stopRecording()
+  }, [recorder, stopRecording])
 
   return (
     <div className="flex flex-col h-full gap-6 p-4">
@@ -223,19 +180,19 @@ export default function Speaking() {
           </Card>
 
           <Card className="flex flex-col items-center p-6 sm:p-8 bg-card/30 border-2 border-primary/20 relative overflow-hidden">
-            {isRecording && (
+            {recorder.isRecording && (
               <div className="absolute inset-0 bg-destructive/10 animate-pulse pointer-events-none" />
             )}
             
             <div className="text-4xl sm:text-5xl font-mono mb-6 sm:mb-8 z-10 flex flex-col items-center">
-              <span className={isRecording ? "text-destructive" : ""}>
-                {formatTime(recordingTime)}
+              <span className={recorder.isRecording ? "text-destructive" : ""}>
+                {formatTime(timer.time)}
               </span>
-              {isRecording && <span className="text-sm text-destructive mt-2 animate-pulse">Recording...</span>}
+              {recorder.isRecording && <span className="text-sm text-destructive mt-2 animate-pulse">Recording...</span>}
             </div>
 
             <div className="flex gap-4 z-10">
-              {!isRecording ? (
+              {!recorder.isRecording ? (
                 <Button 
                   size="lg" 
                   aria-label="Start recording"
@@ -258,9 +215,9 @@ export default function Speaking() {
               )}
             </div>
 
-            {audioUrl && !isRecording && (
+            {recorder.audioUrl && !recorder.isRecording && (
               <div className="mt-8 w-full animate-in slide-in-from-bottom-4">
-                <audio src={audioUrl} controls className="w-full h-12" />
+                <audio src={recorder.audioUrl} controls className="w-full h-12" />
                 <Button 
                   className="w-full mt-4 gap-2" 
                   onClick={handleSubmit}
