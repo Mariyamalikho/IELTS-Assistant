@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Loader2, CheckCircle, Volume2, RotateCcw } from 'lucide-react'
+import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis'
 import { generateDailyVocabulary } from '@/lib/gemini'
 import { STORAGE_KEYS } from '@/lib/constants'
 
@@ -20,6 +21,7 @@ type Vocab = {
 }
 
 export default function Vocabulary() {
+  const { speak } = useSpeechSynthesis();
   const [vocabList, setVocabList] = useState<Vocab[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isFlipped, setIsFlipped] = useState(false)
@@ -181,9 +183,7 @@ export default function Vocabulary() {
 
   const playPronunciation = (e: React.MouseEvent, word: string) => {
     e.stopPropagation();
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = 'en-US';
-    window.speechSynthesis.speak(utterance);
+    speak(word);
   }
 
   if (isLoading || isGenerating) {

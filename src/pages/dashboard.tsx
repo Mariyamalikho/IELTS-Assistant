@@ -45,13 +45,14 @@ const PerformanceChart = memo(({ chartData }: { chartData: any[] }) => {
 })
 PerformanceChart.displayName = 'PerformanceChart'
 
+import { useApiUsage } from "@/hooks/useApiUsage"
+
 export default function Dashboard() {
   const [writingScores, setWritingScores] = useState<any[]>([])
   const [speakingScores, setSpeakingScores] = useState<any[]>([])
   const [avgWriting, setAvgWriting] = useState(0)
   const [avgSpeaking, setAvgSpeaking] = useState(0)
   const [chartData, setChartData] = useState<any[]>([])
-  const [streak, setStreak] = useState(0)
   const [isResetting, setIsResetting] = useState(false)
   const [isResetConfirming, setIsResetConfirming] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -97,35 +98,10 @@ export default function Dashboard() {
     setIsLoading(false)
   }
 
-  useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const lastUsageDate = localStorage.getItem(STORAGE_KEYS.USAGE_DATE);
-    let currentStreak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0', 10);
+  const { streak } = useApiUsage()
 
-    if (lastUsageDate && lastUsageDate !== today) {
-        const lastDate = new Date(lastUsageDate);
-        const currentDate = new Date(today);
-        const diffTime = currentDate.getTime() - lastDate.getTime();
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
-        
-        // Streak Logic Verification:
-        // When the dashboard loads, we check if the user missed yesterday.
-        // If more than 1 day has passed since their last activity, their streak is broken.
-        if (diffDays > 1) {
-           currentStreak = 0;
-           localStorage.setItem(STORAGE_KEYS.STREAK, '0');
-        }
-    }
-    
-    setStreak(currentStreak);
+  useEffect(() => {
     fetchStats();
-    
-    // Listen for real-time streak updates from Gemini usage
-    const handleUsageUpdate = () => {
-      setStreak(parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0', 10));
-    };
-    window.addEventListener('api_usage_updated', handleUsageUpdate);
-    return () => window.removeEventListener('api_usage_updated', handleUsageUpdate);
   }, [])
 
   const handleReset = async () => {
@@ -144,7 +120,7 @@ export default function Dashboard() {
     // Reset Local Storage data
     localStorage.removeItem(STORAGE_KEYS.VOCABULARY)
     localStorage.setItem(STORAGE_KEYS.STREAK, '0')
-    setStreak(0)
+    window.dispatchEvent(new Event('api_usage_updated'))
     
     await fetchStats()
     setIsResetting(false)
