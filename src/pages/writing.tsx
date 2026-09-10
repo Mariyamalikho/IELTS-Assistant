@@ -196,7 +196,7 @@ export default function Writing() {
               <CardHeader>
                 <CardTitle className="text-primary flex justify-between items-center">
                   <span>Evaluation Complete</span>
-                  <span className="text-4xl">Band {feedback.estimatedBand}</span>
+                  <span className="text-4xl font-bold tracking-tighter">Band {feedback.estimatedBand}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">

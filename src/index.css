@@ -135,6 +135,20 @@
   html {
     @apply font-sans;
   }
+
+  /* Typography Polish */
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
+  }
+  h1 {
+    @apply text-3xl font-bold mb-2;
+  }
+  h2 {
+    @apply text-2xl font-semibold mt-8 mb-4;
+  }
+  h3 {
+    @apply text-xl font-medium mt-6 mb-3;
+  }
 }
 
 @theme inline {

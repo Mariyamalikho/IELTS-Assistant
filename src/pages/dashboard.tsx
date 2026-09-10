@@ -159,8 +159,8 @@ export default function Dashboard() {
         <Card className="bg-gradient-to-br from-card to-primary/5 border-primary/10 shadow-sm">
           <CardHeader className="pb-2">
             <CardDescription>Estimated Overall Band</CardDescription>
-            <CardTitle className="text-4xl font-extrabold text-primary flex items-end gap-2">
-              {isLoading ? <Skeleton className="h-10 w-24" /> : <>{overallBand.toFixed(1)} <span className="text-sm font-medium text-muted-foreground pb-1">/ 8.0 Target</span></>}
+            <CardTitle className="text-4xl font-extrabold tracking-tighter text-primary flex items-end gap-2">
+              {isLoading ? <Skeleton className="h-10 w-24" /> : <>{overallBand.toFixed(1)} <span className="text-sm tracking-normal font-medium text-muted-foreground pb-1">/ 8.0 Target</span></>}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -173,7 +173,7 @@ export default function Dashboard() {
             <CardDescription>Study Streak</CardDescription>
             <Flame className={`w-5 h-5 ${streak > 0 ? "text-orange-500" : "text-muted-foreground"}`} />
           </CardHeader>
-          <CardTitle className="px-6 text-3xl font-bold">
+          <CardTitle className="px-6 text-3xl font-bold tracking-tighter">
             {isLoading ? <Skeleton className="h-9 w-24" /> : `${streak} Days`}
           </CardTitle>
           <CardContent>

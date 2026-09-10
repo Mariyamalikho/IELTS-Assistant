@@ -141,7 +141,7 @@ export default function Reading() {
               <Badge variant="secondary">AI Generated</Badge>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto pt-6 leading-loose text-base sm:text-lg font-serif">
+          <CardContent className="flex-1 overflow-y-auto pt-6 leading-[1.8] text-base sm:text-[17px] font-serif">
             {currentPassage.passage?.split('\n\n').map((para: string, i: number) => (
               <p key={i} className="mb-4">{para}</p>
             ))}

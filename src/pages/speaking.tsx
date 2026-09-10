@@ -243,7 +243,7 @@ export default function Speaking() {
               <CardHeader className="sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b">
                 <CardTitle className="text-primary flex justify-between items-center">
                   <span>Evaluation Complete</span>
-                  <span className="text-4xl">Band {feedback.estimatedBand}</span>
+                  <span className="text-4xl font-bold tracking-tighter">Band {feedback.estimatedBand}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 pt-6">
