@@ -197,7 +197,7 @@ export default function Vocabulary() {
 
   if (reviewComplete || vocabList.length === 0) {
     return (
-      <div className="flex flex-col h-full items-center justify-center gap-4 text-center max-w-xl mx-auto">
+      <div className="flex flex-col h-full items-center justify-center gap-4 text-center mx-auto bg-pattern rounded-2xl p-8 border border-border/50">
         <div className="w-24 h-24 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mb-4">
           <CheckCircle className="w-12 h-12" />
         </div>

@@ -158,6 +158,10 @@
   .dark .shadow-glow {
     box-shadow: 0 0 20px -5px var(--primary), inset 0 0 0 1px var(--border);
   }
+  .bg-pattern {
+    background-image: radial-gradient(var(--border) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
 }
 
 @theme inline {
