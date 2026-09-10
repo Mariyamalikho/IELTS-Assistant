@@ -151,6 +151,15 @@
   }
 }
 
+@layer utilities {
+  .shadow-glow {
+    box-shadow: 0 0 20px -5px var(--primary);
+  }
+  .dark .shadow-glow {
+    box-shadow: 0 0 20px -5px var(--primary), inset 0 0 0 1px var(--border);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
