@@ -335,7 +335,7 @@ export default function Simulation() {
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><Headphones className="w-5 h-5"/> Listening</CardTitle></CardHeader>
             <CardContent>
-              <div className="text-5xl font-bold text-primary">{evaluations.listeningRaw} / {evaluations.listeningTotal}</div>
+              <div className="text-5xl font-bold tracking-tighter text-primary">{evaluations.listeningRaw} / {evaluations.listeningTotal}</div>
               <p className="text-muted-foreground mt-2">Raw Score (Exact match)</p>
             </CardContent>
           </Card>
@@ -343,7 +343,7 @@ export default function Simulation() {
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Reading</CardTitle></CardHeader>
             <CardContent>
-              <div className="text-5xl font-bold text-primary">{evaluations.readingRaw} / {evaluations.readingTotal}</div>
+              <div className="text-5xl font-bold tracking-tighter text-primary">{evaluations.readingRaw} / {evaluations.readingTotal}</div>
               <p className="text-muted-foreground mt-2">Raw Score (Exact match)</p>
             </CardContent>
           </Card>
@@ -353,7 +353,7 @@ export default function Simulation() {
             <CardContent>
               {evaluations.writing1 || evaluations.writing2 ? (
                 <>
-                  <div className="text-5xl font-bold text-primary mb-4">Band {evaluations.overallWritingBand}</div>
+                  <div className="text-5xl font-bold tracking-tighter text-primary mb-4">Band {evaluations.overallWritingBand}</div>
                   <div className="space-y-4">
                     {evaluations.writing1 && (
                       <div>
@@ -378,7 +378,7 @@ export default function Simulation() {
             <CardContent>
               {evaluations.speaking ? (
                 <>
-                  <div className="text-5xl font-bold text-primary mb-4">Band {evaluations.speaking.estimatedBand}</div>
+                  <div className="text-5xl font-bold tracking-tighter text-primary mb-4">Band {evaluations.speaking.estimatedBand}</div>
                   <p className="font-semibold text-sm">FC: {evaluations.speaking.fluencyAndCoherence?.score} | LR: {evaluations.speaking.lexicalResource?.score} | GRA: {evaluations.speaking.grammaticalRange?.score} | PR: {evaluations.speaking.pronunciation?.score}</p>
                 </>
               ) : <p className="text-muted-foreground">No audio submitted.</p>}

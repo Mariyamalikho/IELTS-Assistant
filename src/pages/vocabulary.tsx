@@ -240,7 +240,7 @@ export default function Vocabulary() {
           {!isFlipped ? (
             <Card className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 shadow-xl hover:shadow-primary/20 transition-shadow">
               <CardContent className="p-8 sm:p-12 text-center">
-                <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4 flex items-center justify-center gap-4">
+                <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tighter mb-4 flex items-center justify-center gap-4">
                   {currentCard.word}
                   <Button 
                     variant="ghost" 
