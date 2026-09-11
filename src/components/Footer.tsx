@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { Code2, MessageCircle } from "lucide-react"
+import { Code2 } from "lucide-react"
 
 export function Footer() {
   return (
@@ -17,9 +17,6 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <a href="https://github.com/Mariyamalikho/IELTS-Assistant" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="GitHub Repository">
               <Code2 className="w-4 h-4" />
-            </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Twitter Profile">
-              <MessageCircle className="w-4 h-4" />
             </a>
           </div>
         </div>
