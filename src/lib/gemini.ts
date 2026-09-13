@@ -113,7 +113,24 @@ ${essay}
     const response = await callGeminiProxy(
       'gemini-3.1-flash-lite',
       userPrompt,
-      { systemInstruction, temperature: 0.2, responseMimeType: "application/json" }
+      { 
+        systemInstruction, 
+        temperature: 0.2, 
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "object",
+          properties: {
+            estimatedBand: { type: "number" },
+            taskAchievement: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
+            coherenceCohesion: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
+            lexicalResource: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
+            grammaticalRange: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
+            overallFeedback: { type: "string" },
+            strengths: { type: "array", items: { type: "string" } },
+            weaknesses: { type: "array", items: { type: "string" } }
+          }
+        }
+      }
     );
     return parseAIJson(response.text) as EssayEvaluation;
   } catch (error) {
@@ -151,7 +168,25 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
         { inlineData: { data: audioBase64, mimeType: mimeType } },
         "Evaluate my IELTS speaking response."
       ],
-      { systemInstruction, temperature: 0.2, responseMimeType: "application/json" }
+      { 
+        systemInstruction, 
+        temperature: 0.2, 
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "object",
+          properties: {
+            transcript: { type: "string" },
+            estimatedBand: { type: "number" },
+            fluencyAndCoherence: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
+            lexicalResource: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
+            grammaticalRange: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
+            pronunciation: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
+            overallFeedback: { type: "string" },
+            strengths: { type: "array", items: { type: "string" } },
+            weaknesses: { type: "array", items: { type: "string" } }
+          }
+        }
+      }
     );
     return parseAIJson(response.text) as SpeakingEvaluation;
   } catch (error) {
@@ -175,7 +210,23 @@ export async function generateDailyVocabulary() {
     const response = await callGeminiProxy(
       'gemini-3.1-flash-lite',
       prompt,
-      { responseMimeType: "application/json", temperature: 0.7 }
+      { 
+        responseMimeType: "application/json", 
+        temperature: 0.7,
+        responseSchema: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              word: { type: "string" },
+              meaning: { type: "string" },
+              example: { type: "string" },
+              synonyms: { type: "string" },
+              antonyms: { type: "string" }
+            }
+          }
+        }
+      }
     );
     
     const parsed = parseAIJson(response.text);
@@ -204,7 +255,32 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1, retries = 2
     const response = await callGeminiProxy(
       'gemini-3.1-flash-lite',
       prompt,
-      { responseMimeType: "application/json", temperature: 0.6 }
+      { 
+        responseMimeType: "application/json", 
+        temperature: 0.6,
+        responseSchema: {
+          type: "object",
+          properties: {
+            title: { type: "string" },
+            passage: { type: "string" },
+            questions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  num: { type: "number" },
+                  q: { type: "string" },
+                  type: { type: "string" },
+                  options: { type: "array", items: { type: "string" } },
+                  answer: { type: "string" }
+                },
+                required: ["num", "q", "type", "answer"]
+              }
+            }
+          },
+          required: ["title", "passage", "questions"]
+        }
+      }
     );
     const parsed = parseAIJson(response.text);
     if (!parsed.title || !parsed.questions) throw new Error("Invalid output format");
@@ -269,7 +345,24 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1, retries = 2
     const response = await callGeminiProxy(
       'gemini-3.1-flash-lite',
       prompt,
-      { responseMimeType: "application/json", temperature: 0.6 }
+      { 
+        responseMimeType: "application/json", 
+        temperature: 0.6,
+        responseSchema: {
+          type: "object",
+          properties: {
+            title: { type: "string" },
+            script: {
+              type: "array",
+              items: { type: "object", properties: { speaker: { type: "string" }, text: { type: "string" } } }
+            },
+            questions: {
+              type: "array",
+              items: { type: "object", properties: { num: { type: "number" }, q: { type: "string" }, answer: { type: "string" } } }
+            }
+          }
+        }
+      }
     );
     const parsed = parseAIJson(response.text);
     if (!parsed.title || !parsed.questions) throw new Error("Invalid output format");
@@ -292,7 +385,17 @@ export async function generateWritingPrompt(taskType: 'task1' | 'task2') {
     const response = await callGeminiProxy(
       'gemini-3.1-flash-lite',
       prompt,
-      { responseMimeType: "application/json", temperature: 0.8 }
+      { 
+        responseMimeType: "application/json", 
+        temperature: 0.8,
+        responseSchema: {
+          type: "object",
+          properties: {
+            prompt: { type: "string" },
+            chartConfig: { type: "object" } // Optional, for task 1
+          }
+        }
+      }
     );
     return parseAIJson(response.text);
   } catch (e) {
