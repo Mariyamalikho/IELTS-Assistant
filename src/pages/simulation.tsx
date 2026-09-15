@@ -156,31 +156,55 @@ export default function Simulation() {
       // 3. Exact matching for Listening and Reading (40 questions each)
       let listeningScore = 0;
       let listeningTotal = 0;
+      let listeningBreakdown: any[] = [];
       listeningData.forEach(part => {
         part.questions?.forEach((q: any) => {
           listeningTotal++;
-          if (listeningAnswers[q.num]?.toLowerCase().trim() === q.answer?.toLowerCase().trim()) {
+          const userAnswer = listeningAnswers[q.num]?.toLowerCase().trim() || "";
+          const correctAnswer = q.answer?.toLowerCase().trim() || "";
+          const isCorrect = userAnswer === correctAnswer;
+          if (isCorrect) {
             listeningScore += 1;
           }
+          listeningBreakdown.push({
+            num: q.num,
+            question: q.q,
+            userAnswer: listeningAnswers[q.num] || "No answer",
+            correctAnswer: q.answer,
+            isCorrect
+          });
         });
       });
 
       let readingScore = 0;
       let readingTotal = 0;
+      let readingBreakdown: any[] = [];
       readingData.forEach(passage => {
         passage.questions?.forEach((q: any) => {
           readingTotal++;
-          if (readingAnswers[q.num]?.toLowerCase().trim() === q.answer?.toLowerCase().trim()) {
+          const userAnswer = readingAnswers[q.num]?.toLowerCase().trim() || "";
+          const correctAnswer = q.answer?.toLowerCase().trim() || "";
+          const isCorrect = userAnswer === correctAnswer;
+          if (isCorrect) {
             readingScore += 1;
           }
+          readingBreakdown.push({
+            num: q.num,
+            question: q.q,
+            userAnswer: readingAnswers[q.num] || "No answer",
+            correctAnswer: q.answer,
+            isCorrect
+          });
         });
       });
 
       setEvaluations({
         listeningRaw: listeningScore,
         listeningTotal: listeningTotal,
+        listeningBreakdown: listeningBreakdown,
         readingRaw: readingScore,
         readingTotal: readingTotal,
+        readingBreakdown: readingBreakdown,
         writing1: writingFeedback1,
         writing2: writingFeedback2,
         overallWritingBand: overallWritingBand,
@@ -336,7 +360,22 @@ export default function Simulation() {
             <CardHeader><CardTitle className="flex items-center gap-2"><Headphones className="w-5 h-5"/> Listening</CardTitle></CardHeader>
             <CardContent>
               <div className="text-5xl font-bold tracking-tighter text-primary mb-2">{evaluations.listeningRaw} / {evaluations.listeningTotal}</div>
-              <p className="text-muted-foreground">Raw Score (Exact match)</p>
+              <p className="text-muted-foreground mb-4">Raw Score (Exact match)</p>
+              
+              {evaluations.listeningBreakdown && evaluations.listeningBreakdown.some((q: any) => !q.isCorrect) && (
+                <details className="mt-4 border-t pt-4">
+                  <summary className="cursor-pointer text-sm font-semibold text-destructive hover:underline mb-2">View Incorrect Answers</summary>
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    {evaluations.listeningBreakdown.filter((q: any) => !q.isCorrect).map((q: any) => (
+                      <div key={q.num} className="text-xs bg-muted/30 p-2 rounded border border-border/50">
+                        <p className="font-semibold mb-1">Q{q.num}: <span className="font-normal">{q.question.replace('___', '_____')}</span></p>
+                        <p className="text-destructive">Your answer: {q.userAnswer}</p>
+                        <p className="text-green-600 font-medium">Correct answer: {q.correctAnswer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
             </CardContent>
           </Card>
           
@@ -344,7 +383,22 @@ export default function Simulation() {
             <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Reading</CardTitle></CardHeader>
             <CardContent>
               <div className="text-5xl font-bold tracking-tighter text-primary mb-2">{evaluations.readingRaw} / {evaluations.readingTotal}</div>
-              <p className="text-muted-foreground">Raw Score (Exact match)</p>
+              <p className="text-muted-foreground mb-4">Raw Score (Exact match)</p>
+              
+              {evaluations.readingBreakdown && evaluations.readingBreakdown.some((q: any) => !q.isCorrect) && (
+                <details className="mt-4 border-t pt-4">
+                  <summary className="cursor-pointer text-sm font-semibold text-destructive hover:underline mb-2">View Incorrect Answers</summary>
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    {evaluations.readingBreakdown.filter((q: any) => !q.isCorrect).map((q: any) => (
+                      <div key={q.num} className="text-xs bg-muted/30 p-2 rounded border border-border/50">
+                        <p className="font-semibold mb-1">Q{q.num}: <span className="font-normal">{q.question.replace('___', '_____')}</span></p>
+                        <p className="text-destructive">Your answer: {q.userAnswer}</p>
+                        <p className="text-green-600 font-medium">Correct answer: {q.correctAnswer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
             </CardContent>
           </Card>
 
