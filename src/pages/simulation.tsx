@@ -335,52 +335,111 @@ export default function Simulation() {
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><Headphones className="w-5 h-5"/> Listening</CardTitle></CardHeader>
             <CardContent>
-              <div className="text-5xl font-bold tracking-tighter text-primary">{evaluations.listeningRaw} / {evaluations.listeningTotal}</div>
-              <p className="text-muted-foreground mt-2">Raw Score (Exact match)</p>
+              <div className="text-5xl font-bold tracking-tighter text-primary mb-2">{evaluations.listeningRaw} / {evaluations.listeningTotal}</div>
+              <p className="text-muted-foreground">Raw Score (Exact match)</p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Reading</CardTitle></CardHeader>
             <CardContent>
-              <div className="text-5xl font-bold tracking-tighter text-primary">{evaluations.readingRaw} / {evaluations.readingTotal}</div>
-              <p className="text-muted-foreground mt-2">Raw Score (Exact match)</p>
+              <div className="text-5xl font-bold tracking-tighter text-primary mb-2">{evaluations.readingRaw} / {evaluations.readingTotal}</div>
+              <p className="text-muted-foreground">Raw Score (Exact match)</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Writing</CardTitle></CardHeader>
+          <Card className="md:col-span-2">
+            <CardHeader><CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5"/> Writing Analysis</CardTitle></CardHeader>
             <CardContent>
               {evaluations.writing1 || evaluations.writing2 ? (
-                <>
-                  <div className="text-5xl font-bold tracking-tighter text-primary mb-4">Band {evaluations.overallWritingBand}</div>
-                  <div className="space-y-4">
+                <div className="space-y-6">
+                  <div className="text-4xl font-bold tracking-tighter text-primary">Overall Band: {evaluations.overallWritingBand}</div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {evaluations.writing1 && (
-                      <div>
-                        <p className="font-bold text-sm">Task 1: Band {evaluations.writing1.estimatedBand}</p>
-                        <p className="text-xs text-muted-foreground">TR: {evaluations.writing1.taskAchievement?.score} | CC: {evaluations.writing1.coherenceCohesion?.score} | LR: {evaluations.writing1.lexicalResource?.score} | GRA: {evaluations.writing1.grammaticalRange?.score}</p>
+                      <div className="bg-muted/30 p-4 rounded-lg space-y-3">
+                        <p className="font-bold text-lg border-b pb-2">Task 1 (Band {evaluations.writing1.estimatedBand})</p>
+                        <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                          <span className="bg-primary/10 text-primary px-2 py-1 rounded">TR: {evaluations.writing1.taskAchievement?.score}</span>
+                          <span className="bg-primary/10 text-primary px-2 py-1 rounded">CC: {evaluations.writing1.coherenceCohesion?.score}</span>
+                          <span className="bg-primary/10 text-primary px-2 py-1 rounded">LR: {evaluations.writing1.lexicalResource?.score}</span>
+                          <span className="bg-primary/10 text-primary px-2 py-1 rounded">GRA: {evaluations.writing1.grammaticalRange?.score}</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground italic">"{evaluations.writing1.overallFeedback}"</p>
+                        {evaluations.writing1.weaknesses?.length > 0 && (
+                          <div>
+                            <p className="text-sm font-semibold text-destructive mt-2">Points to Improve:</p>
+                            <ul className="list-disc list-inside text-xs text-muted-foreground ml-1">
+                              {evaluations.writing1.weaknesses.map((w: string, i: number) => <li key={i}>{w}</li>)}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     )}
+                    
                     {evaluations.writing2 && (
-                      <div>
-                        <p className="font-bold text-sm">Task 2: Band {evaluations.writing2.estimatedBand}</p>
-                        <p className="text-xs text-muted-foreground">TR: {evaluations.writing2.taskAchievement?.score} | CC: {evaluations.writing2.coherenceCohesion?.score} | LR: {evaluations.writing2.lexicalResource?.score} | GRA: {evaluations.writing2.grammaticalRange?.score}</p>
+                      <div className="bg-muted/30 p-4 rounded-lg space-y-3">
+                        <p className="font-bold text-lg border-b pb-2">Task 2 (Band {evaluations.writing2.estimatedBand})</p>
+                        <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                          <span className="bg-primary/10 text-primary px-2 py-1 rounded">TR: {evaluations.writing2.taskAchievement?.score}</span>
+                          <span className="bg-primary/10 text-primary px-2 py-1 rounded">CC: {evaluations.writing2.coherenceCohesion?.score}</span>
+                          <span className="bg-primary/10 text-primary px-2 py-1 rounded">LR: {evaluations.writing2.lexicalResource?.score}</span>
+                          <span className="bg-primary/10 text-primary px-2 py-1 rounded">GRA: {evaluations.writing2.grammaticalRange?.score}</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground italic">"{evaluations.writing2.overallFeedback}"</p>
+                        {evaluations.writing2.weaknesses?.length > 0 && (
+                          <div>
+                            <p className="text-sm font-semibold text-destructive mt-2">Points to Improve:</p>
+                            <ul className="list-disc list-inside text-xs text-muted-foreground ml-1">
+                              {evaluations.writing2.weaknesses.map((w: string, i: number) => <li key={i}>{w}</li>)}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                </>
+                </div>
               ) : <p className="text-muted-foreground">No essay submitted.</p>}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Mic className="w-5 h-5"/> Speaking</CardTitle></CardHeader>
+          <Card className="md:col-span-2">
+            <CardHeader><CardTitle className="flex items-center gap-2"><Mic className="w-5 h-5"/> Speaking Analysis</CardTitle></CardHeader>
             <CardContent>
               {evaluations.speaking ? (
-                <>
-                  <div className="text-5xl font-bold tracking-tighter text-primary mb-4">Band {evaluations.speaking.estimatedBand}</div>
-                  <p className="font-semibold text-sm">FC: {evaluations.speaking.fluencyAndCoherence?.score} | LR: {evaluations.speaking.lexicalResource?.score} | GRA: {evaluations.speaking.grammaticalRange?.score} | PR: {evaluations.speaking.pronunciation?.score}</p>
-                </>
+                <div className="space-y-4">
+                  <div className="text-4xl font-bold tracking-tighter text-primary">Band {evaluations.speaking.estimatedBand}</div>
+                  <div className="flex flex-wrap gap-2 text-sm font-semibold">
+                    <span className="bg-primary/10 text-primary px-3 py-1.5 rounded">Fluency: {evaluations.speaking.fluencyAndCoherence?.score}</span>
+                    <span className="bg-primary/10 text-primary px-3 py-1.5 rounded">Lexical: {evaluations.speaking.lexicalResource?.score}</span>
+                    <span className="bg-primary/10 text-primary px-3 py-1.5 rounded">Grammar: {evaluations.speaking.grammaticalRange?.score}</span>
+                    <span className="bg-primary/10 text-primary px-3 py-1.5 rounded">Pronunciation: {evaluations.speaking.pronunciation?.score}</span>
+                  </div>
+                  
+                  <div className="bg-muted/30 p-4 rounded-lg mt-4 space-y-4">
+                    <p className="text-sm text-foreground italic border-l-4 border-primary pl-3 py-1">"{evaluations.speaking.overallFeedback}"</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {evaluations.speaking.strengths?.length > 0 && (
+                        <div>
+                          <p className="text-sm font-semibold text-green-500 mb-1">Strengths:</p>
+                          <ul className="list-disc list-inside text-sm text-muted-foreground ml-1 space-y-1">
+                            {evaluations.speaking.strengths.map((s: string, i: number) => <li key={i}>{s}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {evaluations.speaking.weaknesses?.length > 0 && (
+                        <div>
+                          <p className="text-sm font-semibold text-destructive mb-1">Points to Improve:</p>
+                          <ul className="list-disc list-inside text-sm text-muted-foreground ml-1 space-y-1">
+                            {evaluations.speaking.weaknesses.map((w: string, i: number) => <li key={i}>{w}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               ) : <p className="text-muted-foreground">No audio submitted.</p>}
             </CardContent>
           </Card>
