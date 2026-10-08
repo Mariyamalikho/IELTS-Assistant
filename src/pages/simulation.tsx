@@ -69,16 +69,23 @@ export default function Simulation() {
     setIsGenerating(true)
     try {
       setGenerationStatus("Generating Listening (Parts 1-4)...");
-      const listening = await Promise.all([generateListeningTest(1), generateListeningTest(2), generateListeningTest(3), generateListeningTest(4)]);
+      const listening = [];
+      for (let i = 1; i <= 4; i++) listening.push(await generateListeningTest(i as any));
       
       setGenerationStatus("Generating Reading (Passages 1-3)...");
-      const reading = await Promise.all([generateReadingPassage(1), generateReadingPassage(2), generateReadingPassage(3)]);
+      const reading = [];
+      for (let i = 1; i <= 3; i++) reading.push(await generateReadingPassage(i as any));
       
       setGenerationStatus("Generating Writing (Tasks 1-2)...");
-      const writing = await Promise.all([generateWritingPrompt('task1'), generateWritingPrompt('task2')]);
+      const writing = [];
+      writing.push(await generateWritingPrompt('task1'));
+      writing.push(await generateWritingPrompt('task2'));
       
       setGenerationStatus("Generating Speaking (Parts 1-3)...");
-      const speaking = await Promise.all([generateSpeakingPrompt('part1'), generateSpeakingPrompt('part2'), generateSpeakingPrompt('part3')]);
+      const speaking = [];
+      speaking.push(await generateSpeakingPrompt('part1'));
+      speaking.push(await generateSpeakingPrompt('part2'));
+      speaking.push(await generateSpeakingPrompt('part3'));
 
       // Validate generation
       if (listening.some(p => !p.title) || reading.some(p => !p.title) || !writing[0].prompt || !speaking[0].topic) {
