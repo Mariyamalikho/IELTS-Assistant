@@ -118,16 +118,16 @@ ${essay}
         temperature: 0.2, 
         responseMimeType: "application/json",
         responseSchema: {
-          type: "object",
+          type: "OBJECT",
           properties: {
-            estimatedBand: { type: "number" },
-            taskAchievement: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
-            coherenceCohesion: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
-            lexicalResource: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
-            grammaticalRange: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
-            overallFeedback: { type: "string" },
-            strengths: { type: "array", items: { type: "string" } },
-            weaknesses: { type: "array", items: { type: "string" } }
+            estimatedBand: { type: "NUMBER" },
+            taskAchievement: { type: "OBJECT", properties: { score: { type: "NUMBER" }, feedback: { type: "STRING" } } },
+            coherenceCohesion: { type: "OBJECT", properties: { score: { type: "NUMBER" }, feedback: { type: "STRING" } } },
+            lexicalResource: { type: "OBJECT", properties: { score: { type: "NUMBER" }, feedback: { type: "STRING" } } },
+            grammaticalRange: { type: "OBJECT", properties: { score: { type: "NUMBER" }, feedback: { type: "STRING" } } },
+            overallFeedback: { type: "STRING" },
+            strengths: { type: "ARRAY", items: { type: "STRING" } },
+            weaknesses: { type: "ARRAY", items: { type: "STRING" } }
           }
         }
       }
@@ -173,17 +173,17 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
         temperature: 0.2, 
         responseMimeType: "application/json",
         responseSchema: {
-          type: "object",
+          type: "OBJECT",
           properties: {
-            transcript: { type: "string" },
-            estimatedBand: { type: "number" },
-            fluencyAndCoherence: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
-            lexicalResource: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
-            grammaticalRange: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
-            pronunciation: { type: "object", properties: { score: { type: "number" }, feedback: { type: "string" } } },
-            overallFeedback: { type: "string" },
-            strengths: { type: "array", items: { type: "string" } },
-            weaknesses: { type: "array", items: { type: "string" } }
+            transcript: { type: "STRING" },
+            estimatedBand: { type: "NUMBER" },
+            fluencyAndCoherence: { type: "OBJECT", properties: { score: { type: "NUMBER" }, feedback: { type: "STRING" } } },
+            lexicalResource: { type: "OBJECT", properties: { score: { type: "NUMBER" }, feedback: { type: "STRING" } } },
+            grammaticalRange: { type: "OBJECT", properties: { score: { type: "NUMBER" }, feedback: { type: "STRING" } } },
+            pronunciation: { type: "OBJECT", properties: { score: { type: "NUMBER" }, feedback: { type: "STRING" } } },
+            overallFeedback: { type: "STRING" },
+            strengths: { type: "ARRAY", items: { type: "STRING" } },
+            weaknesses: { type: "ARRAY", items: { type: "STRING" } }
           }
         }
       }
@@ -214,15 +214,15 @@ export async function generateDailyVocabulary() {
         responseMimeType: "application/json", 
         temperature: 0.7,
         responseSchema: {
-          type: "array",
+          type: "ARRAY",
           items: {
-            type: "object",
+            type: "OBJECT",
             properties: {
-              word: { type: "string" },
-              meaning: { type: "string" },
-              example: { type: "string" },
-              synonyms: { type: "string" },
-              antonyms: { type: "string" }
+              word: { type: "STRING" },
+              meaning: { type: "STRING" },
+              example: { type: "STRING" },
+              synonyms: { type: "STRING" },
+              antonyms: { type: "STRING" }
             }
           }
         }
@@ -259,20 +259,20 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1, retries = 2
         responseMimeType: "application/json", 
         temperature: 0.6,
         responseSchema: {
-          type: "object",
+          type: "OBJECT",
           properties: {
-            title: { type: "string" },
-            passage: { type: "string" },
+            title: { type: "STRING" },
+            passage: { type: "STRING" },
             questions: {
-              type: "array",
+              type: "ARRAY",
               items: {
-                type: "object",
+                type: "OBJECT",
                 properties: {
-                  num: { type: "number" },
-                  q: { type: "string" },
-                  type: { type: "string" },
-                  options: { type: "array", items: { type: "string" } },
-                  answer: { type: "string" }
+                  num: { type: "NUMBER" },
+                  q: { type: "STRING" },
+                  type: { type: "STRING" },
+                  options: { type: "ARRAY", items: { type: "STRING" } },
+                  answer: { type: "STRING" }
                 },
                 required: ["num", "q", "type", "answer"]
               }
@@ -349,16 +349,16 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1, retries = 2
         responseMimeType: "application/json", 
         temperature: 0.6,
         responseSchema: {
-          type: "object",
+          type: "OBJECT",
           properties: {
-            title: { type: "string" },
+            title: { type: "STRING" },
             script: {
-              type: "array",
-              items: { type: "object", properties: { speaker: { type: "string" }, text: { type: "string" } } }
+              type: "ARRAY",
+              items: { type: "OBJECT", properties: { speaker: { type: "STRING" }, text: { type: "STRING" } } }
             },
             questions: {
-              type: "array",
-              items: { type: "object", properties: { num: { type: "number" }, q: { type: "string" }, answer: { type: "string" } } }
+              type: "ARRAY",
+              items: { type: "OBJECT", properties: { num: { type: "NUMBER" }, q: { type: "STRING" }, answer: { type: "STRING" } } }
             }
           }
         }
@@ -389,10 +389,10 @@ export async function generateWritingPrompt(taskType: 'task1' | 'task2') {
         responseMimeType: "application/json", 
         temperature: 0.8,
         responseSchema: {
-          type: "object",
+          type: "OBJECT",
           properties: {
-            prompt: { type: "string" },
-            chartConfig: { type: "object" } // Optional, for task 1
+            prompt: { type: "STRING" },
+            chartConfig: { type: "OBJECT" } // Optional, for task 1
           }
         }
       }
