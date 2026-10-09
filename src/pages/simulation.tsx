@@ -64,12 +64,12 @@ export default function Simulation() {
     return `${m}:${s}`
   }
 
-  // Generate all materials sequentially in batches to avoid rate limits
+  const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+  // Generate sections sequentially as needed
   const startSimulation = async () => {
     setIsGenerating(true)
     try {
-      const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-      
       setGenerationStatus("Generating Listening (Parts 1-4)...");
       const listening = [];
       for (let i = 1; i <= 4; i++) {
@@ -77,14 +77,44 @@ export default function Simulation() {
         listening.push(await generateListeningTest(i as any));
         await delay(1500);
       }
+
+      if (listening.some(p => !p.title)) throw new Error("Listening failed.");
+      setListeningData(listening);
       
+      setStage('listening')
+      setTimeLeft(30 * 60) // 30 minutes
+    } catch (e) {
+      console.error(e)
+      alert("Failed to generate simulation materials. Check Gemini API rate limits.")
+    }
+    setIsGenerating(false)
+  }
+
+  const startReading = async () => {
+    window.speechSynthesis.cancel()
+    setIsGenerating(true)
+    try {
       const reading = [];
       for (let i = 1; i <= 3; i++) {
         setGenerationStatus(`Generating Reading Passage ${i}/3...`);
         reading.push(await generateReadingPassage(i as any));
         await delay(1500);
       }
+      if (reading.some(p => !p.title)) throw new Error("Reading failed.");
+      setReadingData(reading);
       
+      setStage('reading')
+      setTimeLeft(60 * 60) // 60 minutes
+    } catch (e) {
+      console.error(e)
+      alert("Failed to generate reading materials. Check Gemini API rate limits.")
+    }
+    setIsGenerating(false)
+  }
+
+  const startWriting = async () => {
+    setIsGenerating(true)
+    try {
       const writing = [];
       setGenerationStatus("Generating Writing Task 1...");
       writing.push(await generateWritingPrompt('task1'));
@@ -93,7 +123,22 @@ export default function Simulation() {
       setGenerationStatus("Generating Writing Task 2...");
       writing.push(await generateWritingPrompt('task2'));
       await delay(1500);
+
+      if (!writing[0].prompt || !writing[1].prompt) throw new Error("Writing failed.");
+      setWritingData({ task1: writing[0], task2: writing[1] });
       
+      setStage('writing')
+      setTimeLeft(60 * 60) // 60 minutes
+    } catch (e) {
+      console.error(e)
+      alert("Failed to generate writing materials. Check Gemini API rate limits.")
+    }
+    setIsGenerating(false)
+  }
+
+  const startSpeaking = async () => {
+    setIsGenerating(true)
+    try {
       const speaking = [];
       for (let i = 1; i <= 3; i++) {
         setGenerationStatus(`Generating Speaking Part ${i}/3...`);
@@ -101,44 +146,16 @@ export default function Simulation() {
         if (i < 3) await delay(1500);
       }
 
-      // Validate generation
-      if (listening.some(p => !p.title) || reading.some(p => !p.title) || !writing[0].prompt || !speaking[0].topic) {
-        throw new Error("One or more sections failed to generate correctly.");
-      }
-
-      setListeningData(listening);
-      setReadingData(reading);
-      setWritingData({ task1: writing[0], task2: writing[1] });
+      if (!speaking[0].topic) throw new Error("Speaking failed.");
       setSpeakingData({ part1: speaking[0], part2: speaking[1], part3: speaking[2] });
       
-      startListening();
+      setStage('speaking')
+      setTimeLeft(15 * 60) // 15 minutes max
     } catch (e) {
       console.error(e)
-      alert("Failed to generate simulation materials. Check Gemini API rate limits.")
+      alert("Failed to generate speaking materials. Check Gemini API rate limits.")
     }
     setIsGenerating(false)
-  }
-
-  // Transition Helpers
-  const startListening = () => {
-    setStage('listening')
-    setTimeLeft(30 * 60) // 30 minutes
-  }
-
-  const startReading = () => {
-    window.speechSynthesis.cancel()
-    setStage('reading')
-    setTimeLeft(60 * 60) // 60 minutes
-  }
-
-  const startWriting = () => {
-    setStage('writing')
-    setTimeLeft(60 * 60) // 60 minutes
-  }
-
-  const startSpeaking = () => {
-    setStage('speaking')
-    setTimeLeft(15 * 60) // 15 minutes max
   }
 
   const finishSimulation = async () => {
