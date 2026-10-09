@@ -287,7 +287,7 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1, retries = 2
     return parsed;
   } catch(e) {
     if (retries > 0) {
-      console.warn(`Retrying reading passage generation (Section ${section})... (${retries} left)`);
+      console.warn(`Retrying reading passage generation (Section ${section})... (${retries} left)`); await new Promise(r => setTimeout(r, 2000));
       return generateReadingPassage(section, retries - 1);
     }
     console.error(e);
@@ -369,7 +369,7 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1, retries = 2
     return parsed;
   } catch (e) {
     if (retries > 0) {
-      console.warn(`Retrying listening test generation (Part ${part})... (${retries} left)`);
+      console.warn(`Retrying listening test generation (Part ${part})... (${retries} left)`); await new Promise(r => setTimeout(r, 2000));
       return generateListeningTest(part, retries - 1);
     }
     console.error(e);

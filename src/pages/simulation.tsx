@@ -68,24 +68,38 @@ export default function Simulation() {
   const startSimulation = async () => {
     setIsGenerating(true)
     try {
+      const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+      
       setGenerationStatus("Generating Listening (Parts 1-4)...");
       const listening = [];
-      for (let i = 1; i <= 4; i++) listening.push(await generateListeningTest(i as any));
+      for (let i = 1; i <= 4; i++) {
+        setGenerationStatus(`Generating Listening Part ${i}/4...`);
+        listening.push(await generateListeningTest(i as any));
+        await delay(1500);
+      }
       
-      setGenerationStatus("Generating Reading (Passages 1-3)...");
       const reading = [];
-      for (let i = 1; i <= 3; i++) reading.push(await generateReadingPassage(i as any));
+      for (let i = 1; i <= 3; i++) {
+        setGenerationStatus(`Generating Reading Passage ${i}/3...`);
+        reading.push(await generateReadingPassage(i as any));
+        await delay(1500);
+      }
       
-      setGenerationStatus("Generating Writing (Tasks 1-2)...");
       const writing = [];
+      setGenerationStatus("Generating Writing Task 1...");
       writing.push(await generateWritingPrompt('task1'));
-      writing.push(await generateWritingPrompt('task2'));
+      await delay(1500);
       
-      setGenerationStatus("Generating Speaking (Parts 1-3)...");
+      setGenerationStatus("Generating Writing Task 2...");
+      writing.push(await generateWritingPrompt('task2'));
+      await delay(1500);
+      
       const speaking = [];
-      speaking.push(await generateSpeakingPrompt('part1'));
-      speaking.push(await generateSpeakingPrompt('part2'));
-      speaking.push(await generateSpeakingPrompt('part3'));
+      for (let i = 1; i <= 3; i++) {
+        setGenerationStatus(`Generating Speaking Part ${i}/3...`);
+        speaking.push(await generateSpeakingPrompt(`part${i}` as any));
+        if (i < 3) await delay(1500);
+      }
 
       // Validate generation
       if (listening.some(p => !p.title) || reading.some(p => !p.title) || !writing[0].prompt || !speaking[0].topic) {
