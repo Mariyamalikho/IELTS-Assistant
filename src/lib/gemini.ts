@@ -36,7 +36,7 @@ function trackUsage() {
     count++;
     localStorage.setItem('ielts_api_usage_count', count.toString());
     window.dispatchEvent(new Event('api_usage_updated'));
-  } catch(e) {
+  } catch (e: any) {
     // Ignore localStorage errors
   }
 }
@@ -47,7 +47,7 @@ function parseAIJson(text: string | null | undefined) {
   try {
     const cleaned = text.replace(/\s*```json/g, '').replace(/\s*```/g, '').trim();
     return JSON.parse(cleaned);
-  } catch (e) {
+  } catch (e: any) {
     console.error("Failed to parse JSON:", text);
     return {};
   }
@@ -285,9 +285,9 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1, retries = 2
     const parsed = parseAIJson(response.text);
     if (!parsed.title || !parsed.questions) throw new Error("Invalid output format");
     return parsed;
-  } catch(e) {
+  } catch (e: any) {
     if (retries > 0) {
-      console.warn(`Retrying reading passage generation (Section ${section})... (${retries} left)`); await new Promise(r => setTimeout(r, 2000));
+      console.warn(`Retrying reading passage generation (Section ${section})... (${retries} left)`); const delay = e.message.includes("429") ? 15000 : 2000; console.warn(`Waiting ${delay}ms...`); await new Promise(r => setTimeout(r, delay));
       return generateReadingPassage(section, retries - 1);
     }
     console.error(e);
@@ -295,7 +295,7 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1, retries = 2
   }
 }
 
-export async function generateSpeakingPrompt(part: 'part1' | 'part2' | 'part3') {
+export async function generateSpeakingPrompt(part: 'part1' | 'part2' | 'part3', retries = 2): Promise<any> {
   let prompt = "";
   if (part === 'part1') {
     prompt = `You are a Cambridge IELTS examiner. Generate an authentic IELTS Speaking Part 1 section. 
@@ -322,7 +322,13 @@ Return ONLY raw JSON: {"topic": "string", "questions": ["string", "string", "str
       { responseMimeType: "application/json", temperature: 0.8 }
     );
     return parseAIJson(response.text);
-  } catch(e) {
+  } catch (e: any) {
+    if (retries > 0) {
+      const delay = e.message?.includes("429") ? 15000 : 2000;
+      console.warn(`Retrying speaking prompt (${retries} left). Waiting ${delay}ms...`);
+      await new Promise(r => setTimeout(r, delay));
+      return generateSpeakingPrompt(part, retries - 1);
+    }
     console.error(e);
     return {};
   }
@@ -367,9 +373,9 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1, retries = 2
     const parsed = parseAIJson(response.text);
     if (!parsed.title || !parsed.questions) throw new Error("Invalid output format");
     return parsed;
-  } catch (e) {
+  } catch (e: any) {
     if (retries > 0) {
-      console.warn(`Retrying listening test generation (Part ${part})... (${retries} left)`); await new Promise(r => setTimeout(r, 2000));
+      console.warn(`Retrying listening test generation (Part ${part})... (${retries} left)`); const delay = e.message.includes("429") ? 15000 : 2000; console.warn(`Waiting ${delay}ms...`); await new Promise(r => setTimeout(r, delay));
       return generateListeningTest(part, retries - 1);
     }
     console.error(e);
@@ -377,7 +383,7 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1, retries = 2
   }
 }
 
-export async function generateWritingPrompt(taskType: 'task1' | 'task2') {
+export async function generateWritingPrompt(taskType: 'task1' | 'task2', retries = 2): Promise<any> {
   const prompt = taskType === 'task1' ? PROMPTS.writingTask1 : PROMPTS.writingTask2;
     
   try {
@@ -398,7 +404,13 @@ export async function generateWritingPrompt(taskType: 'task1' | 'task2') {
       }
     );
     return parseAIJson(response.text);
-  } catch (e) {
+  } catch (e: any) {
+    if (retries > 0) {
+      const delay = e.message?.includes("429") ? 15000 : 2000;
+      console.warn(`Retrying writing prompt (${retries} left). Waiting ${delay}ms...`);
+      await new Promise(r => setTimeout(r, delay));
+      return generateWritingPrompt(taskType, retries - 1);
+    }
     console.error(e);
     return {};
   }
