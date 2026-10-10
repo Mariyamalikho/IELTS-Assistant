@@ -83,6 +83,9 @@ Also generate exactly 10 questions based on the script.
 The questions must be numbered from ${startNum} to ${startNum + 9}.
 The answers must be STRICTLY 1, 2, or 3 words/numbers and must appear exactly as spoken in the audio.
 Provide the text with standard speaker labels (e.g. Speaker 1:, Speaker 2:).
+
+CRITICAL INSTRUCTION: Do NOT include any reasoning, thinking process, hints, or chain of thought inside the JSON fields. The "q" field must contain ONLY the question text (with ___ for the blank). The "answer" field must contain ONLY the final answer.
+
 Return ONLY raw JSON in this format:
 {
   "title": "string",
