@@ -83,9 +83,9 @@ export default function Simulation() {
       
       setStage('listening')
       setTimeLeft(30 * 60) // 30 minutes
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
-      alert("Failed to generate simulation materials. Check Gemini API rate limits.")
+      alert("Failed to generate simulation materials. Error: " + (e.message || "Unknown error"))
     }
     setIsGenerating(false)
   }
@@ -105,9 +105,9 @@ export default function Simulation() {
       
       setStage('reading')
       setTimeLeft(60 * 60) // 60 minutes
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
-      alert("Failed to generate reading materials. Check Gemini API rate limits.")
+      alert("Failed to generate reading materials. Error: " + (e.message || "Unknown error"))
     }
     setIsGenerating(false)
   }
@@ -129,9 +129,9 @@ export default function Simulation() {
       
       setStage('writing')
       setTimeLeft(60 * 60) // 60 minutes
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
-      alert("Failed to generate writing materials. Check Gemini API rate limits.")
+      alert("Failed to generate writing materials. Error: " + (e.message || "Unknown error"))
     }
     setIsGenerating(false)
   }
@@ -151,9 +151,9 @@ export default function Simulation() {
       
       setStage('speaking')
       setTimeLeft(15 * 60) // 15 minutes max
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
-      alert("Failed to generate speaking materials. Check Gemini API rate limits.")
+      alert("Failed to generate speaking materials. Error: " + (e.message || "Unknown error"))
     }
     setIsGenerating(false)
   }
@@ -250,7 +250,7 @@ export default function Simulation() {
       })
 
       setStage('results')
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
       alert("Evaluation failed.")
       setStage('setup')
