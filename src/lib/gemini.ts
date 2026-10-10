@@ -111,7 +111,7 @@ ${essay}
   try {
     trackUsage();
     const response = await callGeminiProxy(
-      'gemini-3.1-flash-lite',
+      'gemini-1.5-flash',
       userPrompt,
       { 
         systemInstruction, 
@@ -164,7 +164,7 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
   try {
     trackUsage();
     const response = await callGeminiProxy(
-      'gemini-3.1-flash-lite',
+      'gemini-1.5-flash',
       [
         { inlineData: { data: audioBase64, mimeType: mimeType } },
         "Evaluate my IELTS speaking response."
@@ -210,7 +210,7 @@ export async function generateDailyVocabulary() {
   try {
     trackUsage();
     const response = await callGeminiProxy(
-      'gemini-3.1-flash-lite',
+      'gemini-1.5-flash',
       prompt,
       { 
         responseMimeType: "application/json", 
@@ -256,7 +256,7 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1, retries = 2
   try {
     trackUsage();
     const response = await callGeminiProxy(
-      'gemini-3.1-flash-lite',
+      'gemini-1.5-flash',
       prompt,
       { 
         responseMimeType: "application/json", 
@@ -320,7 +320,7 @@ Return ONLY raw JSON: {"topic": "string", "questions": ["string", "string", "str
   try {
     trackUsage();
     const response = await callGeminiProxy(
-      'gemini-3.1-flash-lite',
+      'gemini-1.5-flash',
       prompt,
       { responseMimeType: "application/json", temperature: 0.8 }
     );
@@ -352,7 +352,7 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1, retries = 2
   try {
     trackUsage();
     const response = await callGeminiProxy(
-      'gemini-3.1-flash-lite',
+      'gemini-1.5-flash',
       prompt,
       { 
         responseMimeType: "application/json", 
@@ -393,7 +393,7 @@ export async function generateWritingPrompt(taskType: 'task1' | 'task2', retries
   try {
     trackUsage();
     const response = await callGeminiProxy(
-      'gemini-3.1-flash-lite',
+      'gemini-1.5-flash',
       prompt,
       { 
         responseMimeType: "application/json", 
