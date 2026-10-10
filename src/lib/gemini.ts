@@ -128,7 +128,8 @@ ${essay}
             overallFeedback: { type: "STRING" },
             strengths: { type: "ARRAY", items: { type: "STRING" } },
             weaknesses: { type: "ARRAY", items: { type: "STRING" } }
-          }
+          },
+          required: ["estimatedBand", "taskAchievement", "coherenceCohesion", "lexicalResource", "grammaticalRange", "overallFeedback", "strengths", "weaknesses"]
         }
       }
     );
@@ -184,7 +185,8 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
             overallFeedback: { type: "STRING" },
             strengths: { type: "ARRAY", items: { type: "STRING" } },
             weaknesses: { type: "ARRAY", items: { type: "STRING" } }
-          }
+          },
+          required: ["transcript", "estimatedBand", "fluencyAndCoherence", "lexicalResource", "grammaticalRange", "pronunciation", "overallFeedback", "strengths", "weaknesses"]
         }
       }
     );
@@ -223,7 +225,8 @@ export async function generateDailyVocabulary() {
               example: { type: "STRING" },
               synonyms: { type: "STRING" },
               antonyms: { type: "STRING" }
-            }
+            },
+            required: ["word", "meaning", "example", "synonyms", "antonyms"]
           }
         }
       }
@@ -366,7 +369,8 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1, retries = 2
               type: "ARRAY",
               items: { type: "OBJECT", properties: { num: { type: "NUMBER" }, q: { type: "STRING" }, answer: { type: "STRING" } } }
             }
-          }
+          },
+          required: ["title", "script", "questions"]
         }
       }
     );
@@ -399,7 +403,8 @@ export async function generateWritingPrompt(taskType: 'task1' | 'task2', retries
           properties: {
             prompt: { type: "STRING" },
             chartConfig: { type: "OBJECT" } // Optional, for task 1
-          }
+          },
+          required: ["prompt"]
         }
       }
     );
