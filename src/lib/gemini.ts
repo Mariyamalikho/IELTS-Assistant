@@ -290,7 +290,7 @@ export async function generateReadingPassage(section: 1 | 2 | 3 = 1, retries = 2
     return parsed;
   } catch (e: any) {
     if (retries > 0) {
-      console.warn(`Retrying reading passage generation (Section ${section})... (${retries} left)`); const delay = e.message.includes("429") ? 15000 : 2000; console.warn(`Waiting ${delay}ms...`); await new Promise(r => setTimeout(r, delay));
+      console.warn(`Retrying reading passage generation (Section ${section})... (${retries} left)`); const delay = 15000; console.warn(`Waiting ${delay}ms...`); await new Promise(r => setTimeout(r, delay));
       return generateReadingPassage(section, retries - 1);
     }
     console.error(e);
@@ -327,7 +327,7 @@ Return ONLY raw JSON: {"topic": "string", "questions": ["string", "string", "str
     return parseAIJson(response.text);
   } catch (e: any) {
     if (retries > 0) {
-      const delay = e.message?.includes("429") ? 15000 : 2000;
+      const delay = 15000;
       console.warn(`Retrying speaking prompt (${retries} left). Waiting ${delay}ms...`);
       await new Promise(r => setTimeout(r, delay));
       return generateSpeakingPrompt(part, retries - 1);
@@ -379,7 +379,7 @@ export async function generateListeningTest(part: 1 | 2 | 3 | 4 = 1, retries = 2
     return parsed;
   } catch (e: any) {
     if (retries > 0) {
-      console.warn(`Retrying listening test generation (Part ${part})... (${retries} left)`); const delay = e.message.includes("429") ? 15000 : 2000; console.warn(`Waiting ${delay}ms...`); await new Promise(r => setTimeout(r, delay));
+      console.warn(`Retrying listening test generation (Part ${part})... (${retries} left)`); const delay = 15000; console.warn(`Waiting ${delay}ms...`); await new Promise(r => setTimeout(r, delay));
       return generateListeningTest(part, retries - 1);
     }
     console.error(e);
@@ -411,7 +411,7 @@ export async function generateWritingPrompt(taskType: 'task1' | 'task2', retries
     return parseAIJson(response.text);
   } catch (e: any) {
     if (retries > 0) {
-      const delay = e.message?.includes("429") ? 15000 : 2000;
+      const delay = 15000;
       console.warn(`Retrying writing prompt (${retries} left). Waiting ${delay}ms...`);
       await new Promise(r => setTimeout(r, delay));
       return generateWritingPrompt(taskType, retries - 1);
