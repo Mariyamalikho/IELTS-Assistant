@@ -97,7 +97,7 @@ export interface SpeakingEvaluation {
   weaknesses: string[];
 }
 
-export async function evaluateEssay(prompt: string, essay: string, taskType: 'task1' | 'task2'): Promise<EssayEvaluation> {
+export async function evaluateEssay(prompt: string, essay: string, taskType: 'task1' | 'task2', retries = 2): Promise<EssayEvaluation> {
   const systemInstruction = PROMPTS.essayEvaluation(taskType);
 
   const userPrompt = `
@@ -134,13 +134,19 @@ ${essay}
       }
     );
     return parseAIJson(response.text) as EssayEvaluation;
-  } catch (error) {
+  } catch (error: any) {
+    if (retries > 0) {
+      console.warn(`Retrying essay evaluation... (${retries} left)`);
+      const delay = 15000;
+      await new Promise(r => setTimeout(r, delay));
+      return evaluateEssay(prompt, essay, taskType, retries - 1);
+    }
     console.error("Gemini Evaluation Error:", error);
     throw error;
   }
 }
 
-export async function evaluateSpeaking(audioBase64: string, mimeType: string): Promise<SpeakingEvaluation> {
+export async function evaluateSpeaking(audioBase64: string, mimeType: string, retries = 2): Promise<SpeakingEvaluation> {
   const systemInstruction = `
 You are an expert, highly strict IELTS examiner with years of experience grading Academic and General Training exams based on the latest Cambridge IELTS standards.
 Listen to and watch the provided audio/video response carefully.
@@ -191,13 +197,19 @@ Output your evaluation strictly in the following JSON format. Do NOT wrap it in 
       }
     );
     return parseAIJson(response.text) as SpeakingEvaluation;
-  } catch (error) {
-    console.error("Gemini Speaking Evaluation Error:", error);
-    throw error;
-  }
+  } catch (error: any) {
+      if (retries > 0) {
+        console.warn(`Retrying speaking evaluation... (${retries} left)`);
+        const delay = 15000;
+        await new Promise(r => setTimeout(r, delay));
+        return evaluateSpeaking(audioBase64, mimeType, retries - 1);
+      }
+      console.error("Gemini Speaking Evaluation Error:", error);
+      throw error;
+    }
 }
 
-export async function generateDailyVocabulary() {
+export async function generateDailyVocabulary(retries = 2): Promise<any> {
   const seed = Math.floor(Math.random() * 100000);
   const prompt = `Generate exactly 10 highly pragmatic, Band 7-8 level English vocabulary words that are highly relevant for the IELTS test.
   Focus ONLY on high-utility words frequently found in recent Cambridge IELTS exams (e.g., words for describing trends in Writing Task 1, arguing points in Task 2, or common reading topics). 
@@ -236,6 +248,12 @@ export async function generateDailyVocabulary() {
     if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     throw new Error("Invalid output");
   } catch (error: any) {
+    if (retries > 0) {
+      console.warn(`Retrying vocabulary generation... (${retries} left)`);
+      const delay = 15000;
+      await new Promise(r => setTimeout(r, delay));
+      return generateDailyVocabulary(retries - 1);
+    }
     console.error("Gemini API Error:", error);
     throw error;
   }
@@ -420,3 +438,5 @@ export async function generateWritingPrompt(taskType: 'task1' | 'task2', retries
     return {};
   }
 }
+
+
