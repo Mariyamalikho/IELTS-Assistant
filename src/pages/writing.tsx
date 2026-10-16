@@ -8,17 +8,18 @@ import { supabase } from '@/lib/supabase'
 import { Loader2, Send, Clock, AlertCircle } from 'lucide-react'
 
 import { writingSubmissionSchema } from "@/lib/schemas"
+import { Task1Visual } from "@/components/Task1Visual"
 
 const DEFAULT_TASK1 = {
   prompt: `The graph below shows the number of tourists visiting a particular Caribbean island between 2010 and 2017.\nSummarize the information by selecting and reporting the main features, and make comparisons where relevant.\nWrite at least 150 words.`,
-  chartConfig: {
-    type: 'line',
-    data: {
-      labels: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017],
-      datasets: [{ label: 'Tourist Visits (Millions)', data: [1, 1.5, 1.2, 1.8, 2, 2.5, 2.6, 3], fill: false, borderColor: 'blue' }]
-    },
-    options: { title: { display: true, text: 'Caribbean Island Tourist Visits' } }
-  }
+  chartType: 'line',
+  chartTitle: 'Caribbean Island Tourist Visits (2010–2017)',
+  xAxisLabel: 'Year',
+  yAxisLabel: 'Visitors (Millions)',
+  categories: ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017'],
+  series: [
+    { name: 'Total Visitors (Millions)', data: [1.0, 1.5, 1.2, 1.8, 2.0, 2.5, 2.6, 3.0] }
+  ]
 }
 
 const DEFAULT_TASK2 = {
@@ -143,10 +144,6 @@ export default function Writing() {
     }
   }
 
-  const chartUrl = promptData?.chartConfig 
-    ? `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(promptData.chartConfig))}`
-    : null;
-
   return (
     <div className="flex flex-col h-full gap-6 p-4">
       <div className="flex justify-between items-center">
@@ -178,14 +175,9 @@ export default function Writing() {
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap mb-4 font-serif text-lg leading-relaxed">{promptData?.prompt || "Generating..."}</p>
-              {taskType === 'task1' && chartUrl && (
-                <div className="w-full bg-white rounded-md p-4 flex justify-center mb-4 border-2 border-primary/20">
-                  <img 
-                    src={chartUrl} 
-                    alt="Task 1 Generated Graph" 
-                    loading="lazy"
-                    className="max-w-full h-auto object-contain max-h-[300px]"
-                  />
+              {taskType === 'task1' && (
+                <div className="mb-4">
+                  <Task1Visual promptData={promptData} />
                 </div>
               )}
             </CardContent>

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Loader2, Clock, Play, Mic, FileText, Headphones, Trophy, AlertTriangle, ArrowRight } from 'lucide-react'
 import { generateListeningTest, generateReadingPassage, generateWritingPrompt, generateSpeakingPrompt, evaluateEssay, evaluateSpeaking } from '@/lib/gemini'
+import { Task1Visual } from '@/components/Task1Visual'
 
 type Stage = 'setup' | 'listening' | 'reading' | 'writing' | 'speaking' | 'evaluating' | 'results'
 
@@ -715,14 +716,15 @@ export default function Simulation() {
         {stage === 'writing' && writingData && (
           <div className="flex flex-col gap-12 max-w-5xl mx-auto">
             {/* Task 1 */}
-            <div className="flex flex-col h-[600px] gap-6">
+            <div className="flex flex-col gap-6">
               <Card className="shrink-0 bg-muted/30">
-                <CardContent className="p-6">
+                <CardContent className="p-6 space-y-4">
                   <h3 className="font-bold text-lg mb-2">Writing Task 1 (Spend 20 mins)</h3>
-                  <p className="text-lg leading-relaxed">{writingData.task1?.prompt}</p>
+                  <p className="text-lg leading-relaxed whitespace-pre-wrap">{writingData.task1?.prompt}</p>
+                  <Task1Visual promptData={writingData.task1} />
                 </CardContent>
               </Card>
-              <Card className="flex-1 flex flex-col">
+              <Card className="flex flex-col h-[400px]">
                 <CardContent className="p-0 flex-1 flex flex-col">
                   <textarea 
                     className="flex-1 w-full p-6 bg-transparent resize-none outline-none text-lg leading-loose"
@@ -738,14 +740,14 @@ export default function Simulation() {
             </div>
 
             {/* Task 2 */}
-            <div className="flex flex-col h-[800px] gap-6">
+            <div className="flex flex-col gap-6">
               <Card className="shrink-0 bg-muted/30 border-primary">
                 <CardContent className="p-6">
                   <h3 className="font-bold text-lg mb-2 text-primary">Writing Task 2 (Spend 40 mins)</h3>
-                  <p className="text-lg leading-relaxed">{writingData.task2?.prompt}</p>
+                  <p className="text-lg leading-relaxed whitespace-pre-wrap">{writingData.task2?.prompt}</p>
                 </CardContent>
               </Card>
-              <Card className="flex-1 flex flex-col">
+              <Card className="flex flex-col h-[500px]">
                 <CardContent className="p-0 flex-1 flex flex-col">
                   <textarea 
                     className="flex-1 w-full p-6 bg-transparent resize-none outline-none text-lg leading-loose"

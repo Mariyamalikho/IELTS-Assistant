@@ -92,14 +92,29 @@ Return ONLY raw JSON in this format:
   "script": [{"speaker": "string", "text": "string"}],
   "questions": [{"num": number, "q": "string (use ___ for the blank)", "answer": "string"}]
 }`,
-  writingTask1: `You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 1 prompt.
+  writingTask1: `You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 1 prompt with complete visual data.
 The prompt must ask the candidate to summarize a bar chart, line graph, or pie chart.
-Provide a realistic prompt text. 
-Also provide a Chart.js configuration JSON object for the chart so it can be rendered. Keep the chart realistic (e.g., "Car sales in Europe", "Population growth").
-Return ONLY raw JSON: 
+Provide:
+1. "prompt": Authentic Cambridge prompt text. For example: "The chart below shows the percentage of households with access to the internet in four countries between 2005 and 2020. Summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 150 words."
+2. "chartType": "line", "bar", or "pie"
+3. "chartTitle": A descriptive title for the chart (e.g., "Percentage of Households with Internet Access (2005–2020)")
+4. "xAxisLabel": Axis label (e.g., "Year" or "Category")
+5. "yAxisLabel": Axis label (e.g., "Percentage (%)" or "Visits in Millions")
+6. "categories": Array of x-axis categories or years (e.g., ["2005", "2010", "2015", "2020"])
+7. "series": Array of datasets with "name" and "data" array of numbers matching categories length (e.g., [{"name": "United Kingdom", "data": [60, 75, 88, 95]}, {"name": "United States", "data": [68, 79, 87, 93]}])
+
+Return ONLY raw JSON in this structure:
 {
-  "prompt": "The chart below shows...", 
-  "chartConfig": { "type": "bar", "data": { "labels": ["2000", "2010"], "datasets": [{"label": "Data", "data": [10, 20]}] } }
+  "prompt": "The chart below shows...",
+  "chartType": "line",
+  "chartTitle": "string",
+  "xAxisLabel": "string",
+  "yAxisLabel": "string",
+  "categories": ["2005", "2010", "2015", "2020"],
+  "series": [
+    {"name": "Country A", "data": [60, 75, 88, 95]},
+    {"name": "Country B", "data": [68, 79, 87, 93]}
+  ]
 }`,
   writingTask2: `You are an expert Cambridge IELTS test creator. Generate an authentic IELTS Academic Writing Task 2 essay prompt.
 The prompt must be on a recent, complex issue (e.g., Globalization, Technology in Education, Government funding, Crime).

@@ -1,4 +1,5 @@
 import { PROMPTS } from './prompts';
+import { normalizeTask1Data } from './task1-visual';
 
 // Helper to track daily usage in localStorage
 function trackUsage() {
@@ -410,23 +411,65 @@ export async function generateWritingPrompt(taskType: 'task1' | 'task2', retries
     
   try {
     trackUsage();
+    const config: any = {
+      responseMimeType: "application/json",
+      temperature: 0.7
+    };
+
+    if (taskType === 'task1') {
+      config.responseSchema = {
+        type: "OBJECT",
+        properties: {
+          prompt: { type: "STRING" },
+          chartType: { type: "STRING" },
+          chartTitle: { type: "STRING" },
+          xAxisLabel: { type: "STRING" },
+          yAxisLabel: { type: "STRING" },
+          categories: {
+            type: "ARRAY",
+            items: { type: "STRING" }
+          },
+          series: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                name: { type: "STRING" },
+                data: {
+                  type: "ARRAY",
+                  items: { type: "NUMBER" }
+                }
+              },
+              required: ["name", "data"]
+            }
+          }
+        },
+        required: ["prompt", "chartType", "chartTitle", "categories", "series"]
+      };
+    } else {
+      config.responseSchema = {
+        type: "OBJECT",
+        properties: {
+          prompt: { type: "STRING" }
+        },
+        required: ["prompt"]
+      };
+    }
+
     const response = await callGeminiProxy(
       'gemini-flash-latest',
       prompt,
-      { 
-        responseMimeType: "application/json", 
-        temperature: 0.8,
-        responseSchema: {
-          type: "OBJECT",
-          properties: {
-            prompt: { type: "STRING" },
-            chartConfig: { type: "OBJECT" } // Optional, for task 1
-          },
-          required: ["prompt"]
-        }
-      }
+      config
     );
-    return parseAIJson(response.text);
+    const parsed = parseAIJson(response.text);
+    if (taskType === 'task1') {
+      const normalized = normalizeTask1Data(parsed);
+      return {
+        ...normalized,
+        prompt: parsed.prompt || normalized.chartTitle
+      };
+    }
+    return parsed;
   } catch (e: any) {
     if (retries > 0) {
       const delay = 15000;
