@@ -9,7 +9,7 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookOpen, PenTool, Headphones, Mic, Flame, RotateCcw, LineChart as LineChartIcon } from "lucide-react"
+import { BookOpen, PenTool, Headphones, Mic, Flame, RotateCcw, LineChart as LineChartIcon, Award, FileCheck } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { STORAGE_KEYS } from "@/lib/constants"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -139,11 +139,26 @@ export default function Dashboard() {
     }
   }
 
+  // Official IELTS Band Score rounding standard:
+  // - Averages ending in .25 round up to the next half band (e.g. 6.25 -> 6.5)
+  // - Averages ending in .75 round up to the next whole band (e.g. 6.75 -> 7.0)
+  function roundIeltsBand(score: number): number {
+    const fraction = score - Math.floor(score)
+    if (fraction < 0.25) {
+      return Math.floor(score)
+    } else if (fraction < 0.75) {
+      return Math.floor(score) + 0.5
+    } else {
+      return Math.ceil(score)
+    }
+  }
+
   // Calculate actual overall band based solely on recorded modules
   const recordedAverages = [avgWriting, avgSpeaking].filter((s): s is number => s !== null && s > 0)
-  const calculatedOverall = recordedAverages.length > 0
+  const rawAverage = recordedAverages.length > 0
     ? recordedAverages.reduce((a, b) => a + b, 0) / recordedAverages.length
     : null
+  const roundedOverall = rawAverage !== null ? roundIeltsBand(rawAverage) : null
 
   return (
     <main className="space-y-6 sm:space-y-8" aria-live="polite">
@@ -173,57 +188,102 @@ export default function Dashboard() {
 
       {/* Top Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border shadow-xs">
-          <CardHeader className="pb-2">
-            <CardDescription className="font-medium">Calculated Overall Band</CardDescription>
-            <CardTitle className="text-3xl font-bold tracking-tight text-foreground flex items-end gap-2">
+        {/* Overall Band Score Card */}
+        <Card className="border shadow-xs flex flex-col justify-between">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Overall Band Score
+            </CardDescription>
+            <Award className="w-4 h-4 text-primary" />
+          </CardHeader>
+          <CardContent className="space-y-3 pt-1">
+            <div className="flex items-baseline justify-between gap-2">
               {isLoading ? (
                 <Skeleton className="h-9 w-24" />
-              ) : calculatedOverall !== null ? (
-                <>
-                  <span>{calculatedOverall.toFixed(1)}</span>
-                  <span className="text-xs font-normal text-muted-foreground pb-1">Target: Band 8.0</span>
-                </>
+              ) : roundedOverall !== null ? (
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold tracking-tight text-foreground">
+                    Band {roundedOverall.toFixed(1)}
+                  </span>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    ({rawAverage?.toFixed(2)} raw)
+                  </span>
+                </div>
               ) : (
-                <span className="text-lg font-normal text-muted-foreground">No attempts yet</span>
+                <span className="text-3xl font-bold tracking-tight text-muted-foreground/60">—</span>
               )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-2 w-full mt-4" />
-            ) : calculatedOverall !== null ? (
-              <Progress value={(calculatedOverall / 9) * 100} className="h-2 mt-4" title={`Calculated Band: ${calculatedOverall.toFixed(1)}`} />
-            ) : (
-              <p className="text-xs text-muted-foreground mt-2">Complete a writing or speaking test to establish your benchmark.</p>
-            )}
-          </CardContent>
-        </Card>
-        
-        <Card className="border shadow-xs">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-            <CardDescription className="font-medium">Active Study Streak</CardDescription>
-            <Flame className={`w-5 h-5 ${streak > 0 ? "text-primary" : "text-muted-foreground"}`} />
-          </CardHeader>
-          <CardTitle className="px-6 text-3xl font-bold tracking-tight text-foreground">
-            {isLoading ? <Skeleton className="h-9 w-24" /> : `${streak} ${streak === 1 ? 'Day' : 'Days'}`}
-          </CardTitle>
-          <CardContent>
-            <p className="text-xs text-muted-foreground mt-2">
-              {isLoading ? <Skeleton className="h-4 w-40 mt-1" /> : (streak > 0 ? "Consistent practice builds fluency." : "Start today's practice session to begin your streak.")}
+              <span className="text-xs font-medium text-muted-foreground">Target: 8.0</span>
+            </div>
+
+            <Progress 
+              value={roundedOverall ? (roundedOverall / 9) * 100 : 0} 
+              className="h-1.5" 
+              title={roundedOverall ? `Calculated Band: ${roundedOverall.toFixed(1)}` : "No score recorded yet"}
+            />
+
+            <p className="text-xs text-muted-foreground min-h-[16px]">
+              {isLoading ? (
+                <Skeleton className="h-3 w-36" />
+              ) : roundedOverall !== null ? (
+                `Based on ${recordedAverages.length} completed ${recordedAverages.length === 1 ? 'module' : 'modules'}`
+              ) : (
+                "Complete Writing or Speaking to calculate"
+              )}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border shadow-xs">
-          <CardHeader className="pb-2">
-            <CardDescription className="font-medium">Recorded Submissions</CardDescription>
-            <CardTitle className="text-3xl font-bold tracking-tight text-foreground">
-              {isLoading ? <Skeleton className="h-9 w-20" /> : `${writingScores.length + speakingScores.length}`}
-            </CardTitle>
+        {/* Active Study Streak Card */}
+        <Card className="border shadow-xs flex flex-col justify-between">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Active Study Streak
+            </CardDescription>
+            <Flame className={`w-4 h-4 ${streak > 0 ? "text-primary" : "text-muted-foreground"}`} />
           </CardHeader>
-          <CardContent>
-            <div className="flex gap-2 mt-2">
+          <CardContent className="space-y-3 pt-1">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-3xl font-bold tracking-tight text-foreground">
+                {isLoading ? <Skeleton className="h-9 w-24" /> : `${streak} ${streak === 1 ? 'Day' : 'Days'}`}
+              </span>
+              <span className="text-xs font-medium text-muted-foreground">Daily Practice</span>
+            </div>
+
+            <Progress 
+              value={Math.min(100, (streak / 7) * 100)} 
+              className="h-1.5" 
+              title={`7-Day Goal: ${Math.min(7, streak)}/7 days`}
+            />
+
+            <p className="text-xs text-muted-foreground min-h-[16px]">
+              {isLoading ? (
+                <Skeleton className="h-3 w-40" />
+              ) : streak > 0 ? (
+                "Consistent daily practice builds test fluency."
+              ) : (
+                "Start today's session to begin your streak."
+              )}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Recorded Submissions Card */}
+        <Card className="border shadow-xs flex flex-col justify-between">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+            <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Recorded Submissions
+            </CardDescription>
+            <FileCheck className="w-4 h-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="space-y-3 pt-1">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-3xl font-bold tracking-tight text-foreground">
+                {isLoading ? <Skeleton className="h-9 w-20" /> : `${writingScores.length + speakingScores.length}`}
+              </span>
+              <span className="text-xs font-medium text-muted-foreground">Total Tests</span>
+            </div>
+
+            <div className="flex gap-2">
               {isLoading ? (
                 <>
                   <Skeleton className="h-5 w-20" />
@@ -231,11 +291,21 @@ export default function Dashboard() {
                 </>
               ) : (
                 <>
-                  <Badge variant="outline" className="font-normal">{writingScores.length} Writing</Badge>
-                  <Badge variant="outline" className="font-normal">{speakingScores.length} Speaking</Badge>
+                  <Badge variant="outline" className="font-normal text-xs">{writingScores.length} Writing</Badge>
+                  <Badge variant="outline" className="font-normal text-xs">{speakingScores.length} Speaking</Badge>
                 </>
               )}
             </div>
+
+            <p className="text-xs text-muted-foreground min-h-[16px]">
+              {isLoading ? (
+                <Skeleton className="h-3 w-36" />
+              ) : (writingScores.length + speakingScores.length) > 0 ? (
+                "Verified submissions saved to your history."
+              ) : (
+                "No evaluations recorded in this profile yet."
+              )}
+            </p>
           </CardContent>
         </Card>
       </div>
