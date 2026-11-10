@@ -31,16 +31,16 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-2">3. Artificial Intelligence</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">3. Automated Assessment Processing</h2>
             <p>
-              We utilize Google's Gemini AI to grade your practice tests and generate study materials. Your submitted essays and audio recordings are transmitted to the Gemini API securely. Please refrain from submitting personally identifiable information (PII) in your practice tests.
+              We utilize automated linguistic models to evaluate practice essays and spoken responses against standard public band descriptors. Practice submissions and audio samples are transmitted securely via encrypted channels. Candidates should refrain from including personally identifiable information (PII) in practice submissions.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-2">4. Audio Processing</h2>
             <p>
-              During Speaking mock exams, audio is recorded locally and converted to a base64 string before being sent to our backend proxy for AI evaluation. Audio files are not permanently stored on our servers; they are processed ephemerally for grading purposes.
+              During Speaking mock sessions, audio is recorded locally in your browser and processed strictly for transcription and speech metric evaluation. Audio streams are processed ephemerally and are not permanently retained on external servers.
             </p>
           </section>
 

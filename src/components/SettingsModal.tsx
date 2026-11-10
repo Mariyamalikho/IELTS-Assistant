@@ -62,7 +62,7 @@ export function SettingsModal() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger 
-        render={<Button variant="ghost" size="icon" className="w-9 h-9 rounded-full" />}
+        render={<Button variant="ghost" size="icon" className="w-9 h-9 rounded-md" />}
       >
         <Settings className="w-5 h-5 text-muted-foreground" />
       </SheetTrigger>
@@ -72,9 +72,9 @@ export function SettingsModal() {
         </SheetHeader>
         <div className="space-y-8 py-6">
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">API Configuration</h3>
+            <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Evaluation API Configuration</h3>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Custom Gemini API Key (Optional)</label>
+              <label className="text-sm font-medium">Custom API Key (Optional)</label>
               <input
                 type="password"
                 autoComplete="off"

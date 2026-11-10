@@ -151,7 +151,7 @@ export default function Speaking() {
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Speaking Practice</h1>
-          <p className="text-muted-foreground">Record your voice and get AI fluency evaluation.</p>
+          <p className="text-muted-foreground">Record your spoken responses and receive band descriptor scores.</p>
         </div>
         
         <Tabs value={part} onValueChange={handlePartSwitch} className="w-full md:w-[500px]">
@@ -171,7 +171,7 @@ export default function Speaking() {
               <CardTitle>Prompt</CardTitle>
               <Button onClick={handleGeneratePrompt} disabled={isGenerating} variant="outline" size="sm" className="gap-2 border-primary/50 text-primary hover:bg-primary/10">
                 {isGenerating && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isGenerating ? "Generating..." : "AI Generate New"}
+                {isGenerating ? "Generating..." : "Generate New Prompt"}
               </Button>
             </CardHeader>
             <CardContent>
@@ -179,7 +179,7 @@ export default function Speaking() {
             </CardContent>
           </Card>
 
-          <Card className="flex flex-col items-center p-6 sm:p-8 bg-card/30 border-2 border-primary/20 relative overflow-hidden">
+          <Card className="flex flex-col items-center p-6 sm:p-8 bg-card border shadow-xs relative overflow-hidden">
             {recorder.isRecording && (
               <div className="absolute inset-0 bg-destructive/10 animate-pulse pointer-events-none" />
             )}
@@ -196,7 +196,7 @@ export default function Speaking() {
                 <Button 
                   size="lg" 
                   aria-label="Start recording"
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary hover:bg-primary/90 flex-col gap-2 shadow-[0_0_30px_oklch(var(--primary)/0.5)] transition-all hover:scale-110 active:scale-95"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary hover:bg-primary/90 flex-col gap-2 shadow-sm transition-transform active:scale-95"
                   onClick={startRecording}
                   disabled={isEvaluating}
                 >
@@ -207,7 +207,7 @@ export default function Speaking() {
                   size="lg" 
                   aria-label="Stop recording"
                   variant="destructive"
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex-col gap-2 animate-in zoom-in"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex-col gap-2"
                   onClick={stopRecording}
                 >
                   <Square className="w-8 h-8 sm:w-10 sm:h-10 fill-current" />
@@ -234,9 +234,9 @@ export default function Speaking() {
         {/* Right Side: Feedback */}
         <div className="flex flex-col h-full min-h-[500px]">
           {isEvaluating ? (
-             <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl border-primary/30 bg-primary/5">
+             <div className="flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl border-border bg-muted/20">
                 <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-                <p className="text-muted-foreground animate-pulse">Gemini is listening to your response...</p>
+                <p className="text-muted-foreground animate-pulse">Analyzing spoken response...</p>
              </div>
           ) : feedback ? (
             <Card className="flex-1 bg-primary/10 border-primary/50 animate-in fade-in zoom-in duration-500 overflow-y-auto max-h-[800px]">

@@ -107,7 +107,7 @@ export default function Reading() {
             <h1 className="text-3xl font-bold tracking-tight">Reading Practice</h1>
             <Button onClick={handleGenerate} disabled={isGenerating} variant="outline" size="sm" className="gap-2 border-primary/50 text-primary hover:bg-primary/10">
               {isGenerating && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isGenerating ? "Generating Full Test..." : "AI Generate New (Passages 1-3)"}
+              {isGenerating ? "Generating Full Test..." : "Generate Full Test (Passages 1-3)"}
             </Button>
           </div>
           <p className="text-muted-foreground mt-2">Full Academic Reading Test ({totalQuestions} Questions)</p>
@@ -138,7 +138,7 @@ export default function Reading() {
             <CardTitle className="text-xl">{currentPassage.title}</CardTitle>
             <div className="flex gap-2 mt-2">
               <Badge variant="outline">Academic Passage {activeIndex + 1}</Badge>
-              <Badge variant="secondary">AI Generated</Badge>
+              <Badge variant="secondary">Full Test Section</Badge>
             </div>
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto pt-6 leading-[1.8] text-base sm:text-[17px] font-serif">

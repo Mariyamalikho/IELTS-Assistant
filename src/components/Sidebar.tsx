@@ -13,7 +13,7 @@ import { supabase } from "@/lib/supabase"
 
 const navItems = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "Mock Exam", path: "/simulation", icon: Trophy },
+  { name: "Full Mock Exam", path: "/simulation", icon: Trophy },
   { name: "Reading", path: "/reading", icon: BookOpen },
   { name: "Writing", path: "/writing", icon: PenTool },
   { name: "Listening", path: "/listening", icon: Headphones },
@@ -30,44 +30,43 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="w-64 border-r border-border bg-card flex flex-col hidden md:flex">
-      <div className="p-6 flex items-center gap-3 border-b border-border/50">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-          <GraduationCap className="h-6 w-6 text-primary" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-primary">IELTS Assistant</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">Band 8+ Achiever</p>
+    <aside className="w-64 border-r border-border bg-card flex flex-col hidden md:flex shrink-0">
+      <div className="p-5 flex items-center gap-3 border-b border-border">
+        <img src="/favicon.svg" alt="IELTS Assistant Crest" className="h-9 w-9 rounded-md shrink-0" />
+        <div className="min-w-0">
+          <h2 className="text-base font-semibold tracking-tight text-foreground truncate">IELTS Assistant</h2>
+          <p className="text-xs text-muted-foreground truncate">Academic & General Prep</p>
         </div>
       </div>
       
-      <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
             aria-label={`Navigate to ${item.name}`}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-md text-sm font-medium transition-colors ${
                 isActive 
-                  ? "bg-primary text-primary-foreground shadow-sm" 
+                  ? "bg-primary text-primary-foreground shadow-xs" 
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`
             }
           >
-            <item.icon className="w-5 h-5" />
-            {item.name}
+            <item.icon className="w-4 h-4 shrink-0" />
+            <span>{item.name}</span>
           </NavLink>
         ))}
       </nav>
-      <div className="p-4 border-t space-y-4">
+
+      <div className="p-3 border-t border-border">
         <button 
           onClick={handleLogout}
           aria-label="Logout of account"
-          className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors"
+          className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-destructive rounded-md hover:bg-destructive/10 transition-colors"
         >
           <LogOut className="w-4 h-4" />
-          Logout
+          <span>Sign Out</span>
         </button>
       </div>
     </aside>

@@ -149,19 +149,19 @@ export default function Listening() {
           <h1 className="text-3xl font-bold tracking-tight">Listening Practice</h1>
           <Button onClick={handleGenerate} disabled={isGenerating} variant="outline" size="sm" className="gap-2 border-primary/50 text-primary hover:bg-primary/10 w-full sm:w-auto">
             {isGenerating && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isGenerating ? "Generating Full Test..." : "AI Generate New Test (Parts 1-4)"}
+            {isGenerating ? "Generating Full Test..." : "Generate Practice Test (Parts 1-4)"}
           </Button>
         </div>
       </div>
 
-      <Card className="bg-gradient-to-r from-primary/10 to-transparent border-primary/20">
-        <CardContent className="p-8 flex items-center justify-between">
+      <Card className="border shadow-xs">
+        <CardContent className="p-6 flex items-center justify-between">
           <div className="flex flex-col gap-4 w-full">
             <div className="flex items-center gap-4">
               <div>
                 <div className="text-xl font-bold mb-2">Full IELTS Listening Test</div>
                 <div className="flex flex-wrap gap-2 items-center">
-                  <Badge variant="outline">{isCustomAudio ? "Local File" : "AI Synthesized"}</Badge>
+                  <Badge variant="outline">{isCustomAudio ? "Local File" : "Standard Audio"}</Badge>
                   <Badge variant="secondary" className="truncate max-w-[150px] sm:max-w-[200px]" title={audioName}>
                     {isCustomAudio ? audioName : "AI Voices"}
                   </Badge>
