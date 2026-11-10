@@ -43,12 +43,10 @@ export function MobileNav() {
         </div>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0 flex flex-col">
-        <div className="p-6 flex items-center gap-3 border-b border-border/50">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-            <GraduationCap className="h-6 w-6 text-primary" />
-          </div>
+        <div className="p-5 flex items-center gap-3 border-b border-border">
+          <img src="/favicon.svg" alt="IELTS Assistant" className="h-8 w-8 rounded-md shrink-0" />
           <div>
-            <h2 className="text-xl font-bold tracking-tight text-primary">IELTS Assistant</h2>
+            <h2 className="text-base font-semibold tracking-tight text-foreground">IELTS Assistant</h2>
           </div>
         </div>
         

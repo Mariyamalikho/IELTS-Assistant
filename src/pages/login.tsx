@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Loader2, GraduationCap } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -35,11 +35,9 @@ export default function Login() {
     <div className="flex h-screen w-full items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-2 text-center pb-6">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
-            <GraduationCap className="h-6 w-6 text-primary" />
-          </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">Welcome Back</CardTitle>
-          <CardDescription>Enter your email and password to access your IELTS dashboard</CardDescription>
+          <img src="/favicon.svg" alt="IELTS Assistant" className="h-12 w-12 mx-auto rounded-lg mb-2" />
+          <CardTitle className="text-2xl font-bold tracking-tight">Candidate Portal</CardTitle>
+          <CardDescription>Enter your credentials to access your IELTS preparation dashboard</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

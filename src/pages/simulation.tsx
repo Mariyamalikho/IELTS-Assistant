@@ -385,7 +385,7 @@ export default function Simulation() {
       <div className="flex flex-col items-center justify-center h-[80vh] gap-6 text-center">
         <Loader2 className="w-16 h-16 animate-spin text-primary" />
         <h2 className="text-2xl font-bold">Exam Complete!</h2>
-        <p className="text-muted-foreground">Gemini is evaluating your responses. This may take a minute...</p>
+        <p className="text-muted-foreground">Evaluating your responses according to official band descriptors. Please wait...</p>
       </div>
     )
   }
@@ -770,18 +770,17 @@ export default function Simulation() {
             <h2 className="text-2xl font-bold text-center mb-8">Speaking Test Simulation</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <Card className="bg-black text-white overflow-hidden border-0 shadow-2xl relative aspect-video flex items-center justify-center">
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/60">
-                  <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mb-4">
-                    <Headphones className="w-12 h-12 text-primary" />
+              <Card className="bg-slate-950 text-white overflow-hidden border shadow-sm relative aspect-video flex items-center justify-center">
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/40">
+                  <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-3">
+                    <Headphones className="w-10 h-10 text-primary" />
                   </div>
-                  <p className="font-semibold text-lg">Examiner</p>
-                  <p className="text-sm text-gray-400">Online Call</p>
+                  <p className="font-semibold text-base">Examiner Audio</p>
+                  <p className="text-xs text-slate-400">Standard Test Call</p>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-20" />
               </Card>
 
-              <Card className="bg-black text-white overflow-hidden border-0 shadow-2xl relative aspect-video flex items-center justify-center">
+              <Card className="bg-slate-950 text-white overflow-hidden border shadow-sm relative aspect-video flex items-center justify-center">
                 <video 
                   ref={videoRef}
                   className="w-full h-full object-cover scale-x-[-1]"
@@ -790,13 +789,13 @@ export default function Simulation() {
                 />
                 {!isRecording && !speakingAudioBase64 && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/80">
-                    <p className="font-semibold text-lg mb-4 text-center px-4">Camera feed will appear here</p>
+                    <p className="font-semibold text-base mb-4 text-center px-4">Camera feed will appear here</p>
                     <Button 
                       size="lg" 
-                      className="bg-primary hover:bg-primary/90 text-white shadow-xl transition-all hover:scale-105"
+                      className="bg-primary hover:bg-primary/90 text-white shadow-sm"
                       onClick={startRecording}
                     >
-                      <Mic className="w-5 h-5 mr-2" /> Start Call (Record Video)
+                      <Mic className="w-4 h-4 mr-2" /> Start Recording
                     </Button>
                   </div>
                 )}

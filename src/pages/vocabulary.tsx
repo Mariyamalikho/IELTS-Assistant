@@ -94,7 +94,7 @@ export default function Vocabulary() {
     try {
       const newWords = await generateDailyVocabulary();
       if (!Array.isArray(newWords)) {
-        throw new Error("Gemini returned invalid format (not an array). Try again.");
+        throw new Error("Vocabulary service returned an invalid format. Please try again.");
       }
       
       const insertData: Vocab[] = newWords.map((w: any) => ({
@@ -190,7 +190,7 @@ export default function Vocabulary() {
     return (
       <div className="flex flex-col h-full items-center justify-center gap-4 text-muted-foreground">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p>{isGenerating ? "Gemini is generating your daily 10 IELTS words..." : "Loading flashcards..."}</p>
+        <p>{isGenerating ? "Preparing your daily vocabulary study list..." : "Loading flashcards..."}</p>
       </div>
     )
   }
@@ -238,7 +238,7 @@ export default function Vocabulary() {
           onClick={() => setIsFlipped(!isFlipped)}
         >
           {!isFlipped ? (
-            <Card className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 shadow-xl hover:shadow-primary/20 transition-shadow">
+            <Card className="absolute inset-0 flex items-center justify-center bg-card border shadow-xs hover:border-primary/40 transition-colors">
               <CardContent className="p-8 sm:p-12 text-center">
                 <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tighter mb-4 flex items-center justify-center gap-4">
                   {currentCard.word}
@@ -258,7 +258,7 @@ export default function Vocabulary() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="absolute inset-0 flex items-center justify-center bg-card border-2 border-primary/40 shadow-xl overflow-y-auto">
+            <Card className="absolute inset-0 flex items-center justify-center bg-card border shadow-xs overflow-y-auto">
               <CardContent className="p-6 sm:p-8 text-center flex flex-col gap-4 w-full h-full justify-center animate-in fade-in zoom-in-95 duration-200">
                 <div>
                   <h3 className="text-sm font-semibold text-primary uppercase tracking-widest mb-1">Meaning</h3>

@@ -154,7 +154,7 @@ export default function Writing() {
           </div>
           <Button onClick={handleGeneratePrompt} disabled={isGenerating} variant="outline" size="sm" className="ml-4 gap-2 border-primary/50 text-primary">
             {isGenerating && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isGenerating ? "Generating..." : "AI Generate New Prompt"}
+            {isGenerating ? "Generating..." : "Generate New Prompt"}
           </Button>
         </div>
         
@@ -264,7 +264,7 @@ export default function Writing() {
                 className="gap-2"
               >
                 {isEvaluating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {isEvaluating ? "Evaluating with AI..." : "Submit for Grading"}
+                {isEvaluating ? "Evaluating Submission..." : "Submit for Evaluation"}
               </Button>
             </div>
           </CardContent>
