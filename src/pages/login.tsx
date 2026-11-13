@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
+import { PageMeta } from '@/components/PageMeta'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -33,9 +34,14 @@ export default function Login() {
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-muted/30 p-4">
+      <PageMeta
+        title="Candidate Portal Login"
+        description="Sign in to your IELTS Assistant preparation portal to access full mock exams, band score tracking, and timed practice modules."
+        canonicalPath="/login"
+      />
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-2 text-center pb-6">
-          <img src="/favicon.svg" alt="IELTS Assistant" className="h-12 w-12 mx-auto rounded-lg mb-2" />
+          <img src="/favicon.svg" alt="IELTS Assistant" width="48" height="48" className="h-12 w-12 mx-auto rounded-lg mb-2" />
           <CardTitle className="text-2xl font-bold tracking-tight">Candidate Portal</CardTitle>
           <CardDescription>Enter your credentials to access your IELTS preparation dashboard</CardDescription>
         </CardHeader>

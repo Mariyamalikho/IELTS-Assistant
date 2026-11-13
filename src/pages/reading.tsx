@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { PageMeta } from '@/components/PageMeta'
 import { generateReadingPassage } from '@/lib/gemini'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -101,22 +102,27 @@ export default function Reading() {
 
   return (
     <div className="flex flex-col h-full gap-6 p-4">
-      <div className="flex justify-between items-end">
+      <PageMeta
+        title="Academic Reading Practice & Full Passages"
+        description="IELTS Academic and General Training Reading test practice with authentic passages, true/false/not given questions, and timed exam conditions."
+        canonicalPath="/reading"
+      />
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
-          <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-bold tracking-tight">Reading Practice</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Reading Practice</h1>
             <Button onClick={handleGenerate} disabled={isGenerating} variant="outline" size="sm" className="gap-2 border-primary/50 text-primary hover:bg-primary/10">
               {isGenerating && <Loader2 className="w-4 h-4 animate-spin" />}
               {isGenerating ? "Generating Full Test..." : "Generate Full Test (Passages 1-3)"}
             </Button>
           </div>
-          <p className="text-muted-foreground mt-2">Full Academic Reading Test ({totalQuestions} Questions)</p>
+          <p className="text-sm text-muted-foreground mt-1">Full Academic Reading Test ({totalQuestions} Questions)</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => setIsActive(!isActive)}>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button variant="outline" size="icon" onClick={() => setIsActive(!isActive)} aria-label={isActive ? "Pause timer" : "Start timer"}>
             {isActive ? <Pause className="w-4 h-4 text-destructive" /> : <Play className="w-4 h-4 text-green-500" />}
           </Button>
-          <div className="flex items-center gap-2 bg-background px-4 py-2 rounded-md border text-xl font-mono min-w-[120px]">
+          <div className="flex items-center gap-2 bg-background px-3 sm:px-4 py-2 rounded-md border text-lg sm:text-xl font-mono min-w-[110px]">
             <Clock className={`w-5 h-5 ${isActive ? 'text-destructive animate-pulse' : 'text-primary'}`} />
             <span>{formatTime(timeLeft)}</span>
           </div>

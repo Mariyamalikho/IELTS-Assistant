@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { PageMeta } from '@/components/PageMeta'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Loader2, CheckCircle, Volume2, RotateCcw } from 'lucide-react'
@@ -189,6 +190,11 @@ export default function Vocabulary() {
   if (isLoading || isGenerating) {
     return (
       <div className="flex flex-col h-full items-center justify-center gap-4 text-muted-foreground">
+        <PageMeta
+          title="Academic Vocabulary & Spaced Repetition"
+          description="Master high-frequency Academic Word List (AWL) vocabulary with SM-2 spaced repetition flashcards, contextual definitions, and native pronunciation."
+          canonicalPath="/vocabulary"
+        />
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p>{isGenerating ? "Preparing your daily vocabulary study list..." : "Loading flashcards..."}</p>
       </div>
@@ -198,6 +204,11 @@ export default function Vocabulary() {
   if (reviewComplete || vocabList.length === 0) {
     return (
       <div className="flex flex-col h-full items-center justify-center gap-4 text-center mx-auto bg-pattern rounded-2xl p-8 border border-border/50">
+        <PageMeta
+          title="Academic Vocabulary & Spaced Repetition"
+          description="Master high-frequency Academic Word List (AWL) vocabulary with SM-2 spaced repetition flashcards, contextual definitions, and native pronunciation."
+          canonicalPath="/vocabulary"
+        />
         <div className="w-24 h-24 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mb-4">
           <CheckCircle className="w-12 h-12" />
         </div>
@@ -222,6 +233,11 @@ export default function Vocabulary() {
 
   return (
     <div className="flex flex-col h-full gap-6 p-4 max-w-4xl mx-auto">
+      <PageMeta
+        title="Academic Vocabulary & Spaced Repetition"
+        description="Master high-frequency Academic Word List (AWL) vocabulary with SM-2 spaced repetition flashcards, contextual definitions, and native pronunciation."
+        canonicalPath="/vocabulary"
+      />
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Daily Review</h1>

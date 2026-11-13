@@ -1,9 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield } from "lucide-react"
+import { PageMeta } from "@/components/PageMeta"
 
 export default function PrivacyPolicy() {
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 animate-in fade-in duration-500">
+      <PageMeta
+        title="Candidate Privacy Policy & Data Security"
+        description="Learn about our candidate data privacy standards, local-first client storage, encrypted cloud synchronization, and data deletion rights."
+        canonicalPath="/privacy"
+      />
       <div className="flex items-center gap-3 mb-8">
         <div className="p-3 bg-primary/10 text-primary rounded-full">
           <Shield className="w-8 h-8" />

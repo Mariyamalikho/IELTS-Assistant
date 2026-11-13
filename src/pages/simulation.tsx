@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { PageMeta } from '@/components/PageMeta'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Loader2, Clock, Play, Mic, FileText, Headphones, Trophy, AlertTriangle, ArrowRight } from 'lucide-react'
@@ -343,7 +344,8 @@ export default function Simulation() {
 
   // --- Render ---
 
-  if (stage === 'setup') {
+  const renderStageContent = () => {
+    if (stage === 'setup') {
     return (
       <div className="flex flex-col items-center justify-center h-[80vh] max-w-2xl mx-auto text-center gap-8">
         <div className="w-24 h-24 bg-primary/20 text-primary rounded-full flex items-center justify-center">
@@ -869,5 +871,17 @@ export default function Simulation() {
 
       </div>
     </div>
+    )
+  }
+
+  return (
+    <>
+      <PageMeta
+        title={`Full IELTS Mock Examination${stage !== 'setup' ? ` - ${stage.charAt(0).toUpperCase() + stage.slice(1)}` : ''}`}
+        description="Comprehensive 3-hour IELTS simulated examination with timed Listening, Reading, Writing, and Speaking sections evaluated under official test standards."
+        canonicalPath="/simulation"
+      />
+      {renderStageContent()}
+    </>
   )
 }

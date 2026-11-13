@@ -37,14 +37,19 @@ export function MobileNav() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger>
-        <div className="md:hidden inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9">
+        <div 
+          role="button"
+          tabIndex={0}
+          aria-label="Toggle navigation menu"
+          className="md:hidden inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring hover:bg-accent hover:text-accent-foreground min-h-[44px] min-w-[44px]"
+        >
           <Menu className="w-5 h-5" />
           <span className="sr-only">Toggle navigation menu</span>
         </div>
       </SheetTrigger>
       <SheetContent side="left" className="w-64 p-0 flex flex-col">
         <div className="p-5 flex items-center gap-3 border-b border-border">
-          <img src="/favicon.svg" alt="IELTS Assistant" className="h-8 w-8 rounded-md shrink-0" />
+          <img src="/favicon.svg" alt="IELTS Assistant" width="32" height="32" className="h-8 w-8 rounded-md shrink-0" />
           <div>
             <h2 className="text-base font-semibold tracking-tight text-foreground">IELTS Assistant</h2>
           </div>
@@ -57,7 +62,7 @@ export function MobileNav() {
               to={item.path}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                `flex items-center gap-3 px-4 py-3 min-h-[44px] rounded-lg text-sm font-medium transition-colors ${
                   isActive 
                     ? "bg-primary text-primary-foreground shadow-sm" 
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -72,7 +77,7 @@ export function MobileNav() {
         <div className="p-4 border-t space-y-4">
           <button 
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors"
+            className="flex w-full items-center gap-3 px-4 py-3 min-h-[44px] rounded-lg text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             Logout

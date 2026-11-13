@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { PageMeta } from '@/components/PageMeta'
 import { useTimer } from '@/hooks/useTimer'
 import { useAudioRecorder } from '@/hooks/useAudioRecorder'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
@@ -148,6 +149,11 @@ export default function Speaking() {
 
   return (
     <div className="flex flex-col h-full gap-6 p-4">
+      <PageMeta
+        title="Speaking Interview & Long Turn Drills"
+        description="IELTS Speaking test preparation covering Part 1 interview, Part 2 long turn cue card tasks, and Part 3 discussion with pronunciation and fluency scoring."
+        canonicalPath="/speaking"
+      />
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Speaking Practice</h1>

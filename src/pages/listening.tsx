@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { PageMeta } from '@/components/PageMeta'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -144,6 +145,11 @@ export default function Listening() {
 
   return (
     <div className="flex flex-col gap-6 p-4 max-w-4xl mx-auto w-full">
+      <PageMeta
+        title="Listening Audio Practice & Question Drills"
+        description="IELTS Listening practice covering Parts 1 through 4, multi-speaker conversational dialogs, academic lectures, and completion tasks."
+        canonicalPath="/listening"
+      />
       <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <h1 className="text-3xl font-bold tracking-tight">Listening Practice</h1>
