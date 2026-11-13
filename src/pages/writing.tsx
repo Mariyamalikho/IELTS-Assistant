@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { PageMeta } from '@/components/PageMeta'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -146,19 +147,24 @@ export default function Writing() {
 
   return (
     <div className="flex flex-col h-full gap-6 p-4">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
+      <PageMeta
+        title="Writing Task 1 & Task 2 Practice"
+        description="IELTS Academic and General Writing practice with interactive Task 1 visual charts, Task 2 essay prompts, timed writing, and official band criteria evaluations."
+        canonicalPath="/writing"
+      />
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Writing Practice</h1>
-            <p className="text-muted-foreground">Train your IELTS Writing skills under timed conditions.</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Writing Practice</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Train your IELTS Writing skills under timed conditions.</p>
           </div>
-          <Button onClick={handleGeneratePrompt} disabled={isGenerating} variant="outline" size="sm" className="ml-4 gap-2 border-primary/50 text-primary">
+          <Button onClick={handleGeneratePrompt} disabled={isGenerating} variant="outline" size="sm" className="gap-2 border-primary/50 text-primary self-start sm:self-auto">
             {isGenerating && <Loader2 className="w-4 h-4 animate-spin" />}
             {isGenerating ? "Generating..." : "Generate New Prompt"}
           </Button>
         </div>
         
-        <Tabs value={taskType} onValueChange={handleTaskSwitch} className="w-[400px]">
+        <Tabs value={taskType} onValueChange={handleTaskSwitch} className="w-full sm:w-[360px] md:w-[400px]">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="task1">Task 1 (20 mins)</TabsTrigger>
             <TabsTrigger value="task2">Task 2 (40 mins)</TabsTrigger>

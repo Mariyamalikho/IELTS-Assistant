@@ -32,7 +32,7 @@ export function Sidebar() {
   return (
     <aside className="w-64 border-r border-border bg-card flex flex-col hidden md:flex shrink-0">
       <div className="p-5 flex items-center gap-3 border-b border-border">
-        <img src="/favicon.svg" alt="IELTS Assistant Crest" className="h-9 w-9 rounded-md shrink-0" />
+        <img src="/favicon.svg" alt="IELTS Assistant Crest" width="36" height="36" className="h-9 w-9 rounded-md shrink-0" />
         <div className="min-w-0">
           <h2 className="text-base font-semibold tracking-tight text-foreground truncate">IELTS Assistant</h2>
           <p className="text-xs text-muted-foreground truncate">Academic & General Prep</p>

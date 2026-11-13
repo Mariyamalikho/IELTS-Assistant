@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from "react"
+import { PageMeta } from "@/components/PageMeta"
 import {
   Card,
   CardContent,
@@ -162,6 +163,11 @@ export default function Dashboard() {
 
   return (
     <main className="space-y-6 sm:space-y-8" aria-live="polite">
+      <PageMeta
+        title="Candidate Dashboard & Performance Overview"
+        description="Review your IELTS preparation analytics, verified band scores across Reading, Writing, Listening, and Speaking modules, and daily practice consistency."
+        canonicalPath="/dashboard"
+      />
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Performance Overview</h1>
